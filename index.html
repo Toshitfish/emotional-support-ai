@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>情緒支持平臺 - Emotional Support Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 800px;
+            width: 90%;
+            padding: 40px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            color: #1f77b4;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .content {
+            margin: 30px 0;
+        }
+        
+        .chat-box {
+            background: #f5f5f5;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .user-message {
+            background: #1f77b4;
+            color: white;
+            margin-left: 20px;
+            text-align: right;
+        }
+        
+        .assistant-message {
+            background: #e7f3ff;
+            color: #000;
+            margin-right: 20px;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+        
+        button {
+            padding: 12px 30px;
+            background: #1f77b4;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            background: #1a5f9e;
+        }
+        
+        .resources {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .resources h3 {
+            color: #d39e00;
+            margin-bottom: 15px;
+        }
+        
+        .resource-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+        }
+        
+        .crisis-alert {
+            background: #ff6b6b;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💙 情緒支持平臺</h1>
+            <p>Emotional Support Hub</p>
+            <p style="font-size: 0.9em; color: #999; margin-top: 10px;">為學生提供 24/7 情感支持</p>
+        </div>
+        
+        <div class="crisis-alert">
+            🆘 如果你正在經歷危機，請立即聯絡求助熱線！
+        </div>
+        
+        <div class="content">
+            <div class="chat-box" id="chatBox">
+                <div class="message assistant-message">
+                    你好！👋 歡迎來到情緒支持平臺。我很高興見到你。你今天怎麼樣？
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <input type="text" id="userInput" placeholder="分享你的感受... / Share your feelings..." />
+                <button onclick="sendMessage()">發送 | Send</button>
+            </div>
+        </div>
+        
+        <div class="resources">
+            <h3>🆘 緊急求助資源 | Crisis Resources</h3>
+            
+            <div class="resource-item">
+                <strong>🇭🇰 香港撒瑪利亞防止撥款會</strong><br>
+                24小時熱線: <strong>2389 2222</strong><br>
+                WhatsApp: +852 5162 0000
+            </div>
+            
+            <div class="resource-item">
+                <strong>🇹🇼 台灣安心專線</strong><br>
+                24小時: <strong>1925</strong><br>
+                安心講 APP (文字諮詢)
+            </div>
+            
+            <div class="resource-item">
+                <strong>🇨🇳 中國大陸心理援助</strong><br>
+                全國熱線: <strong>400-161-9995</strong>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>💙 <strong>記住：你並不孤獨。You are not alone.</strong></p>
+            <p style="font-size: 0.9em; margin-top: 10px;">
+                此平台的AI助手不能替代專業心理健康治療。<br>
+                This AI assistant cannot replace professional mental health treatment.
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const chatBox = document.getElementById('chatBox');
+            
+            if (input.value.trim() === '') return;
+            
+            // Add user message
+            const userMsg = document.createElement('div');
+            userMsg.className = 'message user-message';
+            userMsg.textContent = input.value;
+            chatBox.appendChild(userMsg);
+            
+            // Simulate assistant response
+            setTimeout(() => {
+                const assistantMsg = document.createElement('div');
+                assistantMsg.className = 'message assistant-message';
+                assistantMsg.textContent = '感謝你的分享。我正在聆聽。告訴我更多有關你的感受。';
+                chatBox.appendChild(assistantMsg);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 500);
+            
+            input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+        
+        // Allow Enter key to send
+        document.getElementById('userInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>
