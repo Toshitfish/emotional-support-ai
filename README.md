@@ -1,171 +1,143 @@
-# Emotional Support Website - Next.js Frontend
+# 💙 情緒支持平臺 - Emotional Support Website
 
-Modern frontend for the Emotional Support Website, built with Next.js and deployed on Vercel.
+一個為學生提供情緒支持和防止自殺干預的網站，**使用真實 AI！**  
+A website providing emotional support and suicide prevention intervention for students, **powered by real AI!**
 
-## 🚀 Quick Start
+## 🚀 Now with Real AI (Claude)
 
-### Prerequisites
-- Node.js 16+ 
-- npm or yarn
-- Python backend running (Flask API)
+✨ **智能分析** - 不再是簡單的關鍵詞匹配，真正理解學生的處境  
+✨ **個性化支持** - 根據具體情況給出針對性的建議  
+✨ **自然對話** - 像與真人諮詢師交談一樣  
+✨ **記憶對話** - AI 記住對話歷史，提供連貫的支持  
 
-### Installation
+[詳細了解 → 查看 CLAUDE_AI_GUIDE.md](CLAUDE_AI_GUIDE.md)
 
-```bash
-# Navigate to the nextjs-app folder
-cd nextjs-app
+## 功能 | Features
 
-# Install dependencies
-npm install
+✅ **AI 聊天助手** - 24/7 情緒支持  
+✅ **Crisis 資源** - 立即求助按鈕和熱線號碼  
+✅ **匿名聊天** - 安全私密的環境  
+✅ **多語言支持** - 中文和英文  
+✅ **即時危機檢測** - 自動識別危機情況並提供幫助  
 
-# Create .env.local with your backend URL
-cp .env.example .env.local
+## 快速開始 | Quick Start
 
-# Edit .env.local if needed
-# PYTHON_BACKEND_URL=http://localhost:5000
-```
-
-### Development
+### 安裝依賴 | Install Dependencies
 
 ```bash
-# Start development server
-npm run dev
-
-# Open http://localhost:3000 in your browser
+pip install -r requirements.txt
 ```
 
-### Build for Production
+### 運行應用 | Run the Application
 
 ```bash
-npm run build
-npm run start
+streamlit run app.py
 ```
 
-## 📡 Python Backend Integration
+應用將在 `http://localhost:8501` 開啟
 
-This Next.js app expects a Python Flask backend running on port 5000 (or custom URL in `.env.local`).
+## 項目結構 | Project Structure
 
-The backend should provide an endpoint:
 ```
-POST /api/chat
-{
-  "message": "user message",
-  "assistant_type": "openai" | "claude" | "gemini"
-}
-
-Response:
-{
-  "response": "AI response text"
-}
+emotional_support_website/
+├── app.py                 # 主應用 | Main Streamlit app
+├── ai_assistant.py       # AI助手邏輯 | AI assistant logic
+├── requirements.txt      # 依賴 | Dependencies
+└── README.md            # 本文件 | This file
 ```
 
-### Starting the Python Backend
+## 特性詳解 | Feature Details
 
-From the parent directory:
+### 1. AI 助手 (ai_assistant.py)
+
+- **情感分析** - 檢測用戶的情緒狀態
+- **危機檢測** - 識別可能的自殺傾向或自害行為
+- **個性化回應** - 根據檢測到的情感提供支持
+- **資源推薦** - 建議專業幫助
+
+### 2. 網頁介面 (app.py)
+
+- **聊天界面** - 簡單直觀的對話框
+- **側邊欄資源** - 香港、台灣等地的求助熱線
+- **聊天歷史** - 保存對話記錄用於支持
+- **安全警告** - 重要的免責聲明和安全提示
+
+### 3. 危機干預
+
+當檢測到以下關鍵詞時，系統會立即提供緊急幫助：
+- 自殺相關詞彙
+- 自害相關詞彙
+- 絕望相關詞彙
+
+## 求助資源 | Crisis Resources
+
+### 香港 | Hong Kong
+- **撒瑪利亞防止撥款會**: 2389 2222 (24小時)
+- **生命熱線**: lifelinecentre@samaritans.org.hk
+- **WhatsApp**: +852 5162 0000
+
+### 台灣 | Taiwan
+- **安心專線**: 1925 (24小時)
+- **安心講 APP**: 用於文字諮詢
+
+### 中國大陸 | Mainland China
+- **全國心理援助熱線**: 400-161-9995
+
+## 未來改進 | Future Enhancements
+
+🔄 **計畫中的功能**:
+- [ ] 更先進的NLP模型集成
+- [ ] 用戶反饋系統
+- [ ] 心理健康資源庫
+- [ ] 匿名用戶群體支持功能
+- [ ] 專業心理治療師推薦系統
+- [ ] 多語言支持擴展
+- [ ] 情感追蹤數據分析（用於改進）
+
+## 重要提示 | Important Notes
+
+⚠️ **此平台不是專業醫療服務的替代品**
+- This platform is NOT a replacement for professional medical services
+- 如有嚴重心理健康問題，請立即尋求專業幫助
+- 所有敏感信息應被視為匿名
+- 請定期與心理健康專業人士進行諮詢
+
+## 部署 | Deployment
+
+### 本地運行 | Local Deployment
 ```bash
-python app.py
-# or
-python START_HERE.py
+streamlit run app.py
 ```
 
-## 🔗 Deploy to Vercel
+### Streamlit Cloud 部署 | Deploy on Streamlit Cloud
+1. 將代碼推送到 GitHub
+2. 登錄 streamlit.io
+3. 創建新應用，選擇您的 GitHub 倉庫
+4. 設置 app.py 作為主文件
 
-### Option 1: Using Vercel CLI
-
+### Docker 部署 | Docker Deployment
 ```bash
-npm install -g vercel
-
-# Deploy
-vercel
-
-# Set environment variables when prompted
-# PYTHON_BACKEND_URL=https://your-backend-url.com
+docker build -t emotional-support .
+docker run -p 8501:8501 emotional-support
 ```
 
-### Option 2: GitHub Integration (Recommended)
+## 貢獻 | Contributing
 
-1. Push this folder to GitHub
-2. Go to [Vercel Dashboard](https://vercel.com/dashboard)
-3. Click "New Project"
-4. Select your GitHub repository
-5. Set environment variables:
-   - `PYTHON_BACKEND_URL`: Your Python backend URL (Flask, Render, Heroku, etc.)
-6. Deploy!
+我們歡迎貢獻！請通過以下方式參與：
+- 報告 Bug
+- 提建議改進
+- 添加新的求助資源
+- 改進AI響應邏輯
 
-### Option 3: Using Vercel UI
+## 許可 | License
 
-1. Go to [vercel.com](https://vercel.com)
-2. Click "New Project"
-3. Choose "Other" and upload the nextjs-app folder
-4. Configure environment variables
-5. Deploy
+MIT License - 自由使用和修改
 
-## 🔐 Environment Variables
+## 聯絡方式 | Contact
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| PYTHON_BACKEND_URL | URL to your Python Flask backend | `http://localhost:5000` or `https://api.example.com` |
-| NEXT_PUBLIC_API_URL | Public API URL (for client-side calls) | `http://localhost:3000` |
+如有任何問題或建議，請聯絡項目維護者。
 
-## 📁 Project Structure
+---
 
-```
-nextjs-app/
-├── pages/
-│   ├── _app.js           # App wrapper
-│   ├── _document.js      # HTML document
-│   ├── index.js          # Home page
-│   └── api/
-│       └── chat.js       # API proxy to Python backend
-├── styles/
-│   └── globals.css       # Global Tailwind styles
-├── components/           # React components
-├── public/               # Static assets
-├── package.json
-├── next.config.js
-├── tailwind.config.js
-├── vercel.json          # Vercel deployment config
-└── .env.example         # Environment variables template
-```
-
-## 🎨 Styling
-
-This project uses **Tailwind CSS** for styling. Modify styles in:
-- `styles/globals.css` - Global styles
-- `pages/index.js` - Component styles
-
-## 🐛 Troubleshooting
-
-### Backend connection error
-- Make sure Python backend is running: `python app.py`
-- Check `PYTHON_BACKEND_URL` in `.env.local`
-- Ensure CORS is enabled in Python backend
-
-### Build fails on Vercel
-- Delete `node_modules` and `package-lock.json`
-- Run `npm install` locally
-- Commit and push changes
-
-### Page not loading
-- Check browser console for errors (F12)
-- Verify environment variables are set in Vercel dashboard
-- Check Vercel deployment logs
-
-## 📝 Next Steps
-
-1. ✅ Deploy to Vercel
-2. 📊 Add more pages (dashboard, settings, help)
-3. 💾 Add database for storing conversations
-4. 🔐 Add user authentication
-5. 📱 Mobile app version
-
-## 📚 Resources
-
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Vercel Documentation](https://vercel.com/docs)
-- [Tailwind CSS](https://tailwindcss.com)
-- [Deployment Guide](./DEPLOYMENT.md)
-
-## 📄 License
-
-Same as parent project
+**記住：你並不孤獨。💙**  
+**Remember: You are not alone. 💙**
