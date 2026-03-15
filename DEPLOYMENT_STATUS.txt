@@ -1,0 +1,4 @@
+Deployment Status: Live
+Date: March 15, 2026
+Backend: https://emotional-support-ai.onrender.com
+Frontend: https://emotional-support-ai.vercel.app
