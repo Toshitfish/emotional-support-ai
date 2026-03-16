@@ -20,8 +20,8 @@ COPY . .
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
 USER appuser
 
-# Expose port
-EXPOSE 8501
+# Expose port (Render will set PORT env variable)
+EXPOSE 5000
 
-# Run application
-CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+# Run Flask API application
+CMD ["python", "flask_api.py"]

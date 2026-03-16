@@ -158,6 +158,22 @@ def get_chat_history(session_id):
     return chat_storage.get(session_id, [])
 
 # Routes
+@app.route('/', methods=['GET'])
+def root():
+    """Root endpoint"""
+    return jsonify({
+        'message': 'Emotional Support AI API',
+        'version': '1.0',
+        'endpoints': {
+            'health': '/api/health',
+            'chat': '/api/chat',
+            'chat_history': '/api/chat-history/<session_id>',
+            'analyze': '/api/analyze',
+            'assistants': '/api/assistants',
+            'hotlines': '/api/hotlines'
+        }
+    })
+
 @app.route('/api/health', methods=['GET'])
 def health():
     """Health check endpoint"""
