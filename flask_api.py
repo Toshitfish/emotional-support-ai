@@ -240,7 +240,7 @@ def chat():
             return jsonify({'error': 'Message is required'}), 400
         
         message = data.get('message')
-        assistant_type = data.get('assistant_type', 'claude').lower()
+        assistant_type = data.get('assistant_type', 'openai').lower()
         session_id = data.get('session_id', 'default')
         region = data.get('region', 'HK')
         
@@ -251,26 +251,15 @@ def chat():
         # Save user message
         save_chat_message(session_id, 'user', message, user_sentiment, crisis_info)
         
-        # Get AI response
+        # Get AI response - use OpenAI if available
         response_text = None
         used_assistant = None
         
-        if assistant_type == 'openai' and get_openai_response:
+        if get_openai_response:
             response_text = get_openai_response(message)
             used_assistant = 'openai'
-        elif assistant_type == 'claude' and get_claude_response:
-            response_text = get_claude_response(message)
-            used_assistant = 'claude'
-        elif assistant_type == 'gemini' and get_gemini_response:
-            response_text = get_gemini_response(message)
-            used_assistant = 'gemini'
         else:
-            # Default to Claude if available
-            if get_claude_response:
-                response_text = get_claude_response(message)
-                used_assistant = 'claude'
-            else:
-                return jsonify({'error': 'No AI assistant available'}), 500
+            return jsonify({'error': 'OpenAI API not configured. Please set OPENAI_API_KEY.'}), 500
         
         if not response_text:
             return jsonify({'error': 'No response from AI service'}), 500
@@ -337,37 +326,16 @@ def analyze():
 
 @app.route('/api/assistants', methods=['GET'])
 def assistants():
-    """Get available assistants"""
-    available = []
-    
-    if get_claude_response:
-        available.append({
-            'name': 'claude',
-            'display': 'Claude',
-            'icon': '🧠'
-        })
-    
-    if get_openai_response:
-        available.append({
-            'name': 'openai',
-            'display': 'OpenAI GPT',
-            'icon': '🤖'
-        })
-    
-    if get_gemini_response:
-        available.append({
-            'name': 'gemini',
-            'display': 'Google Gemini',
-            'icon': '✨'
-        })
-    
+    """Get available assistants - only OpenAI for this deployment"""
     return jsonify({
-        'assistants': available,
-        'default': 'claude' if get_claude_response else (
-            'openai' if get_openai_response else (
-                'gemini' if get_gemini_response else None
-            )
-        )
+        'assistants': [
+            {
+                'name': 'openai',
+                'display': 'OpenAI GPT',
+                'icon': '🤖'
+            }
+        ],
+        'default': 'openai'
     })
 
 @app.route('/api/hotlines', methods=['GET'])

@@ -213,3 +213,11 @@ Remember: You're here to listen, support, and guide them toward help. You're not
 
 # For backward compatibility
 EmotionalSupportAssistant = RealEmotionalAIAssistant
+
+# Create global instance for Flask API
+_claude_assistant = RealEmotionalAIAssistant()
+
+def get_claude_response(message: str) -> str:
+    """Get response from Claude assistant (for Flask API)"""
+    return _claude_assistant.get_response(message)
+

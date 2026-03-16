@@ -216,3 +216,11 @@ Remember: You're here to listen, support, and guide them toward help. You're not
 
 # For backward compatibility
 EmotionalSupportAssistant = RealEmotionalAIAssistant
+
+# Create global instance for Flask API
+_gemini_assistant = RealEmotionalAIAssistant()
+
+def get_gemini_response(message: str) -> str:
+    """Get response from Gemini assistant (for Flask API)"""
+    return _gemini_assistant.get_response(message)
+

@@ -77,6 +77,11 @@
             background: #e74c3c;
         }
 
+        .ai-info {
+            font-size: 12px;
+            color: #666;
+        }
+
         .chat-box {
             flex: 1;
             overflow-y: auto;
@@ -227,15 +232,6 @@
             transform: none;
         }
 
-        .assistant-select {
-            padding: 12px 15px;
-            border: 1px solid #e1e5eb;
-            border-radius: 8px;
-            font-size: 14px;
-            background: white;
-            cursor: pointer;
-        }
-
         .error {
             background: #ffebee;
             color: #c82a3f;
@@ -282,12 +278,7 @@
                 <span class="status-dot" id="statusDot"></span>
                 <span id="statusText">Connecting...</span>
             </div>
-            <select class="assistant-select" id="assistantSelect">
-                <option value="claude">Claude (Default)</option>
-                <option value="openai">OpenAI GPT</option>
-                <option value="gemini">Google Gemini</option>
-            </select>
-            <div id="firebaseStatus"></div>
+            <div class="ai-info">🤖 Powered by OpenAI (GPT)</div>
         </div>
 
         <div class="chat-box" id="chatBox">
@@ -318,7 +309,6 @@
         const sendBtn = document.getElementById('sendBtn');
         const statusDot = document.getElementById('statusDot');
         const statusText = document.getElementById('statusText');
-        const assistantSelect = document.getElementById('assistantSelect');
 
         // Check API health on load
         window.addEventListener('load', checkHealth);
@@ -329,8 +319,6 @@
                 .then(data => {
                     statusDot.classList.remove('offline');
                     statusText.textContent = 'Connected to API ✓';
-                    document.getElementById('firebaseStatus').textContent = 
-                        data.firebase ? 'Firebase: Enabled' : 'Firebase: Disabled';
                 })
                 .catch(err => {
                     statusDot.classList.add('offline');
@@ -378,7 +366,7 @@
                     },
                     body: JSON.stringify({
                         message: message,
-                        assistant_type: assistantSelect.value,
+                        assistant_type: 'openai',
                         session_id: sessionId,
                         region: 'HK'
                     })
