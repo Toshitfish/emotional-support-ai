@@ -205,11 +205,19 @@ def api_root():
 @app.route('/api/health', methods=['GET'])
 def health():
     """Health check endpoint"""
+    openai_key_set = bool(os.getenv('OPENAI_API_KEY'))
+    openai_handler_loaded = get_openai_response is not None
+
     return jsonify({
         'status': 'ok',
         'environment': 'production',
         'message': 'Emotional Support API is running',
-        'firebase': FIREBASE_ENABLED
+        'firebase': FIREBASE_ENABLED,
+        'openai': {
+            'key_set': openai_key_set,
+            'handler_loaded': openai_handler_loaded,
+            'ready': openai_key_set and openai_handler_loaded
+        }
     })
 
 @app.route('/api/chat', methods=['POST'])
