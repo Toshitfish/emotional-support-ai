@@ -1,146 +1,272 @@
 <!DOCTYPE html>
-<html lang="zh-Hans">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>情緒支持平臺 - Emotional Support Hub</title>
+    <title>💙 情緒支持平臺 - Emotional Support Hub</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
+            padding: 20px;
         }
-        
+
         .container {
             background: white;
             border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
             max-width: 800px;
-            width: 90%;
-            padding: 40px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            height: 600px;
         }
-        
+
         .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px 15px 0 0;
             text-align: center;
-            margin-bottom: 40px;
         }
-        
+
         .header h1 {
-            color: #1f77b4;
-            font-size: 2.5em;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .status {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 20px;
+            background: #f0f2f5;
+            border-bottom: 1px solid #e1e5eb;
+            font-size: 13px;
+            color: #65676b;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #31a24c;
+        }
+
+        .status-dot.offline {
+            background: #e74c3c;
+        }
+
+        .chat-box {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            display: flex;
+            gap: 10px;
             margin-bottom: 10px;
         }
-        
-        .header p {
-            color: #666;
-            font-size: 1.1em;
+
+        .message.user {
+            justify-content: flex-end;
         }
-        
-        .content {
-            margin: 30px 0;
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 15px;
+            border-radius: 12px;
+            word-wrap: break-word;
         }
-        
-        .chat-box {
-            background: #f5f5f5;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            padding: 20px;
-            height: 300px;
-            overflow-y: auto;
-            margin-bottom: 20px;
-        }
-        
-        .message {
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 8px;
-        }
-        
-        .user-message {
-            background: #1f77b4;
+
+        .message.user .message-content {
+            background: #667eea;
             color: white;
-            margin-left: 20px;
-            text-align: right;
+            border-radius: 12px 0 12px 12px;
         }
-        
-        .assistant-message {
-            background: #e7f3ff;
-            color: #000;
-            margin-right: 20px;
+
+        .message.assistant .message-content {
+            background: #f0f2f5;
+            color: #333;
+            border-radius: 0 12px 12px 12px;
         }
-        
+
+        .message-time {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .crisis-alert {
+            background: #ffebee;
+            border-left: 4px solid #e74c3c;
+            padding: 12px;
+            border-radius: 8px;
+            color: #c82a3f;
+            font-weight: 500;
+            margin: 10px 0;
+        }
+
+        .crisis-alert strong {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                opacity: 0.3;
+                transform: translateY(0);
+            }
+            30% {
+                opacity: 1;
+                transform: translateY(-10px);
+            }
+        }
+
+        .input-area {
+            padding: 20px;
+            border-top: 1px solid #e1e5eb;
+            background: #f9f9f9;
+        }
+
         .input-group {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
         }
-        
-        input {
+
+        input[type="text"] {
             flex: 1;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1em;
+            padding: 12px 15px;
+            border: 1px solid #e1e5eb;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
         }
-        
+
+        input[type="text"]:focus {
+            border-color: #667eea;
+        }
+
         button {
             padding: 12px 30px;
-            background: #1f77b4;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 25px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        
+
         button:hover {
-            background: #1a5f9e;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
-        
-        .resources {
-            background: #fff3cd;
-            border: 2px solid #ffc107;
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 20px;
+
+        button:active {
+            transform: translateY(0);
         }
-        
-        .resources h3 {
-            color: #d39e00;
-            margin-bottom: 15px;
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
         }
-        
-        .resource-item {
-            margin: 10px 0;
-            padding: 10px;
-            background: white;
-            border-radius: 5px;
-        }
-        
-        .crisis-alert {
-            background: #ff6b6b;
-            color: white;
-            padding: 15px;
+
+        .assistant-select {
+            padding: 12px 15px;
+            border: 1px solid #e1e5eb;
             border-radius: 8px;
-            margin-bottom: 20px;
-            font-weight: bold;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
         }
-        
-        .footer {
-            text-align: center;
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 2px solid #eee;
-            color: #666;
+
+        .error {
+            background: #ffebee;
+            color: #c82a3f;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .sentiment-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        .sentiment-badge.positive {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .sentiment-badge.negative {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .sentiment-badge.neutral {
+            background: #e2e3e5;
+            color: #383d41;
         }
     </style>
 </head>
@@ -148,87 +274,187 @@
     <div class="container">
         <div class="header">
             <h1>💙 情緒支持平臺</h1>
-            <p>Emotional Support Hub</p>
-            <p style="font-size: 0.9em; color: #999; margin-top: 10px;">為學生提供 24/7 情感支持</p>
+            <p>Emotional Support Hub - We're here to listen and support you</p>
         </div>
-        
-        <div class="crisis-alert">
-            🆘 如果你正在經歷危機，請立即聯絡求助熱線！
-        </div>
-        
-        <div class="content">
-            <div class="chat-box" id="chatBox">
-                <div class="message assistant-message">
-                    你好！👋 歡迎來到情緒支持平臺。我很高興見到你。你今天怎麼樣？
-                </div>
+
+        <div class="status">
+            <div class="status-indicator">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="statusText">Connecting...</span>
             </div>
-            
+            <select class="assistant-select" id="assistantSelect">
+                <option value="claude">Claude (Default)</option>
+                <option value="openai">OpenAI GPT</option>
+                <option value="gemini">Google Gemini</option>
+            </select>
+            <div id="firebaseStatus"></div>
+        </div>
+
+        <div class="chat-box" id="chatBox">
+            <div style="text-align: center; color: #999; padding: 20px;">
+                <p>👋 Welcome! Start by typing a message below.</p>
+                <p style="font-size: 12px; margin-top: 10px;">Your messages are processed securely.</p>
+            </div>
+        </div>
+
+        <div class="input-area">
             <div class="input-group">
-                <input type="text" id="userInput" placeholder="分享你的感受... / Share your feelings..." />
-                <button onclick="sendMessage()">發送 | Send</button>
+                <input 
+                    type="text" 
+                    id="messageInput" 
+                    placeholder="Share how you're feeling... 💬" 
+                    autocomplete="off"
+                >
+                <button id="sendBtn" onclick="sendMessage()">Send</button>
             </div>
-        </div>
-        
-        <div class="resources">
-            <h3>🆘 緊急求助資源 | Crisis Resources</h3>
-            
-            <div class="resource-item">
-                <strong>🇭🇰 香港撒瑪利亞防止撥款會</strong><br>
-                24小時熱線: <strong>2389 2222</strong><br>
-                WhatsApp: +852 5162 0000
-            </div>
-            
-            <div class="resource-item">
-                <strong>🇹🇼 台灣安心專線</strong><br>
-                24小時: <strong>1925</strong><br>
-                安心講 APP (文字諮詢)
-            </div>
-            
-            <div class="resource-item">
-                <strong>🇨🇳 中國大陸心理援助</strong><br>
-                全國熱線: <strong>400-161-9995</strong>
-            </div>
-        </div>
-        
-        <div class="footer">
-            <p>💙 <strong>記住：你並不孤獨。You are not alone.</strong></p>
-            <p style="font-size: 0.9em; margin-top: 10px;">
-                此平台的AI助手不能替代專業心理健康治療。<br>
-                This AI assistant cannot replace professional mental health treatment.
-            </p>
         </div>
     </div>
-    
+
     <script>
-        function sendMessage() {
-            const input = document.getElementById('userInput');
-            const chatBox = document.getElementById('chatBox');
-            
-            if (input.value.trim() === '') return;
-            
-            // Add user message
-            const userMsg = document.createElement('div');
-            userMsg.className = 'message user-message';
-            userMsg.textContent = input.value;
-            chatBox.appendChild(userMsg);
-            
-            // Simulate assistant response
-            setTimeout(() => {
-                const assistantMsg = document.createElement('div');
-                assistantMsg.className = 'message assistant-message';
-                assistantMsg.textContent = '感謝你的分享。我正在聆聽。告訴我更多有關你的感受。';
-                chatBox.appendChild(assistantMsg);
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }, 500);
-            
-            input.value = '';
-            chatBox.scrollTop = chatBox.scrollHeight;
+        const API_URL = 'https://emotional-support-ai.onrender.com';
+        let sessionId = 'session_' + Date.now();
+        const chatBox = document.getElementById('chatBox');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const assistantSelect = document.getElementById('assistantSelect');
+
+        // Check API health on load
+        window.addEventListener('load', checkHealth);
+
+        function checkHealth() {
+            fetch(`${API_URL}/api/health`)
+                .then(res => res.json())
+                .then(data => {
+                    statusDot.classList.remove('offline');
+                    statusText.textContent = 'Connected to API ✓';
+                    document.getElementById('firebaseStatus').textContent = 
+                        data.firebase ? 'Firebase: Enabled' : 'Firebase: Disabled';
+                })
+                .catch(err => {
+                    statusDot.classList.add('offline');
+                    statusText.textContent = 'API Offline ✗';
+                    chatBox.innerHTML = '<div class="error">⚠️ Cannot connect to API. Please check your connection.</div>';
+                });
         }
-        
-        // Allow Enter key to send
-        document.getElementById('userInput').addEventListener('keypress', (e) => {
+
+        messageInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') sendMessage();
         });
+
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            // Add user message to chat
+            addMessage(message, 'user');
+            messageInput.value = '';
+            sendBtn.disabled = true;
+
+            // Show loading indicator
+            const loadingId = 'loading_' + Date.now();
+            chatBox.innerHTML += `
+                <div id="${loadingId}" class="message">
+                    <div class="message-content">
+                        <div class="loading">
+                            <span>AI is thinking</span>
+                            <div class="typing-dots">
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const response = await fetch(`${API_URL}/api/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        assistant_type: assistantSelect.value,
+                        session_id: sessionId,
+                        region: 'HK'
+                    })
+                });
+
+                document.getElementById(loadingId).remove();
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    addMessage(data.response, 'assistant', data.sentiment, data.crisis, data.hotline);
+                } else {
+                    addMessage('Sorry, I encountered an error: ' + data.error, 'error');
+                }
+            } catch (error) {
+                document.getElementById(loadingId).remove();
+                addMessage('Error: ' + error.message, 'error');
+            }
+
+            sendBtn.disabled = false;
+            messageInput.focus();
+        }
+
+        function addMessage(text, role, sentiment = null, crisis = null, hotline = null) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+
+            let html = `<div class="message-content">`;
+            html += `<div>${escapeHtml(text)}</div>`;
+
+            if (sentiment && role === 'assistant') {
+                const moodEmoji = {
+                    'positive': '😊',
+                    'negative': '😔',
+                    'neutral': '😐'
+                };
+                html += `<div class="sentiment-badge ${sentiment.mood}">${moodEmoji[sentiment.mood]} ${sentiment.mood}</div>`;
+            }
+
+            html += `</div>`;
+
+            if (crisis && (crisis.crisis_level === 'critical' || crisis.crisis_level === 'high')) {
+                html += `
+                    <div class="crisis-alert">
+                        <strong>🆘 Crisis Support Detected</strong>
+                        <div>We've detected signs of distress. Here's immediate help:</div>
+                        ${hotline ? `
+                            <div style="margin-top: 8px;">
+                                <strong>${hotline.name}</strong><br>
+                                📞 ${hotline.number}<br>
+                                📍 ${hotline.country}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            messageDiv.innerHTML = html;
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
     </script>
 </body>
 </html>

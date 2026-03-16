@@ -7,7 +7,7 @@ Provides REST endpoints for the Next.js frontend with:
 - Crisis detection with regional hotlines
 """
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import os
 from dotenv import load_dotenv
@@ -159,8 +159,36 @@ def get_chat_history(session_id):
 
 # Routes
 @app.route('/', methods=['GET'])
-def root():
-    """Root endpoint"""
+def serve_index():
+    """Serve the HTML frontend"""
+    try:
+        return send_from_directory('.', 'index.html')
+    except FileNotFoundError:
+        # Fallback to API info if index.html not found
+        return jsonify({
+            'message': 'Emotional Support AI API',
+            'version': '1.0',
+            'endpoints': {
+                'health': '/api/health',
+                'chat': '/api/chat',
+                'chat_history': '/api/chat-history/<session_id>',
+                'analyze': '/api/analyze',
+                'assistants': '/api/assistants',
+                'hotlines': '/api/hotlines'
+            }
+        })
+
+@app.route('/<path:filename>', methods=['GET'])
+def serve_static(filename):
+    """Serve static files"""
+    try:
+        return send_from_directory('.', filename)
+    except FileNotFoundError:
+        return jsonify({'error': 'File not found'}), 404
+
+@app.route('/api/root', methods=['GET'])
+def api_root():
+    """API endpoints info"""
     return jsonify({
         'message': 'Emotional Support AI API',
         'version': '1.0',
