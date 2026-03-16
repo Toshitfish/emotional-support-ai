@@ -29,6 +29,7 @@ class RealEmotionalAIAssistant:
         self.conversation_history = []
         self.model = "gpt-4o-mini"  # Fast and cost-effective
         self.last_followup = None
+        self.last_style = None
         
         # Initialize OpenAI if API key is available
         if OPENAI_AVAILABLE and self.api_key:
@@ -109,6 +110,9 @@ You don't have to face this alone. Help is available. 💙
             })
 
             analysis = self._analyze_student_message(user_message)
+            has_chinese = analysis['language'] in ['chinese', 'mixed']
+            style = self._pick_response_style(has_chinese)
+            songs = self._suggest_songs(has_chinese, analysis['primary_emotion'], analysis['primary_topic'])
             
             # Create natural, human-style system prompt for emotional support
             system_prompt = """You are a warm, emotionally intelligent student support companion.
@@ -125,7 +129,7 @@ Language and tone:
 - Reply in the same language the student used (English, Traditional Chinese, or mixed).
 - Sound natural and conversational. Avoid labels, headings, bullets, or template format.
 - Avoid repetitive stock phrases and avoid sounding clinical.
-- Keep replies concise (about 3-6 sentences) but personal.
+- Keep replies concise (about 4-8 sentences) but personal.
 - Read like real chat, not an essay.
 
 Personalization rules:
@@ -139,7 +143,16 @@ Personalization rules:
 Important:
 - Never shame, dismiss, or minimize feelings.
 - Never suggest harmful behavior.
-- Your goal is to help the student feel understood and willing to continue chatting."""
+- Your goal is to help the student feel understood and willing to continue chatting.
+
+Output format rule (must follow order):
+1) First section: analyze the student's own words and what they likely mean.
+2) Second section: show empathy in warm human language.
+3) Third section: give practical support/advice.
+
+Show these 3 sections visibly with short section labels, but keep wording natural and varied.
+End with one open question to continue the conversation.
+If student is stressed/sad, you may suggest 1-2 calming songs naturally (no links)."""
             
             # Pass explicit student context so replies are specific and non-generic.
             context_prompt = (
@@ -149,6 +162,10 @@ Important:
                 f"- topics: {', '.join(analysis['topics']) if analysis['topics'] else 'general'}\n"
                 f"- urgency: {analysis['urgency']}\n"
                 f"- key_phrases: {', '.join(analysis['key_phrases']) if analysis['key_phrases'] else 'none'}\n"
+                f"- analysis_label: {style['analysis']}\n"
+                f"- empathy_label: {style['empathy']}\n"
+                f"- support_label: {style['support']}\n"
+                f"- optional_song_ideas: {', '.join(songs) if songs else 'none'}\n"
                 "Use this context naturally. Do not mention this list explicitly."
             )
 
@@ -177,140 +194,96 @@ Important:
         except Exception as e:
             print(f"OpenAI API error: {e}")
             return self.get_fallback_response(user_message)
-    
+
     def get_fallback_response(self, user_message: str) -> str:
-        """Fallback response that remains conversational and personalized."""
-        text_lower = user_message.lower()
+        """Fallback response with visible analysis, empathy, and support."""
         analysis = self._analyze_student_message(user_message)
         has_chinese = analysis['language'] in ['chinese', 'mixed']
+        style = self._pick_response_style(has_chinese)
 
-        # Keep continuity: if latest input is vague, carry the last meaningful topic.
         topic = analysis['primary_topic']
         if topic == 'general':
             topic = self._topic_from_recent_history() or 'general'
 
-        # Handle greeting/check-in naturally instead of generic support block.
-        if self._is_greeting_or_checkin(text_lower):
-            if has_chinese:
-                greeting_openers = [
-                    "哈囉，我在這裡。",
-                    "嗨，見到你真好。",
-                    "你好呀，我有在聽。",
-                ]
-                if topic == 'academic':
-                    return (
-                        f"{choice(greeting_openers)}"
-                        "你剛剛提到學業／考試壓力，我記得。"
-                        "如果你願意，我們可以先聊最令你緊張的那一部分。"
-                        "你想先講讀不完、怕失手，還是家人期望？"
-                    )
-                return (
-                    f"{choice(greeting_openers)}"
-                    "你可以慢慢講，我不會催你。"
-                    "你現在比較想聊今天發生的事，還是你這陣子的心情？"
-                )
-            greeting_openers = [
-                "Hey, I’m here with you.",
-                "Hi, good to hear from you.",
-                "Hello, I’m listening.",
-            ]
-            if topic == 'academic':
-                return (
-                    f"{choice(greeting_openers)} "
-                    "I remember you mentioned exam pressure. "
-                    "If you want, we can focus on the most stressful part first and make it manageable. "
-                    "Is it more fear of results, not enough time, or panic before studying?"
-                )
-            return (
-                f"{choice(greeting_openers)} "
-                "Take your time, we can go at your pace. "
-                "Do you want to talk about what happened today, or how you’ve been feeling lately?"
-            )
-
-        zh_openers = [
-            "謝謝你願意跟我講，",
-            "我有聽到你，",
-            "你願意說出來已經好重要，",
-        ]
-        en_openers = [
-            "Thanks for sharing this with me, ",
-            "I hear you, ",
-            "I'm really glad you said this out loud, ",
-        ]
-
         key_phrase = analysis['key_phrases'][0] if analysis['key_phrases'] else None
+        key_hint = ""
+        if key_phrase and not self._is_noisy_phrase(key_phrase):
+            key_hint = f"「{key_phrase}」" if has_chinese else f'"{key_phrase}"'
+
+        songs = self._suggest_songs(has_chinese, analysis['primary_emotion'], topic)
+        followup = self._next_followup(has_chinese=has_chinese, topic=topic, key_phrase=key_phrase)
 
         if has_chinese:
-            opener = choice(zh_openers)
-            if topic == 'academic':
-                return (
-                    f"{opener}聽起來學業壓力真的壓住你了，尤其是你可能一直都在逼自己撐住。"
-                    "你有這種焦慮很合理，因為你很在乎自己的表現。"
-                    "如果你願意，我們可以先把最急的一件事拆細，先搞掂第一步。"
-                    f"{self._next_followup(has_chinese=True, topic='academic', key_phrase=key_phrase)}"
-                )
-            if topic == 'family':
-                return (
-                    f"{opener}你在家裡承受的拉扯感我感受得到，真的會令人很累。"
-                    "你有這些情緒不是你太敏感，而是你一直在努力撐住關係。"
-                    "我們可以先從一件最近最刺痛你的事講起，再想一個你做得到的小回應。"
-                    f"{self._next_followup(has_chinese=True, topic='family', key_phrase=key_phrase)}"
-                )
-            if topic == 'social':
-                return (
-                    f"{opener}人際上的傷很真，也真的很痛。"
-                    "無論是被排擠、被欺負，還是覺得孤單，你的感受都值得被重視。"
-                    "你不需要自己扛，我可以陪你慢慢整理，先把你最難受的時刻講出來就好。"
-                    f"{self._next_followup(has_chinese=True, topic='social', key_phrase=key_phrase)}"
-                )
-            if topic == 'emotion':
-                return (
-                    f"{opener}我聽得出你現在真的不好受。"
-                    "你有這些感受完全可以理解，不需要硬撐成『沒事』。"
-                    "如果你想，我可以先陪你把情緒講清楚，再一起想一個今晚能做到的小方法。"
-                    f"{self._next_followup(has_chinese=True, topic='emotion', key_phrase=key_phrase)}"
-                )
+            analysis_map = {
+                'academic': "我聽到你的重點是學業和考試壓力，{}這部分正在消耗你的能量。",
+                'family': "我理解到你在家庭互動上有拉扯感，{}這讓你很難放鬆。",
+                'social': "我聽到你在人際關係上受了傷，{}這種影響通常會延續到整天心情。",
+                'emotion': "我留意到你現在情緒負擔很重，{}你可能已經忍耐了一段時間。",
+                'general': "我先整理你剛剛的話：{}你現在需要的是被真正聽懂，而不是被敷衍。",
+            }
+            empathy_map = {
+                'academic': "你會緊張不是你不夠好，而是你真的很在乎。這種壓力很多認真的學生都會有。",
+                'family': "你有這些感受很正常，不代表你脆弱。夾在關係裡面本來就很辛苦。",
+                'social': "被誤解或被孤立真的會很痛，你的感受完全合理。你不需要一個人撐住。",
+                'emotion': "你願意說出來已經很勇敢了。我會用你可以承受的節奏陪你走。",
+                'general': "謝謝你願意打開這個話題，你的感受值得被認真對待。",
+            }
+            support_map = {
+                'academic': "我們先做一個可執行小步驟：只選一科，做25分鐘，之後休息5分鐘。今晚先完成一個最小任務就算成功。",
+                'family': "你可以先把最想講的一句話寫下來，讓情緒先落地，再決定要不要和對方談。必要時先找信任的大人或老師做中間支持。",
+                'social': "先把自己放在安全位置：遠離讓你受傷的場景，並記錄發生的事。若涉及欺凌，盡快找老師或家長介入。",
+                'emotion': "先照顧身體再處理情緒：喝水、慢呼吸一分鐘、站起來走兩圈。之後我們再一起拆開你最卡的那一點。",
+                'general': "如果你願意，我們先選一件最困擾你的事，從『發生了什麼』和『你怎麼感受』兩條線慢慢理清。",
+            }
+
+            analysis_text = analysis_map.get(topic, analysis_map['general']).format(key_hint if key_hint else "")
+            empathy_text = empathy_map.get(topic, empathy_map['general'])
+            support_text = support_map.get(topic, support_map['general'])
+            song_line = ""
+            if songs:
+                song_line = f"\n你可以試下這兩首歌先穩定情緒：{songs[0]}、{songs[1]}。"
+
             return (
-                f"{opener}你現在的狀態對你來說一定不容易。"
-                "我不會急著下判斷，你可以慢慢說。"
-                "我會在這裡陪你，把事情一層一層理清。"
-                f"{self._next_followup(has_chinese=True, topic='general', key_phrase=key_phrase)}"
+                f"{style['analysis']}\n{analysis_text}\n\n"
+                f"{style['empathy']}\n{empathy_text}\n\n"
+                f"{style['support']}\n{support_text}{song_line}\n\n"
+                f"{followup}"
             )
 
-        opener = choice(en_openers)
-        if topic == 'academic':
-            return (
-                f"{opener}it sounds like school pressure has been building up for a while. "
-                "That pressure is real, especially when you care a lot and keep pushing yourself. "
-                "If you want, we can break it down and choose one small step for today so it feels less heavy. "
-                f"{self._next_followup(has_chinese=False, topic='academic', key_phrase=key_phrase)}"
-            )
-        if topic == 'family':
-            return (
-                f"{opener}family tension can feel exhausting, especially when you are trying to keep everything together. "
-                "Your feelings make sense, and you are not overreacting. "
-                "We can start with one recent moment and work out a response that protects your peace. "
-                f"{self._next_followup(has_chinese=False, topic='family', key_phrase=key_phrase)}"
-            )
-        if topic == 'social':
-            return (
-                f"{opener}social pain can hit really hard, and you should not have to carry it alone. "
-                "Whether it is bullying, exclusion, or loneliness, your experience matters. "
-                "I can stay with you through this and help you think through safe next steps. "
-                f"{self._next_followup(has_chinese=False, topic='social', key_phrase=key_phrase)}"
-            )
-        if topic == 'emotion':
-            return (
-                f"{opener}I can feel that things are heavy for you right now. "
-                "What you are feeling is valid, and you do not have to pretend to be okay here. "
-                "If you want, we can name what is hurting most first, then decide one small thing that might help tonight. "
-                f"{self._next_followup(has_chinese=False, topic='emotion', key_phrase=key_phrase)}"
-            )
+        analysis_map = {
+            'academic': "From your words, the core issue sounds like exam/academic pressure and a fear of not doing enough{}.",
+            'family': "What I hear is tension in your family space{} and it is draining your emotional energy.",
+            'social': "Your message points to social hurt{} and that kind of pain can linger all day.",
+            'emotion': "I can hear emotional overload in what you wrote{} and you may have been holding this in for a while.",
+            'general': "Here is what I understood from your words{}: you want to be genuinely understood, not given generic lines.",
+        }
+        empathy_map = {
+            'academic': "Your anxiety makes sense. Caring deeply about your future can feel heavy, and you are not weak for feeling this.",
+            'family': "Your feelings are valid. Family pressure can be painful even when you still care about them.",
+            'social': "What you feel is real. Feeling excluded or hurt by people can shake confidence fast.",
+            'emotion': "Thank you for being honest. It takes courage to say this when things feel heavy.",
+            'general': "I appreciate you sharing this. I am taking your feelings seriously.",
+        }
+        support_map = {
+            'academic': "Try one micro-plan now: pick one subject, do 25 minutes, then 5-minute break. Tonight, one completed task is already progress.",
+            'family': "Write down the one sentence you wish they understood first. It helps you express clearly before any hard conversation.",
+            'social': "Protect your space first: step away from harmful interactions, document what happened, and involve a trusted adult if needed.",
+            'emotion': "Start with body regulation first: sip water, do one minute of slow breathing, then we can unpack the hardest part together.",
+            'general': "If you want, we can break this into two parts: what happened and what you felt, then pick one next step.",
+        }
+
+        analysis_text = analysis_map.get(topic, analysis_map['general']).format(f" around {key_hint}" if key_hint else "")
+        empathy_text = empathy_map.get(topic, empathy_map['general'])
+        support_text = support_map.get(topic, support_map['general'])
+        song_line = ""
+        if songs:
+            song_line = f"\nIf it helps, try these two songs to settle your nerves: {songs[0]} and {songs[1]}."
+
         return (
-            f"{opener}I want to understand your situation, not just give you generic advice. "
-            "You can take your time and say it however it comes out. "
-            "I am here with you, and we can figure this out step by step. "
-            f"{self._next_followup(has_chinese=False, topic='general', key_phrase=key_phrase)}"
+            f"{style['analysis']}\n{analysis_text}\n\n"
+            f"{style['empathy']}\n{empathy_text}\n\n"
+            f"{style['support']}\n{support_text}{song_line}\n\n"
+            f"{followup}"
         )
 
     def _analyze_student_message(self, user_message: str) -> Dict[str, Any]:
@@ -361,11 +334,14 @@ Important:
             primary_emotion = 'mixed'
 
         # Keep short phrase snippets to ground response in student wording.
-        raw_phrases = re.findall(r'\b[a-zA-Z]{4,}\b|[\u4e00-\u9fff]{2,6}', text)
+        normalized = re.sub(r'[^\w\u4e00-\u9fff\s]', ' ', text)
+        raw_phrases = re.findall(r'\b[a-zA-Z]{4,}\b|[\u4e00-\u9fff]{2,8}', normalized)
         key_phrases = []
         for p in raw_phrases:
             p_clean = p.strip().lower()
-            if p_clean in ['that', 'this', 'with', 'from', 'have', 'just', 'really']:
+            if p_clean in self.noise_tokens:
+                continue
+            if len(p_clean) <= 3:
                 continue
             if p not in key_phrases:
                 key_phrases.append(p)
@@ -380,6 +356,45 @@ Important:
             'primary_emotion': primary_emotion,
             'key_phrases': key_phrases,
         }
+
+    def _pick_response_style(self, has_chinese: bool) -> Dict[str, str]:
+        """Rotate section labels to keep responses less repetitive."""
+        zh_styles = [
+            {'analysis': '1) 我聽到的重點', 'empathy': '2) 我理解你的感受', 'support': '3) 我們可以這樣做'},
+            {'analysis': '1) 先整理你的情況', 'empathy': '2) 你這樣感受很合理', 'support': '3) 下一步支持建議'},
+            {'analysis': '1) 你的話在說什麼', 'empathy': '2) 我想先抱住你的情緒', 'support': '3) 實際可做的小步驟'},
+        ]
+        en_styles = [
+            {'analysis': '1) What I Heard In Your Words', 'empathy': '2) Why Your Feelings Make Sense', 'support': '3) Support Plan You Can Try'},
+            {'analysis': '1) Quick Read Of Your Situation', 'empathy': '2) I Want You To Feel Understood', 'support': '3) Practical Support Steps'},
+            {'analysis': '1) What Stands Out To Me', 'empathy': '2) You Are Not Overreacting', 'support': '3) One-Step-At-A-Time Support'},
+        ]
+
+        pool = zh_styles if has_chinese else en_styles
+        options = [s for s in pool if s != self.last_style]
+        selected = choice(options if options else pool)
+        self.last_style = selected
+        return selected
+
+    def _suggest_songs(self, has_chinese: bool, emotion: str, topic: str) -> list:
+        """Return optional calming/encouraging songs based on mood."""
+        if topic not in ['academic', 'emotion'] and emotion not in ['anxiety', 'sadness', 'hopeless']:
+            return []
+
+        if has_chinese:
+            pools = [
+                ['G.E.M. 鄧紫棋 - 光年之外', '陳奕迅 - 陀飛輪'],
+                ['岑寧兒 - 追光者', '盧冠廷 - 一生所愛'],
+                ['Serrini - 樹木真美', '林家謙 - 一人之境'],
+            ]
+            return choice(pools)
+
+        pools = [
+            ['Coldplay - Fix You', 'AURORA - Runaway'],
+            ['Billie Eilish - everything i wanted', 'Lewis Capaldi - Someone You Loved'],
+            ['Ed Sheeran - Photograph', 'OneRepublic - I Lived'],
+        ]
+        return choice(pools)
 
     def _next_followup(self, has_chinese: bool, topic: str, key_phrase: str = None) -> str:
         """Choose a fresh open-ended question to keep the conversation going."""
