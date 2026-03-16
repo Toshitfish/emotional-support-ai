@@ -98,47 +98,33 @@ You don't have to face this alone. Help is available. 💙
                 "content": user_message
             })
             
-            # Create structured system prompt for emotional support
-            system_prompt = """You are an experienced, compassionate emotional support counselor for students.
+            # Create natural, human-style system prompt for emotional support
+            system_prompt = """You are a warm, emotionally intelligent student support companion.
 
-CRITICAL: Analyze EACH student message individually. Do NOT use templates or predefined responses.
+Your responses must feel like a real caring person, not an AI assistant.
 
-LANGUAGE MATCHING:
-- If student writes in English, respond in English
-- If student writes in Chinese, respond in Chinese  
-- Match their language exactly
+Core behavior for every reply:
+1) Understand: briefly reflect the student's actual situation and emotion in your own words.
+2) Empathize: validate their feeling with genuine warmth and no judgment.
+3) Support: offer practical, specific next steps if helpful.
+4) Open the conversation: always end with one gentle, open question that invites them to keep talking.
 
-RESPONSE STRUCTURE:
+Language and tone:
+- Reply in the same language the student used (English, Traditional Chinese, or mixed).
+- Sound natural and conversational. Avoid labels, headings, bullets, or template format.
+- Avoid repetitive stock phrases and avoid sounding clinical.
+- Keep replies concise (about 4-8 sentences) but personal.
 
-**1. ANALYSIS (What I understand about YOUR situation):**
-- Identify the SPECIFIC issue they're facing (not generic categories)
-- Show you understand their particular situation
-- Reference specific things they mentioned
-- Be precise about what they're feeling
+Personalization rules:
+- Use details from what the student just said.
+- Do not give the same wording repeatedly.
+- If the student message is short (e.g., "I am unhappy"), ask a soft follow-up to understand context.
+- If there are safety/crisis signs, prioritize immediate safety and provide hotline guidance clearly and calmly.
 
-**2. EMPATHY & VALIDATION (I care about your feelings):**
-- Validate their emotions as real and important
-- Show genuine understanding of why they feel this way
-- Use warm, caring language
-- Connect to their specific situation
-
-**3. SUPPORT & ACTION (How I can help YOU):**
-- Suggest 1-3 specific, actionable strategies tailored to THEIR situation
-- Reference Hong Kong context if relevant (DSE, family pressure, housing, etc.)
-- Offer concrete next steps
-- If serious crisis signs: provide hotline info
-
-CRITICAL GUIDELINES:
-✓ Analyze the ACTUAL content they shared - be specific, not generic
-✓ Respond to THEIR unique situation, not a category
-✓ Use their language (English or Chinese)
-✓ Ask clarifying questions if needed
-✓ Reference exactly what they said
-✓ Keep sections brief (2-4 sentences each)
-✓ Never suggest harmful behaviors
-✓ For crisis: prioritize safety with hotlines
-
-Remember: Every student is unique. Analyze THEIR specific message, THEIR specific situation, THEIR specific feelings. Never use the same response twice."""
+Important:
+- Never shame, dismiss, or minimize feelings.
+- Never suggest harmful behavior.
+- Your goal is to help the student feel understood and willing to continue chatting."""
             
             # Get OpenAI's response
             response = self.client.chat.completions.create(
@@ -147,7 +133,7 @@ Remember: Every student is unique. Analyze THEIR specific message, THEIR specifi
                     {"role": "system", "content": system_prompt},
                     *self.conversation_history
                 ],
-                temperature=0.9,  # Increase creativity to avoid templates
+                temperature=1.0,
                 max_tokens=1024
             )
             
@@ -166,107 +152,66 @@ Remember: Every student is unique. Analyze THEIR specific message, THEIR specifi
             return self.get_fallback_response(user_message)
     
     def get_fallback_response(self, user_message: str) -> str:
-        """Fallback response - analyzes actual content, not generic emotions"""
+        """Fallback response that stays human, warm, and conversation-opening."""
         text_lower = user_message.lower()
-        
-        # Auto-detect language
         has_chinese = any('\u4e00' <= c <= '\u9fff' for c in user_message)
-        is_english = not has_chinese or any(c in text_lower for c in ['i ', 'the ', 'is ', 'are ', 'you '])
-        
-        # If mostly Chinese, respond in Chinese; otherwise English
-        if has_chinese and not is_english:
-            # CHINESE RESPONSES - Analyze content
-            if any(w in text_lower for w in ['exam', 'dse', '考試', '考试', 'test', '測試', '测试']):
-                return """**分析我所理解的：**
-你在為考試或測試感到擔憂。這是真實且重要的課題，特別是在DSE或重要考試時期。
 
-**同理心與認可：**
-許多學生都經歷過考試焦慮。您的擔憂完全合理 - 這顯示您在乎自己的表現。
+        if has_chinese:
+            if any(w in text_lower for w in ['考試', '考试', 'dse', '測試', '测试', '功課', '功课']):
+                return (
+                    "聽起來你最近真的被學業壓得很辛苦，尤其是和考試有關的壓力。"
+                    "你會這樣緊張很正常，因為你其實很在乎自己的未來。"
+                    "我們可以先把最急的部分拆細，一步一步來，不用一次處理晒。"
+                    "你而家最擔心的是成績、時間不夠，還是家人的期望呢？"
+                )
+            if any(w in text_lower for w in ['家人', '家庭', '父母', '媽媽', '妈妈', '爸爸']):
+                return (
+                    "我聽到你在家庭關係裡面承受緊好多情緒，呢種拉扯真係好攰。"
+                    "你有呢種反應一點都不奇怪，因為你一直都在撐住。"
+                    "如果你願意，我可以陪你整理下最近一件最卡住你的事，慢慢想一個你做得到的回應方式。"
+                    "最近有冇一句說話或一件事，令你特別難受？"
+                )
+            if any(w in text_lower for w in ['霸凌', '欺凌', '孤獨', '孤独', '唔開心', '不開心', '不开心', '難過', '难过']):
+                return (
+                    "謝謝你願意講出來，我知道這些感受可能已經悶在心裡很久。"
+                    "你而家覺得受傷、難過或者孤單，都係好真實、值得被重視的。"
+                    "你唔需要一個人扛住，我會同你一齊諗下一步可以點樣令自己安全啲、舒服啲。"
+                    "你想先同我講下，最近哪一刻最令你頂唔順？"
+                )
+            return (
+                "我收到你想講的事了，謝謝你願意打開這個話題。"
+                "無論你而家感覺幾亂，呢啲情緒都係有原因、值得被聽見。"
+                "我會陪你慢慢整理，不急。"
+                "你想由最近發生的事開始講，還是由你現在最強烈的感受開始？"
+            )
 
-**我可如何幫助：**
-試著將準備分成小目標，每天一點一點地進行。深呼吸和短時間休息很有幫助。記得：做好準備比完美更重要。"""
-            
-            elif any(w in text_lower for w in ['family', '家人', '家庭', 'parent', '父母', '媽媽', '妈妈', '爸爸']):
-                return """**分析我所理解的：**
-您在與家人的關係或家庭情況上感到困擾。這在學生中很常見，尤其是在有高期望的家庭中。
-
-**同理心與認可：**
-家庭的壓力是真實的。您的感受完全有效。許多學生都為家庭關係而掙扎。
-
-**我可如何幫助：**
-試著找時間與信任的人（朋友、老師、輔導員）談論這個。如果可以，嘗試與家人進行開放式對話。專業輔導可以幫助改善家庭溝通。"""
-            
-            elif any(w in text_lower for w in ['unhappy', '不開心', '不开心', 'sad', '難過', '难过', 'hurt']):
-                return """**分析我所理解的：**
-您現在感到難過和不開心。您願意分享具體是什麼導致了這種感受嗎？
-
-**同理心與認可：**
-難過是真實的情緒，不應該被忽視。您有權利擁有這些感受。
-
-**我可如何幫助：**
-與信任的人傾訴通常能帶來幫助。進行自己喜歡的活動也可能改善心情。如果難過持續超過兩週，請考慮尋求專業幫助。"""
-            
-            elif any(w in text_lower for w in ['bullied', '霸凌', '欺凌', 'bully', 'friend', '朋友', 'alone', '孤獨', '孤独']):
-                return """**分析我所理解的：**
-您在社交或人際關係上感到困擾。無論是霸凌、友誼衝突或孤獨感，這些都是嚴肅的問題。
-
-**同理心與認可：**
-您不應該獨自承受社交痛苦。您值得有善待您的朋友。這不是您的錯。
-
-**我可如何幫助：**
-如果是霸凌，請告訴成年人（老師、父母、輔導員）。加入俱樂部或活動可以幫助建立新的友誼。如需緊急支持，可聯絡撒瑪利亞防止撥款會 2389 2222。"""
-            
-            else:
-                return """**分析我所理解的：**
-感謝您的分享。我認真在聆聽。您提到的事情對您很重要。
-
-**同理心與認可：**
-無論您現在感受如何，您的感受都是有效的。我在這裡支持您。
-
-**我可如何幫助：**
-請告訴我更多細節。您具體感到困擾的是什麼？細節多一點，我能給予更好的幫助。"""
-        
-        else:
-            # ENGLISH RESPONSES - Analyze content
-            if any(w in text_lower for w in ['exam', 'test', 'dse', 'school work', 'assignment', 'pressure']):
-                return """**Analysis of your situation:**
-You're dealing with academic pressure - exams, tests, or schoolwork. This is a real and valid concern many students face.
-
-**I hear you & I understand:**
-Your academic stress is completely legitimate. Many students feel this way, especially during exam periods or when balancing multiple assignments.
-
-**How I can help:**
-Break your work into smaller, manageable chunks. Take short breaks between study sessions - they actually help you focus better. Remember: progress matters more than perfection."""
-            
-            elif any(w in text_lower for w in ['family', 'parent', 'home', 'upset', 'angry', 'stressed']):
-                return """**Analysis of your situation:**
-You're struggling with something that's weighing on you emotionally. This could be family issues, stress, or feeling upset about something specific.
-
-**I hear you & I understand:**
-Your feelings are real and important. Whatever is causing this stress, it matters, and you don't have to handle it alone.
-
-**How I can help:**
-Talk to someone you trust - a friend, teacher, or counselor. Sometimes just saying things out loud helps. If you'd like, tell me more specifics so I can provide better support."""
-            
-            elif any(w in text_lower for w in ['unhappy', 'sad', 'lonely', 'bullied', 'alone', 'hurt']):
-                return """**Analysis of your situation:**
-You're going through emotional pain - whether it's loneliness, sadness, or feeling bullied. These are serious feelings that deserve attention.
-
-**I hear you & I understand:**
-What you're feeling is valid. You deserve support and kindness. If it's bullying, please tell a trusted adult.
-
-**How I can help:**
-Reach out to someone - a friend, family member, teacher, or counselor. If you're in Hong Kong and need immediate support: Samaritans 2389 2222 (24/7). You're not alone in this."""
-            
-            else:
-                return """**Analysis of your situation:**
-Thank you for sharing. I'm listening. Whatever you're going through, it matters.
-
-**I hear you & I understand:**
-Your feelings and experiences are important to me. I'm here to support you.
-
-**How I can help:**
-Tell me more about what you're experiencing. The more you share, the better I can understand and support you through this."""
+        if any(w in text_lower for w in ['exam', 'test', 'dse', 'assignment', 'school', 'study', 'pressure']):
+            return (
+                "It sounds like school pressure is really piling up on you right now. "
+                "That stress makes a lot of sense, especially when it feels like everything is urgent at once. "
+                "We can slow it down and sort what needs attention first so it feels less overwhelming. "
+                "What feels heaviest at the moment: exams, workload, or expectations from others?"
+            )
+        if any(w in text_lower for w in ['family', 'parent', 'home', 'argue', 'conflict']):
+            return (
+                "I can hear how exhausting this family tension has been for you. "
+                "Your feelings are valid; being stuck between caring and feeling hurt is really hard. "
+                "If you want, we can unpack one recent moment together and figure out one small next step. "
+                "What happened most recently that stayed with you?"
+            )
+        if any(w in text_lower for w in ['bullied', 'bully', 'lonely', 'alone', 'sad', 'unhappy', 'hurt']):
+            return (
+                "Thank you for saying this out loud. "
+                "What you're feeling matters, and you deserve to be treated with care and respect. "
+                "You don't have to carry this by yourself; we can work through it one step at a time. "
+                "Do you want to tell me what happened today, or what has been repeating lately?"
+            )
+        return (
+            "Thanks for sharing that with me. "
+            "I want to understand what this has been like for you, not just give you generic advice. "
+            "I'm here with you, and we can take this at your pace. "
+            "What part of this feels the hardest to put into words right now?"
+        )
         
     def _detect_emotion(self, text: str) -> str:
         """Basic emotion detection"""
