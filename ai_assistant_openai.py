@@ -54,6 +54,13 @@ class RealEmotionalAIAssistant:
             "自害", "suicide", "kill myself", "self harm",
             "hurt myself", "end my life", "noose", "poison"
         ]
+
+        # Common filler words/phrases that should not be mirrored as key phrases.
+        self.noise_tokens = {
+            'the', 'this', 'that', 'with', 'from', 'have', 'just', 'really', 'will', 'would',
+            'could', 'should', 'been', 'very', 'more', 'some', 'later', 'minute', 'minutes',
+            'today', 'yesterday', 'tomorrow', 'hello', 'hi', 'hey', 'haloo', 'okay', 'ok'
+        }
     
     def detect_crisis(self, text: str) -> bool:
         """Detect crisis indicators"""
@@ -177,6 +184,49 @@ Important:
         analysis = self._analyze_student_message(user_message)
         has_chinese = analysis['language'] in ['chinese', 'mixed']
 
+        # Keep continuity: if latest input is vague, carry the last meaningful topic.
+        topic = analysis['primary_topic']
+        if topic == 'general':
+            topic = self._topic_from_recent_history() or 'general'
+
+        # Handle greeting/check-in naturally instead of generic support block.
+        if self._is_greeting_or_checkin(text_lower):
+            if has_chinese:
+                greeting_openers = [
+                    "哈囉，我在這裡。",
+                    "嗨，見到你真好。",
+                    "你好呀，我有在聽。",
+                ]
+                if topic == 'academic':
+                    return (
+                        f"{choice(greeting_openers)}"
+                        "你剛剛提到學業／考試壓力，我記得。"
+                        "如果你願意，我們可以先聊最令你緊張的那一部分。"
+                        "你想先講讀不完、怕失手，還是家人期望？"
+                    )
+                return (
+                    f"{choice(greeting_openers)}"
+                    "你可以慢慢講，我不會催你。"
+                    "你現在比較想聊今天發生的事，還是你這陣子的心情？"
+                )
+            greeting_openers = [
+                "Hey, I’m here with you.",
+                "Hi, good to hear from you.",
+                "Hello, I’m listening.",
+            ]
+            if topic == 'academic':
+                return (
+                    f"{choice(greeting_openers)} "
+                    "I remember you mentioned exam pressure. "
+                    "If you want, we can focus on the most stressful part first and make it manageable. "
+                    "Is it more fear of results, not enough time, or panic before studying?"
+                )
+            return (
+                f"{choice(greeting_openers)} "
+                "Take your time, we can go at your pace. "
+                "Do you want to talk about what happened today, or how you’ve been feeling lately?"
+            )
+
         zh_openers = [
             "謝謝你願意跟我講，",
             "我有聽到你，",
@@ -188,7 +238,6 @@ Important:
             "I'm really glad you said this out loud, ",
         ]
 
-        topic = analysis['primary_topic']
         key_phrase = analysis['key_phrases'][0] if analysis['key_phrases'] else None
 
         if has_chinese:
@@ -286,7 +335,10 @@ Important:
             topics.append('family')
         if any(w in text_lower for w in ['bully', 'bullied', 'friend', 'lonely', 'alone', '霸凌', '欺凌', '朋友', '孤獨', '孤独']):
             topics.append('social')
-        if any(w in text_lower for w in ['sad', 'unhappy', 'hurt', 'anxious', 'stressed', 'hopeless', '難過', '难过', '不開心', '不开心', '焦慮', '焦虑', '壓力', '压力']):
+        if any(w in text_lower for w in [
+            'sad', 'unhappy', 'hurt', 'anxious', 'anxiety', 'nervous', 'nervoue', 'stressed', 'stress',
+            'hopeless', '難過', '难过', '不開心', '不开心', '焦慮', '焦虑', '壓力', '压力'
+        ]):
             topics.append('emotion')
 
         if not topics:
@@ -298,7 +350,7 @@ Important:
         elif any(w in text_lower for w in ['hopeless', 'worthless', 'can\'t go on', '絕望', '绝望']):
             urgency = 'high'
             primary_emotion = 'hopeless'
-        elif any(w in text_lower for w in ['panic', 'anxious', 'stressed', '焦慮', '焦虑', '壓力', '压力']):
+        elif any(w in text_lower for w in ['panic', 'anxious', 'anxiety', 'nervous', 'nervoue', 'stressed', 'stress', '焦慮', '焦虑', '壓力', '压力']):
             urgency = 'moderate'
             primary_emotion = 'anxiety'
         elif any(w in text_lower for w in ['sad', 'unhappy', 'hurt', '難過', '难过', '不開心', '不开心']):
@@ -394,7 +446,7 @@ Important:
         candidates = [q for q in options if q != self.last_followup]
         selected = choice(candidates if candidates else options)
 
-        if key_phrase:
+        if key_phrase and not self._is_noisy_phrase(key_phrase):
             if has_chinese:
                 selected = f"你剛剛提到「{key_phrase}」，{selected}"
             else:
@@ -402,6 +454,38 @@ Important:
 
         self.last_followup = selected
         return selected
+
+    def _topic_from_recent_history(self) -> str:
+        """Infer topic from recent user turns for continuity in fallback mode."""
+        recent_users = [m.get('content', '') for m in self.conversation_history if m.get('role') == 'user'][-3:]
+        for msg in reversed(recent_users):
+            a = self._analyze_student_message(msg)
+            if a['primary_topic'] != 'general':
+                return a['primary_topic']
+        return 'general'
+
+    def _is_greeting_or_checkin(self, text_lower: str) -> bool:
+        """Detect short greetings/status check-ins that should be handled conversationally."""
+        trimmed = text_lower.strip()
+        if trimmed in {'hi', 'hello', 'hey', 'halo', 'haloo', 'yo', 'sup', '你好', '哈囉', '嗨'}:
+            return True
+        if any(p in trimmed for p in ['minutes later', 'min later', 'i am back', 'im back', 'back now', '回來了', '返嚟', '返來']):
+            return True
+        # Very short non-emotional message should be treated as check-in.
+        return len(trimmed.split()) <= 2 and not any(
+            w in trimmed for w in ['sad', 'unhappy', 'anxious', 'stress', '壓力', '難過', '不開心']
+        )
+
+    def _is_noisy_phrase(self, phrase: str) -> bool:
+        """Avoid echoing meaningless words in follow-up prompts."""
+        p = phrase.strip().lower()
+        if p in self.noise_tokens:
+            return True
+        if len(p) <= 3:
+            return True
+        if p.isdigit():
+            return True
+        return False
         
     def _detect_emotion(self, text: str) -> str:
         """Basic emotion detection"""
@@ -429,7 +513,11 @@ Important:
         if self.mode == "openai" and self.client:
             return self.analyze_with_openai(user_message)
         else:
-            return self.get_fallback_response(user_message)
+            # Preserve memory even in fallback mode for continuity.
+            self.conversation_history.append({"role": "user", "content": user_message})
+            reply = self.get_fallback_response(user_message)
+            self.conversation_history.append({"role": "assistant", "content": reply})
+            return reply
     
     def get_conversation_summary(self) -> Dict[str, Any]:
         """Get summary of conversation for analysis"""
