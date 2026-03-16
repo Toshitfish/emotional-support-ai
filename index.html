@@ -3,8 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💙 情緒支持平臺 - Emotional Support Hub</title>
+    <title>Emotional Support Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-start: #f7fff9;
+            --bg-end: #e8f3ff;
+            --card: #ffffff;
+            --ink: #1f2633;
+            --muted: #647086;
+            --brand-1: #ff7f50;
+            --brand-2: #1ea896;
+            --brand-3: #2d7ff9;
+            --line: #dfe7f3;
+            --user-bubble: #2d7ff9;
+            --assistant-bubble: #f5f8ff;
+            --danger-bg: #fff2f2;
+            --danger-ink: #bf2e38;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,89 +31,178 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: "Poppins", "Noto Sans TC", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(900px 400px at -10% -20%, rgba(255, 127, 80, 0.18), transparent 70%),
+                radial-gradient(700px 400px at 110% -10%, rgba(30, 168, 150, 0.22), transparent 70%),
+                linear-gradient(160deg, var(--bg-start), var(--bg-end));
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+            padding: 24px;
+            display: grid;
+            place-items: center;
         }
 
         .container {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            max-width: 800px;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            height: 600px;
+            width: min(980px, 100%);
+            height: min(88vh, 760px);
+            border-radius: 26px;
+            overflow: hidden;
+            background: var(--card);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow:
+                0 20px 50px rgba(34, 57, 100, 0.15),
+                0 2px 0 rgba(255, 255, 255, 0.8) inset;
+            display: grid;
+            grid-template-rows: auto auto 1fr auto;
         }
 
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 15px 15px 0 0;
-            text-align: center;
+            position: relative;
+            overflow: hidden;
+            padding: 22px 28px;
+            color: #fff;
+            background:
+                linear-gradient(120deg, var(--brand-3), var(--brand-2) 55%, var(--brand-1));
+        }
+
+        .header::after {
+            content: "";
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            right: -90px;
+            top: -180px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+        }
+
+        .title-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .title-badge {
+            width: 40px;
+            height: 40px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.2);
+            display: grid;
+            place-items: center;
+            font-size: 20px;
         }
 
         .header h1 {
-            font-size: 28px;
-            margin-bottom: 5px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 0.2px;
         }
 
         .header p {
-            font-size: 14px;
-            opacity: 0.9;
+            margin-top: 6px;
+            font-size: 0.95rem;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
         }
 
         .status {
+            background: #f9fcff;
+            border-bottom: 1px solid var(--line);
+            padding: 10px 18px;
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            padding: 10px 20px;
-            background: #f0f2f5;
-            border-bottom: 1px solid #e1e5eb;
-            font-size: 13px;
-            color: #65676b;
+            gap: 10px;
+            font-size: 0.86rem;
+            color: var(--muted);
         }
 
         .status-indicator {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
+            font-weight: 500;
         }
 
         .status-dot {
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
-            background: #31a24c;
+            background: #2ea44f;
+            box-shadow: 0 0 0 5px rgba(46, 164, 79, 0.15);
         }
 
         .status-dot.offline {
-            background: #e74c3c;
+            background: #e55353;
+            box-shadow: 0 0 0 5px rgba(229, 83, 83, 0.15);
         }
 
         .ai-info {
-            font-size: 12px;
-            color: #666;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(45, 127, 249, 0.08);
+            color: #2258af;
+            font-weight: 600;
+            font-size: 0.8rem;
         }
 
         .chat-box {
-            flex: 1;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(249, 252, 255, 0.95));
             overflow-y: auto;
-            padding: 20px;
+            padding: 20px 18px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
+        }
+
+        .welcome {
+            text-align: center;
+            color: #5f6d84;
+            padding: 18px 14px;
+            border: 1px dashed #cdd9eb;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.8);
+            animation: fadeUp 480ms ease;
+        }
+
+        .welcome .small {
+            font-size: 0.82rem;
+            margin-top: 8px;
+        }
+
+        .quick-prompts {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            justify-content: center;
+        }
+
+        .prompt-chip {
+            border: 1px solid #cdd9eb;
+            background: #fff;
+            color: #2c3b57;
+            border-radius: 999px;
+            padding: 7px 12px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: 180ms ease;
+        }
+
+        .prompt-chip:hover {
+            transform: translateY(-1px);
+            border-color: #95b3e8;
+            background: #f3f8ff;
         }
 
         .message {
             display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
+            animation: fadeUp 240ms ease;
         }
 
         .message.user {
@@ -102,51 +210,34 @@
         }
 
         .message-content {
-            max-width: 70%;
-            padding: 12px 15px;
-            border-radius: 12px;
-            word-wrap: break-word;
+            max-width: min(78%, 680px);
+            border-radius: 16px;
+            padding: 12px 14px;
+            line-height: 1.48;
+            font-size: 0.95rem;
+            white-space: pre-wrap;
+            word-break: break-word;
         }
 
         .message.user .message-content {
-            background: #667eea;
-            color: white;
-            border-radius: 12px 0 12px 12px;
+            color: #fff;
+            background: linear-gradient(135deg, #2d7ff9, #1a63cc);
+            border-top-right-radius: 4px;
+            box-shadow: 0 8px 18px rgba(45, 127, 249, 0.3);
         }
 
         .message.assistant .message-content {
-            background: #f0f2f5;
-            color: #333;
-            border-radius: 0 12px 12px 12px;
-        }
-
-        .message-time {
-            font-size: 12px;
-            color: #999;
-            margin-top: 5px;
-        }
-
-        .crisis-alert {
-            background: #ffebee;
-            border-left: 4px solid #e74c3c;
-            padding: 12px;
-            border-radius: 8px;
-            color: #c82a3f;
-            font-weight: 500;
-            margin: 10px 0;
-        }
-
-        .crisis-alert strong {
-            display: block;
-            margin-bottom: 8px;
+            color: #22304a;
+            background: var(--assistant-bubble);
+            border: 1px solid #dce8ff;
+            border-top-left-radius: 4px;
         }
 
         .loading {
             display: flex;
             align-items: center;
             gap: 8px;
-            color: #999;
-            font-size: 14px;
+            color: #5e6d86;
         }
 
         .typing-dots {
@@ -157,120 +248,190 @@
         .typing-dot {
             width: 8px;
             height: 8px;
-            background: #667eea;
             border-radius: 50%;
-            animation: typing 1.4s infinite;
+            background: #2d7ff9;
+            animation: pulse 1.2s infinite ease-in-out;
         }
 
         .typing-dot:nth-child(2) {
-            animation-delay: 0.2s;
+            animation-delay: 0.18s;
         }
 
         .typing-dot:nth-child(3) {
-            animation-delay: 0.4s;
+            animation-delay: 0.36s;
         }
 
-        @keyframes typing {
-            0%, 60%, 100% {
-                opacity: 0.3;
-                transform: translateY(0);
-            }
-            30% {
-                opacity: 1;
-                transform: translateY(-10px);
-            }
+        .sentiment-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 0.74rem;
+            font-weight: 600;
+            background: #eef3ff;
+            color: #304773;
+        }
+
+        .sentiment-badge.positive {
+            background: #ddf8ea;
+            color: #1c6e46;
+        }
+
+        .sentiment-badge.negative {
+            background: #ffe5e8;
+            color: #9f2f38;
+        }
+
+        .sentiment-badge.neutral {
+            background: #eef2f8;
+            color: #52627f;
+        }
+
+        .crisis-alert {
+            margin-top: 8px;
+            padding: 12px;
+            border-left: 4px solid #cc3e48;
+            border-radius: 10px;
+            background: var(--danger-bg);
+            color: var(--danger-ink);
+            line-height: 1.4;
+            font-size: 0.9rem;
+        }
+
+        .error {
+            background: #fff1f2;
+            color: #aa2e3e;
+            border: 1px solid #ffd9de;
+            border-radius: 12px;
+            padding: 12px;
         }
 
         .input-area {
-            padding: 20px;
-            border-top: 1px solid #e1e5eb;
-            background: #f9f9f9;
+            border-top: 1px solid var(--line);
+            background: #fff;
+            padding: 14px;
         }
 
         .input-group {
             display: flex;
             gap: 10px;
+            align-items: center;
+            background: #f6f9ff;
+            border: 1px solid #dbe6fa;
+            border-radius: 16px;
+            padding: 8px;
         }
 
         input[type="text"] {
             flex: 1;
-            padding: 12px 15px;
-            border: 1px solid #e1e5eb;
-            border-radius: 25px;
-            font-size: 14px;
+            border: 0;
+            background: transparent;
+            padding: 10px 10px;
+            font-size: 0.95rem;
+            color: #22304a;
             outline: none;
-            transition: border-color 0.3s;
         }
 
-        input[type="text"]:focus {
-            border-color: #667eea;
+        input[type="text"]::placeholder {
+            color: #7f8da8;
         }
 
         button {
-            padding: 12px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
+            border: 0;
+            border-radius: 12px;
+            padding: 11px 16px;
+            font-size: 0.9rem;
             font-weight: 600;
-            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            color: #fff;
+            background: linear-gradient(135deg, var(--brand-3), #1a63cc);
+            box-shadow: 0 8px 16px rgba(45, 127, 249, 0.3);
+            transition: 160ms ease;
         }
 
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        button:active {
-            transform: translateY(0);
+            transform: translateY(-1px);
         }
 
         button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+            opacity: 0.6;
             transform: none;
+            cursor: not-allowed;
+            box-shadow: none;
         }
 
-        .error {
-            background: #ffebee;
-            color: #c82a3f;
-            padding: 12px;
-            border-radius: 8px;
-            margin: 10px 0;
-            border-left: 4px solid #e74c3c;
+        @keyframes pulse {
+            0%, 80%, 100% {
+                transform: scale(0.75);
+                opacity: 0.55;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
-        .sentiment-badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-            margin-top: 5px;
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .sentiment-badge.positive {
-            background: #d4edda;
-            color: #155724;
-        }
+        @media (max-width: 800px) {
+            body {
+                padding: 10px;
+            }
 
-        .sentiment-badge.negative {
-            background: #f8d7da;
-            color: #721c24;
-        }
+            .container {
+                width: 100%;
+                height: 96vh;
+                border-radius: 18px;
+            }
 
-        .sentiment-badge.neutral {
-            background: #e2e3e5;
-            color: #383d41;
+            .header {
+                padding: 18px;
+            }
+
+            .header h1 {
+                font-size: 1.25rem;
+            }
+
+            .header p {
+                font-size: 0.86rem;
+            }
+
+            .status {
+                padding: 10px 12px;
+                font-size: 0.78rem;
+                flex-wrap: wrap;
+            }
+
+            .message-content {
+                max-width: 92%;
+                font-size: 0.92rem;
+            }
+
+            button {
+                padding: 10px 14px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>💙 情緒支持平臺</h1>
-            <p>Emotional Support Hub - We're here to listen and support you</p>
+            <div class="title-row">
+                <div class="title-badge">💛</div>
+                <h1>情緒支持平臺 Emotional Support Hub</h1>
+            </div>
+            <p>A safe place to talk, feel heard, and take one small step forward.</p>
         </div>
 
         <div class="status">
@@ -278,22 +439,27 @@
                 <span class="status-dot" id="statusDot"></span>
                 <span id="statusText">Connecting...</span>
             </div>
-            <div class="ai-info">🤖 Powered by OpenAI (GPT)</div>
+            <div class="ai-info">OpenAI support is active</div>
         </div>
 
         <div class="chat-box" id="chatBox">
-            <div style="text-align: center; color: #999; padding: 20px;">
-                <p>👋 Welcome! Start by typing a message below.</p>
-                <p style="font-size: 12px; margin-top: 10px;">Your messages are processed securely.</p>
+            <div class="welcome" id="welcomeCard">
+                <div>Talk to me like a friend. I will listen without judging.</div>
+                <div class="small">Your message can be in English, 中文, or mixed language.</div>
+                <div class="quick-prompts">
+                    <button class="prompt-chip" type="button" data-prompt="I feel stressed about my exams">Exam stress</button>
+                    <button class="prompt-chip" type="button" data-prompt="I feel lonely lately">Lonely</button>
+                    <button class="prompt-chip" type="button" data-prompt="我最近和家人關係很緊張">Family pressure</button>
+                </div>
             </div>
         </div>
 
         <div class="input-area">
             <div class="input-group">
-                <input 
-                    type="text" 
-                    id="messageInput" 
-                    placeholder="Share how you're feeling... 💬" 
+                <input
+                    type="text"
+                    id="messageInput"
+                    placeholder="Share what is on your mind..."
                     autocomplete="off"
                 >
                 <button id="sendBtn" onclick="sendMessage()">Send</button>
@@ -310,20 +476,26 @@
         const statusDot = document.getElementById('statusDot');
         const statusText = document.getElementById('statusText');
 
-        // Check API health on load
         window.addEventListener('load', checkHealth);
+
+        document.querySelectorAll('.prompt-chip').forEach((chip) => {
+            chip.addEventListener('click', () => {
+                messageInput.value = chip.dataset.prompt || '';
+                messageInput.focus();
+            });
+        });
 
         function checkHealth() {
             fetch(`${API_URL}/api/health`)
                 .then(res => res.json())
-                .then(data => {
+                .then(() => {
                     statusDot.classList.remove('offline');
-                    statusText.textContent = 'Connected to API ✓';
+                    statusText.textContent = 'Connected';
                 })
-                .catch(err => {
+                .catch(() => {
                     statusDot.classList.add('offline');
-                    statusText.textContent = 'API Offline ✗';
-                    chatBox.innerHTML = '<div class="error">⚠️ Cannot connect to API. Please check your connection.</div>';
+                    statusText.textContent = 'Offline';
+                    chatBox.innerHTML = '<div class="error">Cannot connect to API. Please check your network or server status.</div>';
                 });
         }
 
@@ -335,18 +507,21 @@
             const message = messageInput.value.trim();
             if (!message) return;
 
-            // Add user message to chat
+            const welcome = document.getElementById('welcomeCard');
+            if (welcome) {
+                welcome.remove();
+            }
+
             addMessage(message, 'user');
             messageInput.value = '';
             sendBtn.disabled = true;
 
-            // Show loading indicator
             const loadingId = 'loading_' + Date.now();
             chatBox.innerHTML += `
-                <div id="${loadingId}" class="message">
+                <div id="${loadingId}" class="message assistant">
                     <div class="message-content">
                         <div class="loading">
-                            <span>AI is thinking</span>
+                            <span>Thinking</span>
                             <div class="typing-dots">
                                 <div class="typing-dot"></div>
                                 <div class="typing-dot"></div>
@@ -362,7 +537,7 @@
                 const response = await fetch(`${API_URL}/api/chat`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
                         message: message,
@@ -372,7 +547,10 @@
                     })
                 });
 
-                document.getElementById(loadingId).remove();
+                const loadingNode = document.getElementById(loadingId);
+                if (loadingNode) {
+                    loadingNode.remove();
+                }
 
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}`);
@@ -383,11 +561,14 @@
                 if (data.success) {
                     addMessage(data.response, 'assistant', data.sentiment, data.crisis, data.hotline);
                 } else {
-                    addMessage('Sorry, I encountered an error: ' + data.error, 'error');
+                    addMessage('Sorry, I ran into an issue: ' + data.error, 'assistant');
                 }
             } catch (error) {
-                document.getElementById(loadingId).remove();
-                addMessage('Error: ' + error.message, 'error');
+                const loadingNode = document.getElementById(loadingId);
+                if (loadingNode) {
+                    loadingNode.remove();
+                }
+                addMessage('Connection issue: ' + error.message, 'assistant');
             }
 
             sendBtn.disabled = false;
@@ -398,37 +579,31 @@
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${role}`;
 
-            let html = `<div class="message-content">`;
-            html += `<div>${escapeHtml(text)}</div>`;
+            const safeText = escapeHtml(text).replace(/\n/g, '<br>');
+            let html = `<div class="message-content"><div>${safeText}</div>`;
 
             if (sentiment && role === 'assistant') {
                 const moodEmoji = {
-                    'positive': '😊',
-                    'negative': '😔',
-                    'neutral': '😐'
+                    positive: '😊',
+                    negative: '😔',
+                    neutral: '😐'
                 };
-                html += `<div class="sentiment-badge ${sentiment.mood}">${moodEmoji[sentiment.mood]} ${sentiment.mood}</div>`;
+                html += `<div class="sentiment-badge ${sentiment.mood}">${moodEmoji[sentiment.mood] || '💬'} ${escapeHtml(sentiment.mood)}</div>`;
             }
-
-            html += `</div>`;
 
             if (crisis && (crisis.crisis_level === 'critical' || crisis.crisis_level === 'high')) {
                 html += `
                     <div class="crisis-alert">
-                        <strong>🆘 Crisis Support Detected</strong>
-                        <div>We've detected signs of distress. Here's immediate help:</div>
-                        ${hotline ? `
-                            <div style="margin-top: 8px;">
-                                <strong>${hotline.name}</strong><br>
-                                📞 ${hotline.number}<br>
-                                📍 ${hotline.country}
-                            </div>
-                        ` : ''}
+                        <strong>Urgent support available</strong><br>
+                        You are not alone. If you may be in danger, please contact immediate help.<br>
+                        ${hotline ? `<div style="margin-top: 8px;"><strong>${escapeHtml(hotline.name)}</strong><br>📞 ${escapeHtml(hotline.number)}<br>📍 ${escapeHtml(hotline.country)}</div>` : ''}
                     </div>
                 `;
             }
 
+            html += `</div>`;
             messageDiv.innerHTML = html;
+
             chatBox.appendChild(messageDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
         }
@@ -441,7 +616,7 @@
                 '"': '&quot;',
                 "'": '&#039;'
             };
-            return text.replace(/[&<>"']/g, m => map[m]);
+            return String(text).replace(/[&<>"']/g, m => map[m]);
         }
     </script>
 </body>
