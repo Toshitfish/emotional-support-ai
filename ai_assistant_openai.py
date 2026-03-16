@@ -8,6 +8,7 @@ import json
 from datetime import datetime
 from typing import Tuple, Dict, Any
 from random import choice
+import re
 
 # Try to import OpenAI
 try:
@@ -27,6 +28,7 @@ class RealEmotionalAIAssistant:
         self.client = None
         self.conversation_history = []
         self.model = "gpt-4o-mini"  # Fast and cost-effective
+        self.last_followup = None
         
         # Initialize OpenAI if API key is available
         if OPENAI_AVAILABLE and self.api_key:
@@ -98,6 +100,8 @@ You don't have to face this alone. Help is available. 💙
                 "role": "user",
                 "content": user_message
             })
+
+            analysis = self._analyze_student_message(user_message)
             
             # Create natural, human-style system prompt for emotional support
             system_prompt = """You are a warm, emotionally intelligent student support companion.
@@ -130,11 +134,23 @@ Important:
 - Never suggest harmful behavior.
 - Your goal is to help the student feel understood and willing to continue chatting."""
             
+            # Pass explicit student context so replies are specific and non-generic.
+            context_prompt = (
+                "Student context extracted from latest message:\n"
+                f"- language: {analysis['language']}\n"
+                f"- primary_emotion: {analysis['primary_emotion']}\n"
+                f"- topics: {', '.join(analysis['topics']) if analysis['topics'] else 'general'}\n"
+                f"- urgency: {analysis['urgency']}\n"
+                f"- key_phrases: {', '.join(analysis['key_phrases']) if analysis['key_phrases'] else 'none'}\n"
+                "Use this context naturally. Do not mention this list explicitly."
+            )
+
             # Get OpenAI's response
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
                     {"role": "system", "content": system_prompt},
+                    {"role": "system", "content": context_prompt},
                     *self.conversation_history
                 ],
                 temperature=1.05,
@@ -158,7 +174,8 @@ Important:
     def get_fallback_response(self, user_message: str) -> str:
         """Fallback response that remains conversational and personalized."""
         text_lower = user_message.lower()
-        has_chinese = any('\u4e00' <= c <= '\u9fff' for c in user_message)
+        analysis = self._analyze_student_message(user_message)
+        has_chinese = analysis['language'] in ['chinese', 'mixed']
 
         zh_openers = [
             "謝謝你願意跟我講，",
@@ -171,16 +188,8 @@ Important:
             "I'm really glad you said this out loud, ",
         ]
 
-        if any(w in text_lower for w in ['考試', '考试', 'dse', '測試', '测试', '功課', '功课', 'exam', 'test', 'assignment', 'study', 'school']):
-            topic = 'academic'
-        elif any(w in text_lower for w in ['家人', '家庭', '父母', '媽媽', '妈妈', '爸爸', 'family', 'parent', 'home']):
-            topic = 'family'
-        elif any(w in text_lower for w in ['霸凌', '欺凌', 'bully', 'bullied', 'friend', '朋友', 'alone', '孤獨', '孤独', 'lonely']):
-            topic = 'social'
-        elif any(w in text_lower for w in ['不開心', '不开心', '難過', '难过', 'sad', 'unhappy', 'hurt', 'anxious', '焦慮', '焦虑']):
-            topic = 'emotion'
-        else:
-            topic = 'general'
+        topic = analysis['primary_topic']
+        key_phrase = analysis['key_phrases'][0] if analysis['key_phrases'] else None
 
         if has_chinese:
             opener = choice(zh_openers)
@@ -189,34 +198,34 @@ Important:
                     f"{opener}聽起來學業壓力真的壓住你了，尤其是你可能一直都在逼自己撐住。"
                     "你有這種焦慮很合理，因為你很在乎自己的表現。"
                     "如果你願意，我們可以先把最急的一件事拆細，先搞掂第一步。"
-                    "你現在最卡住的是哪一科，還是時間根本不夠用？"
+                    f"{self._next_followup(has_chinese=True, topic='academic', key_phrase=key_phrase)}"
                 )
             if topic == 'family':
                 return (
                     f"{opener}你在家裡承受的拉扯感我感受得到，真的會令人很累。"
                     "你有這些情緒不是你太敏感，而是你一直在努力撐住關係。"
                     "我們可以先從一件最近最刺痛你的事講起，再想一個你做得到的小回應。"
-                    "最近是哪句話或哪件事最影響你？"
+                    f"{self._next_followup(has_chinese=True, topic='family', key_phrase=key_phrase)}"
                 )
             if topic == 'social':
                 return (
                     f"{opener}人際上的傷很真，也真的很痛。"
                     "無論是被排擠、被欺負，還是覺得孤單，你的感受都值得被重視。"
                     "你不需要自己扛，我可以陪你慢慢整理，先把你最難受的時刻講出來就好。"
-                    "你想由今天發生的事開始講，還是最近一直重複的情況？"
+                    f"{self._next_followup(has_chinese=True, topic='social', key_phrase=key_phrase)}"
                 )
             if topic == 'emotion':
                 return (
                     f"{opener}我聽得出你現在真的不好受。"
                     "你有這些感受完全可以理解，不需要硬撐成『沒事』。"
                     "如果你想，我可以先陪你把情緒講清楚，再一起想一個今晚能做到的小方法。"
-                    "此刻最強烈的是難過、焦慮，還是委屈？"
+                    f"{self._next_followup(has_chinese=True, topic='emotion', key_phrase=key_phrase)}"
                 )
             return (
                 f"{opener}你現在的狀態對你來說一定不容易。"
                 "我不會急著下判斷，你可以慢慢說。"
                 "我會在這裡陪你，把事情一層一層理清。"
-                "你想先講最近發生了什麼，還是先講你現在的感受？"
+                f"{self._next_followup(has_chinese=True, topic='general', key_phrase=key_phrase)}"
             )
 
         opener = choice(en_openers)
@@ -225,35 +234,174 @@ Important:
                 f"{opener}it sounds like school pressure has been building up for a while. "
                 "That pressure is real, especially when you care a lot and keep pushing yourself. "
                 "If you want, we can break it down and choose one small step for today so it feels less heavy. "
-                "What feels most overwhelming right now: exams, deadlines, or expectations?"
+                f"{self._next_followup(has_chinese=False, topic='academic', key_phrase=key_phrase)}"
             )
         if topic == 'family':
             return (
                 f"{opener}family tension can feel exhausting, especially when you are trying to keep everything together. "
                 "Your feelings make sense, and you are not overreacting. "
                 "We can start with one recent moment and work out a response that protects your peace. "
-                "What happened recently that hurt the most?"
+                f"{self._next_followup(has_chinese=False, topic='family', key_phrase=key_phrase)}"
             )
         if topic == 'social':
             return (
                 f"{opener}social pain can hit really hard, and you should not have to carry it alone. "
                 "Whether it is bullying, exclusion, or loneliness, your experience matters. "
                 "I can stay with you through this and help you think through safe next steps. "
-                "Do you want to tell me what happened today, or what keeps repeating?"
+                f"{self._next_followup(has_chinese=False, topic='social', key_phrase=key_phrase)}"
             )
         if topic == 'emotion':
             return (
                 f"{opener}I can feel that things are heavy for you right now. "
                 "What you are feeling is valid, and you do not have to pretend to be okay here. "
                 "If you want, we can name what is hurting most first, then decide one small thing that might help tonight. "
-                "Is it more sadness, anxiety, anger, or feeling numb right now?"
+                f"{self._next_followup(has_chinese=False, topic='emotion', key_phrase=key_phrase)}"
             )
         return (
             f"{opener}I want to understand your situation, not just give you generic advice. "
             "You can take your time and say it however it comes out. "
             "I am here with you, and we can figure this out step by step. "
-            "What feels hardest to carry at this moment?"
+            f"{self._next_followup(has_chinese=False, topic='general', key_phrase=key_phrase)}"
         )
+
+    def _analyze_student_message(self, user_message: str) -> Dict[str, Any]:
+        """Extract lightweight context so responses can mirror the student's message."""
+        text = user_message.strip()
+        text_lower = text.lower()
+
+        has_chinese = any('\u4e00' <= c <= '\u9fff' for c in text)
+        has_english = bool(re.search(r'[a-zA-Z]', text))
+
+        if has_chinese and has_english:
+            language = 'mixed'
+        elif has_chinese:
+            language = 'chinese'
+        else:
+            language = 'english'
+
+        topics = []
+        if any(w in text_lower for w in ['exam', 'test', 'dse', 'assignment', 'study', 'school', '功課', '功课', '考試', '考试']):
+            topics.append('academic')
+        if any(w in text_lower for w in ['family', 'parent', 'home', '家人', '家庭', '父母', '媽媽', '妈妈', '爸爸']):
+            topics.append('family')
+        if any(w in text_lower for w in ['bully', 'bullied', 'friend', 'lonely', 'alone', '霸凌', '欺凌', '朋友', '孤獨', '孤独']):
+            topics.append('social')
+        if any(w in text_lower for w in ['sad', 'unhappy', 'hurt', 'anxious', 'stressed', 'hopeless', '難過', '难过', '不開心', '不开心', '焦慮', '焦虑', '壓力', '压力']):
+            topics.append('emotion')
+
+        if not topics:
+            topics = ['general']
+
+        if any(w in text_lower for w in ['suicide', 'kill myself', 'want to die', 'end my life', '自殺', '自杀', '想死']):
+            urgency = 'critical'
+            primary_emotion = 'despair'
+        elif any(w in text_lower for w in ['hopeless', 'worthless', 'can\'t go on', '絕望', '绝望']):
+            urgency = 'high'
+            primary_emotion = 'hopeless'
+        elif any(w in text_lower for w in ['panic', 'anxious', 'stressed', '焦慮', '焦虑', '壓力', '压力']):
+            urgency = 'moderate'
+            primary_emotion = 'anxiety'
+        elif any(w in text_lower for w in ['sad', 'unhappy', 'hurt', '難過', '难过', '不開心', '不开心']):
+            urgency = 'moderate'
+            primary_emotion = 'sadness'
+        else:
+            urgency = 'low'
+            primary_emotion = 'mixed'
+
+        # Keep short phrase snippets to ground response in student wording.
+        raw_phrases = re.findall(r'\b[a-zA-Z]{4,}\b|[\u4e00-\u9fff]{2,6}', text)
+        key_phrases = []
+        for p in raw_phrases:
+            p_clean = p.strip().lower()
+            if p_clean in ['that', 'this', 'with', 'from', 'have', 'just', 'really']:
+                continue
+            if p not in key_phrases:
+                key_phrases.append(p)
+            if len(key_phrases) >= 4:
+                break
+
+        return {
+            'language': language,
+            'topics': topics,
+            'primary_topic': topics[0],
+            'urgency': urgency,
+            'primary_emotion': primary_emotion,
+            'key_phrases': key_phrases,
+        }
+
+    def _next_followup(self, has_chinese: bool, topic: str, key_phrase: str = None) -> str:
+        """Choose a fresh open-ended question to keep the conversation going."""
+        zh_pool = {
+            'academic': [
+                "你現在最卡住的是哪一科，還是時間根本不夠用？",
+                "如果只選一件事先處理，你會想先處理哪一個功課或考試？",
+                "最近哪個時段壓力最大，早上、下午還是晚上？",
+            ],
+            'family': [
+                "最近是哪句話或哪件事最影響你？",
+                "你最希望家人先明白你哪一點？",
+                "如果要描述你在家裡的感受，你會用哪三個字？",
+            ],
+            'social': [
+                "你想由今天發生的事開始講，還是最近一直重複的情況？",
+                "那一刻你最受傷的是對方說了什麼，還是沒有人站在你這邊？",
+                "你身邊有沒有一個你比較信任、可以先聊一下的人？",
+            ],
+            'emotion': [
+                "此刻最強烈的是難過、焦慮，還是委屈？",
+                "你覺得這種感受是突然出現，還是累積了很久？",
+                "現在你最需要的是有人聽你說，還是一起想具體做法？",
+            ],
+            'general': [
+                "你想先講最近發生了什麼，還是先講你現在的感受？",
+                "如果從0到10分，你現在的壓力大概是幾分？",
+                "今天有沒有一個瞬間讓你特別想放棄或特別難受？",
+            ],
+        }
+
+        en_pool = {
+            'academic': [
+                "What feels most overwhelming right now: exams, deadlines, or expectations?",
+                "If we pick just one task to start with, which one would help you breathe easier?",
+                "When does the stress hit hardest for you, morning, afternoon, or late night?",
+            ],
+            'family': [
+                "What happened recently that hurt the most?",
+                "What do you wish your family understood about you right now?",
+                "If you had to name your feeling at home in three words, what would they be?",
+            ],
+            'social': [
+                "Do you want to start with what happened today, or what keeps repeating?",
+                "What hurt more in that moment, what was said, or feeling alone in it?",
+                "Is there one person you trust enough to talk to first?",
+            ],
+            'emotion': [
+                "Is it more sadness, anxiety, anger, or feeling numb right now?",
+                "Does this feeling come in waves, or has it been constant lately?",
+                "Would it help more if I just listen first, or if we plan one small next step?",
+            ],
+            'general': [
+                "What feels hardest to carry at this moment?",
+                "Do you want to start with what happened, or how it made you feel?",
+                "If your day had one hardest moment, what was it?",
+            ],
+        }
+
+        pool = zh_pool if has_chinese else en_pool
+        options = pool.get(topic, pool['general'])
+
+        # Avoid asking the same follow-up twice in a row when possible.
+        candidates = [q for q in options if q != self.last_followup]
+        selected = choice(candidates if candidates else options)
+
+        if key_phrase:
+            if has_chinese:
+                selected = f"你剛剛提到「{key_phrase}」，{selected}"
+            else:
+                selected = f"You mentioned \"{key_phrase}\" - {selected}"
+
+        self.last_followup = selected
+        return selected
         
     def _detect_emotion(self, text: str) -> str:
         """Basic emotion detection"""
