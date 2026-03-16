@@ -98,28 +98,39 @@ You don't have to face this alone. Help is available. 💙
                 "content": user_message
             })
             
-            # Create system prompt for emotional support
+            # Create structured system prompt for emotional support
             system_prompt = """You are an experienced, compassionate emotional support counselor for students in Hong Kong.
 
-Your role:
-1. LISTEN deeply to what the student is actually saying
-2. ANALYZE their specific situation, emotions, and challenges
-3. VALIDATE their feelings - show you understand
-4. PROVIDE SPECIFIC, ACTIONABLE advice tailored to their situation
-5. ENCOURAGE professional help when appropriate
-6. STAY SAFE - never suggest harmful behaviors
+RESPONSE STRUCTURE - Always follow this format:
 
-Guidelines:
-- Respond in the language they use (Chinese/English)
-- Be warm, non-judgmental, and genuine
-- Ask follow-up questions if their concern is unclear
-- Offer concrete coping strategies or steps they can take
-- Reference what they specifically shared (not generic advice)
-- Be brief but meaningful (2-3 paragraphs)
-- Show you understand their unique situation
-- Consider Hong Kong context (DSE exams, housing pressure, etc.)
+**ANALYSIS (What I understand):**
+- Identify the core issue/emotion the student is expressing
+- Show that you've understood their specific situation
+- Be specific, not generic
 
-Remember: You're here to listen, support, and guide them toward help. You're not a therapist, but a caring mentor."""
+**EMPATHY & VALIDATION (How I feel with you):**
+- Validate their feelings as real and important
+- Show genuine understanding and care
+- Use their language (Chinese/English as they used)
+- Be warm and non-judgmental
+
+**SUPPORT & ACTION (How I can help):**
+- Provide 1-3 specific, actionable suggestions or coping strategies
+- Tailor advice to their specific situation
+- Encourage professional help if appropriate
+- End with hope and reassurance
+
+IMPORTANT GUIDELINES:
+- Respond in the language they used
+- Be genuine and avoid generic phrases
+- Ask clarifying questions if needed
+- Reference specific things they mentioned
+- Keep each section brief (2-4 sentences max)
+- Never suggest harmful behaviors
+- For crisis signs: prioritize safety and hotlines
+- Consider Hong Kong context (DSE exams, family pressure, academic stress, housing issues, etc.)
+
+Remember: You're a caring mentor helping them find their way forward."""
             
             # Get OpenAI's response
             response = self.client.chat.completions.create(
@@ -128,7 +139,7 @@ Remember: You're here to listen, support, and guide them toward help. You're not
                     {"role": "system", "content": system_prompt},
                     *self.conversation_history
                 ],
-                temperature=0.7,
+                temperature=0.8,
                 max_tokens=1024
             )
             
@@ -147,16 +158,55 @@ Remember: You're here to listen, support, and guide them toward help. You're not
             return self.get_fallback_response(user_message)
     
     def get_fallback_response(self, user_message: str) -> str:
-        """Fallback response if OpenAI API fails"""
-        # Analyze emotion from keywords
+        """Fallback response if OpenAI API fails - structured format"""
         emotion = self._detect_emotion(user_message)
         
+        # Structured responses for fallback
         responses = {
-            "stressed": "我聽到你感受到很大的壓力。這種感受是真實的，許多學生都經歷過。能告訴我具體是什麼讓你感到這樣嗎？有時候，將壓力分解為更小的部分會有幫助。",
-            "sad": "我很遺憾聽到你感到難過。請記住，這些感受是暫時的，會改變的。你周圍有支援者嗎？有時候傾訴可以帶來很大的幫助。",
-            "hopeless": "我明白你現在可能感到絕望。但請相信，這個時刻會過去。很多人在最黑暗的時刻找到了光明。你願意與我分享更多嗎？",
-            "anxious": "焦慮是一種常見的感受，特別是在現代。深呼吸和運動有時候可以幫助。但最重要的是，你不需要獨自承受。",
-            "neutral": "謝謝你的分享。我正在傾聽。請告訴我更多你的感受。"
+            "stressed": """**ANALYSIS (What I understand):**
+你感到很大的壓力。這種感受在學生中很常見，尤其是在考試季節或有重要截止日期時。
+
+**EMPATHY & VALIDATION (How I feel with you):**
+你的壓力是真實的，完全可以理解。許多優秀的學生都經歷過這種感受。你願意分享具體是什麼讓你感到這樣嗎？
+
+**SUPPORT & ACTION (How I can help):**
+試試將壓力分解成更小的、可管理的部分。如果可以，每天騰出15分鐘進行深呼吸或散步。記住：你不需要一次性解決所有問題。""",
+            
+            "sad": """**ANALYSIS (What I understand):**
+你現在感到難過。這可能與特定的事件有關，或者只是一種籠罩著你的情緒。
+
+**EMPATHY & VALIDATION (How I feel with you):**
+感到難過是完全正常的。你有權利擁有這些感受。很多時候，難過會隨著時間改變。
+
+**SUPPORT & ACTION (How I can help):**
+考慮與信任的人分享你的感受。有時候傾訴能帶來極大幫助。如果感受持續，專業輔導員可以提供更深層的支持。""",
+            
+            "hopeless": """**ANALYSIS (What I understand):**
+你現在可能感到絕望，仿佛沒有辦法改變現狀。
+
+**EMPATHY & VALIDATION (How I feel with you):**
+我聽到你的痛苦。這些感受雖然很真實，但絕望往往是暫時的。許多人在最黑暗的時刻找到了出路。
+
+**SUPPORT & ACTION (How I can help):**
+請不要獨自承受。如果你有自殺念頭，請立即聯絡：撒瑪利亞防止撥款會 2389 2222 (24/7)。與我分享更多細節，或者找一個信任的人傾訴。""",
+            
+            "anxious": """**ANALYSIS (What I understand):**
+你感到焦慮和緊張。這可能與某個特定情況有關，或者只是一種持續的擔心感。
+
+**EMPATHY & VALIDATION (How I feel with you):**
+焦慮在現代生活中很常見。你的擔憂是真實的，許多聰明人都經歷過這種感受。
+
+**SUPPORT & ACTION (How I can help):**
+嘗試一些放鬆技巧：深呼吸（4秒吸氣，4秒呼氣）、散步或運動。限制社交媒體的使用時間也有幫助。如果焦慮影響日常生活，考慮尋求專業幫助。""",
+            
+            "neutral": """**ANALYSIS (What I understand):**
+感謝你的分享。我正在認真傾聽你的情況。
+
+**EMPATHY & VALIDATION (How I feel with you):**
+無論你現在的感受如何，我都在這裡支持你。
+
+**SUPPORT & ACTION (How I can help):**
+請告訴我更多細節。我想更好地理解你的處境，這樣我才能提供更有針對性的幫助。"""
         }
         
         return responses.get(emotion, responses["neutral"])
