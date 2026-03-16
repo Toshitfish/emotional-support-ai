@@ -7,6 +7,7 @@ import os
 import json
 from datetime import datetime
 from typing import Tuple, Dict, Any
+from random import choice
 
 # Try to import OpenAI
 try:
@@ -113,12 +114,15 @@ Language and tone:
 - Reply in the same language the student used (English, Traditional Chinese, or mixed).
 - Sound natural and conversational. Avoid labels, headings, bullets, or template format.
 - Avoid repetitive stock phrases and avoid sounding clinical.
-- Keep replies concise (about 4-8 sentences) but personal.
+- Keep replies concise (about 3-6 sentences) but personal.
+- Read like real chat, not an essay.
 
 Personalization rules:
 - Use details from what the student just said.
 - Do not give the same wording repeatedly.
 - If the student message is short (e.g., "I am unhappy"), ask a soft follow-up to understand context.
+- If they are vague, ask one simple question to help them open up.
+- If they share something specific, respond specifically before giving suggestions.
 - If there are safety/crisis signs, prioritize immediate safety and provide hotline guidance clearly and calmly.
 
 Important:
@@ -133,7 +137,7 @@ Important:
                     {"role": "system", "content": system_prompt},
                     *self.conversation_history
                 ],
-                temperature=1.0,
+                temperature=1.05,
                 max_tokens=1024
             )
             
@@ -152,65 +156,103 @@ Important:
             return self.get_fallback_response(user_message)
     
     def get_fallback_response(self, user_message: str) -> str:
-        """Fallback response that stays human, warm, and conversation-opening."""
+        """Fallback response that remains conversational and personalized."""
         text_lower = user_message.lower()
         has_chinese = any('\u4e00' <= c <= '\u9fff' for c in user_message)
 
+        zh_openers = [
+            "謝謝你願意跟我講，",
+            "我有聽到你，",
+            "你願意說出來已經好重要，",
+        ]
+        en_openers = [
+            "Thanks for sharing this with me, ",
+            "I hear you, ",
+            "I'm really glad you said this out loud, ",
+        ]
+
+        if any(w in text_lower for w in ['考試', '考试', 'dse', '測試', '测试', '功課', '功课', 'exam', 'test', 'assignment', 'study', 'school']):
+            topic = 'academic'
+        elif any(w in text_lower for w in ['家人', '家庭', '父母', '媽媽', '妈妈', '爸爸', 'family', 'parent', 'home']):
+            topic = 'family'
+        elif any(w in text_lower for w in ['霸凌', '欺凌', 'bully', 'bullied', 'friend', '朋友', 'alone', '孤獨', '孤独', 'lonely']):
+            topic = 'social'
+        elif any(w in text_lower for w in ['不開心', '不开心', '難過', '难过', 'sad', 'unhappy', 'hurt', 'anxious', '焦慮', '焦虑']):
+            topic = 'emotion'
+        else:
+            topic = 'general'
+
         if has_chinese:
-            if any(w in text_lower for w in ['考試', '考试', 'dse', '測試', '测试', '功課', '功课']):
+            opener = choice(zh_openers)
+            if topic == 'academic':
                 return (
-                    "聽起來你最近真的被學業壓得很辛苦，尤其是和考試有關的壓力。"
-                    "你會這樣緊張很正常，因為你其實很在乎自己的未來。"
-                    "我們可以先把最急的部分拆細，一步一步來，不用一次處理晒。"
-                    "你而家最擔心的是成績、時間不夠，還是家人的期望呢？"
+                    f"{opener}聽起來學業壓力真的壓住你了，尤其是你可能一直都在逼自己撐住。"
+                    "你有這種焦慮很合理，因為你很在乎自己的表現。"
+                    "如果你願意，我們可以先把最急的一件事拆細，先搞掂第一步。"
+                    "你現在最卡住的是哪一科，還是時間根本不夠用？"
                 )
-            if any(w in text_lower for w in ['家人', '家庭', '父母', '媽媽', '妈妈', '爸爸']):
+            if topic == 'family':
                 return (
-                    "我聽到你在家庭關係裡面承受緊好多情緒，呢種拉扯真係好攰。"
-                    "你有呢種反應一點都不奇怪，因為你一直都在撐住。"
-                    "如果你願意，我可以陪你整理下最近一件最卡住你的事，慢慢想一個你做得到的回應方式。"
-                    "最近有冇一句說話或一件事，令你特別難受？"
+                    f"{opener}你在家裡承受的拉扯感我感受得到，真的會令人很累。"
+                    "你有這些情緒不是你太敏感，而是你一直在努力撐住關係。"
+                    "我們可以先從一件最近最刺痛你的事講起，再想一個你做得到的小回應。"
+                    "最近是哪句話或哪件事最影響你？"
                 )
-            if any(w in text_lower for w in ['霸凌', '欺凌', '孤獨', '孤独', '唔開心', '不開心', '不开心', '難過', '难过']):
+            if topic == 'social':
                 return (
-                    "謝謝你願意講出來，我知道這些感受可能已經悶在心裡很久。"
-                    "你而家覺得受傷、難過或者孤單，都係好真實、值得被重視的。"
-                    "你唔需要一個人扛住，我會同你一齊諗下一步可以點樣令自己安全啲、舒服啲。"
-                    "你想先同我講下，最近哪一刻最令你頂唔順？"
+                    f"{opener}人際上的傷很真，也真的很痛。"
+                    "無論是被排擠、被欺負，還是覺得孤單，你的感受都值得被重視。"
+                    "你不需要自己扛，我可以陪你慢慢整理，先把你最難受的時刻講出來就好。"
+                    "你想由今天發生的事開始講，還是最近一直重複的情況？"
+                )
+            if topic == 'emotion':
+                return (
+                    f"{opener}我聽得出你現在真的不好受。"
+                    "你有這些感受完全可以理解，不需要硬撐成『沒事』。"
+                    "如果你想，我可以先陪你把情緒講清楚，再一起想一個今晚能做到的小方法。"
+                    "此刻最強烈的是難過、焦慮，還是委屈？"
                 )
             return (
-                "我收到你想講的事了，謝謝你願意打開這個話題。"
-                "無論你而家感覺幾亂，呢啲情緒都係有原因、值得被聽見。"
-                "我會陪你慢慢整理，不急。"
-                "你想由最近發生的事開始講，還是由你現在最強烈的感受開始？"
+                f"{opener}你現在的狀態對你來說一定不容易。"
+                "我不會急著下判斷，你可以慢慢說。"
+                "我會在這裡陪你，把事情一層一層理清。"
+                "你想先講最近發生了什麼，還是先講你現在的感受？"
             )
 
-        if any(w in text_lower for w in ['exam', 'test', 'dse', 'assignment', 'school', 'study', 'pressure']):
+        opener = choice(en_openers)
+        if topic == 'academic':
             return (
-                "It sounds like school pressure is really piling up on you right now. "
-                "That stress makes a lot of sense, especially when it feels like everything is urgent at once. "
-                "We can slow it down and sort what needs attention first so it feels less overwhelming. "
-                "What feels heaviest at the moment: exams, workload, or expectations from others?"
+                f"{opener}it sounds like school pressure has been building up for a while. "
+                "That pressure is real, especially when you care a lot and keep pushing yourself. "
+                "If you want, we can break it down and choose one small step for today so it feels less heavy. "
+                "What feels most overwhelming right now: exams, deadlines, or expectations?"
             )
-        if any(w in text_lower for w in ['family', 'parent', 'home', 'argue', 'conflict']):
+        if topic == 'family':
             return (
-                "I can hear how exhausting this family tension has been for you. "
-                "Your feelings are valid; being stuck between caring and feeling hurt is really hard. "
-                "If you want, we can unpack one recent moment together and figure out one small next step. "
-                "What happened most recently that stayed with you?"
+                f"{opener}family tension can feel exhausting, especially when you are trying to keep everything together. "
+                "Your feelings make sense, and you are not overreacting. "
+                "We can start with one recent moment and work out a response that protects your peace. "
+                "What happened recently that hurt the most?"
             )
-        if any(w in text_lower for w in ['bullied', 'bully', 'lonely', 'alone', 'sad', 'unhappy', 'hurt']):
+        if topic == 'social':
             return (
-                "Thank you for saying this out loud. "
-                "What you're feeling matters, and you deserve to be treated with care and respect. "
-                "You don't have to carry this by yourself; we can work through it one step at a time. "
-                "Do you want to tell me what happened today, or what has been repeating lately?"
+                f"{opener}social pain can hit really hard, and you should not have to carry it alone. "
+                "Whether it is bullying, exclusion, or loneliness, your experience matters. "
+                "I can stay with you through this and help you think through safe next steps. "
+                "Do you want to tell me what happened today, or what keeps repeating?"
+            )
+        if topic == 'emotion':
+            return (
+                f"{opener}I can feel that things are heavy for you right now. "
+                "What you are feeling is valid, and you do not have to pretend to be okay here. "
+                "If you want, we can name what is hurting most first, then decide one small thing that might help tonight. "
+                "Is it more sadness, anxiety, anger, or feeling numb right now?"
             )
         return (
-            "Thanks for sharing that with me. "
-            "I want to understand what this has been like for you, not just give you generic advice. "
-            "I'm here with you, and we can take this at your pace. "
-            "What part of this feels the hardest to put into words right now?"
+            f"{opener}I want to understand your situation, not just give you generic advice. "
+            "You can take your time and say it however it comes out. "
+            "I am here with you, and we can figure this out step by step. "
+            "What feels hardest to carry at this moment?"
         )
         
     def _detect_emotion(self, text: str) -> str:
