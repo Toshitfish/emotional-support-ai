@@ -24,10 +24,13 @@ class RealEmotionalAIAssistant:
     """
     
     def __init__(self):
-        self.api_key = os.getenv("OPENAI_API_KEY")
+        # Provider selection: OpenRouter first, then native OpenAI.
+        self.provider = "openrouter" if os.getenv("OPENROUTER_API_KEY") else "openai"
+        self.api_key = os.getenv("OPENROUTER_API_KEY") or os.getenv("OPENAI_API_KEY")
+        self.base_url = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1") if self.provider == "openrouter" else None
         self.client = None
         self.conversation_history = []
-        self.model = "gpt-4o-mini"  # Fast and cost-effective
+        self.model = os.getenv("OPENAI_MODEL") or ("openai/gpt-4o-mini" if self.provider == "openrouter" else "gpt-4o-mini")
         self.last_followup = None
         self.last_style = None
         self.init_error = None
@@ -35,11 +38,22 @@ class RealEmotionalAIAssistant:
         # Initialize OpenAI if API key is available
         if OPENAI_AVAILABLE and self.api_key:
             try:
-                self.client = OpenAI(api_key=self.api_key)
+                if self.provider == "openrouter":
+                    self.client = OpenAI(
+                        api_key=self.api_key,
+                        base_url=self.base_url,
+                        default_headers={
+                            "HTTP-Referer": os.getenv("APP_URL", "https://emotional-support-ai.onrender.com"),
+                            "X-Title": os.getenv("APP_NAME", "Students SoulCare")
+                        },
+                    )
+                    print("✅ OpenRouter connected via OpenAI-compatible API")
+                else:
+                    self.client = OpenAI(api_key=self.api_key)
+                    print("✅ OpenAI API connected - Using ChatGPT intelligence")
                 self.mode = "openai"
-                print("✅ OpenAI API connected - Using ChatGPT intelligence")
             except Exception as e:
-                print(f"⚠️  OpenAI connection failed: {e}")
+                print(f"⚠️  {self.provider} connection failed: {e}")
                 self.mode = "fallback"
                 self.init_error = str(e)
         else:
@@ -48,8 +62,8 @@ class RealEmotionalAIAssistant:
                 print("⚠️  Install openai: pip install openai")
                 self.init_error = "openai package not available"
             if not self.api_key:
-                print("⚠️  Set OPENAI_API_KEY environment variable")
-                self.init_error = "OPENAI_API_KEY is missing"
+                print("⚠️  Set OPENROUTER_API_KEY or OPENAI_API_KEY environment variable")
+                self.init_error = "OPENROUTER_API_KEY / OPENAI_API_KEY is missing"
         
         # Crisis keywords
         self.crisis_keywords = [
@@ -534,7 +548,7 @@ If student is stressed/sad, you may suggest 1-2 calming songs naturally (no link
         if self.mode == "openai" and self.client:
             return self.analyze_with_openai(user_message)
         else:
-            raise RuntimeError("OpenAI is not available. Please check OPENAI_API_KEY and deployment configuration.")
+            raise RuntimeError("LLM provider is not available. Please check OPENROUTER_API_KEY or OPENAI_API_KEY and deployment configuration.")
     
     def get_conversation_summary(self) -> Dict[str, Any]:
         """Get summary of conversation for analysis"""
@@ -573,6 +587,9 @@ def get_openai_status() -> Dict[str, Any]:
     return {
         "package_available": OPENAI_AVAILABLE,
         "key_set": bool(_openai_assistant.api_key),
+        "provider": _openai_assistant.provider,
+        "base_url": _openai_assistant.base_url,
+        "model": _openai_assistant.model,
         "mode": _openai_assistant.mode,
         "client_initialized": _openai_assistant.client is not None,
         "ready": (_openai_assistant.mode == "openai" and _openai_assistant.client is not None),
