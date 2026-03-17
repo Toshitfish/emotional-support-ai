@@ -21,9 +21,10 @@ load_dotenv()
 
 # Import AI assistants
 try:
-    from ai_assistant_openai import get_openai_response
+    from ai_assistant_openai import get_openai_response, get_openai_status
 except ImportError:
     get_openai_response = None
+    get_openai_status = None
 
 try:
     from ai_assistant_claude import get_claude_response
@@ -205,8 +206,19 @@ def api_root():
 @app.route('/api/health', methods=['GET'])
 def health():
     """Health check endpoint"""
-    openai_key_set = bool(os.getenv('OPENAI_API_KEY'))
-    openai_handler_loaded = get_openai_response is not None
+    openai_runtime = {
+        'package_available': False,
+        'key_set': bool(os.getenv('OPENAI_API_KEY')),
+        'mode': 'unknown',
+        'client_initialized': False,
+        'ready': False,
+        'init_error': 'openai status unavailable',
+    }
+    if get_openai_status:
+        try:
+            openai_runtime = get_openai_status()
+        except Exception as e:
+            openai_runtime['init_error'] = f'failed to read openai status: {e}'
 
     return jsonify({
         'status': 'ok',
@@ -214,9 +226,8 @@ def health():
         'message': 'Emotional Support API is running',
         'firebase': FIREBASE_ENABLED,
         'openai': {
-            'key_set': openai_key_set,
-            'handler_loaded': openai_handler_loaded,
-            'ready': openai_key_set and openai_handler_loaded
+            'handler_loaded': get_openai_response is not None,
+            **openai_runtime
         }
     })
 

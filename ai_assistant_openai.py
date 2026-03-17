@@ -30,6 +30,7 @@ class RealEmotionalAIAssistant:
         self.model = "gpt-4o-mini"  # Fast and cost-effective
         self.last_followup = None
         self.last_style = None
+        self.init_error = None
         
         # Initialize OpenAI if API key is available
         if OPENAI_AVAILABLE and self.api_key:
@@ -40,12 +41,15 @@ class RealEmotionalAIAssistant:
             except Exception as e:
                 print(f"⚠️  OpenAI connection failed: {e}")
                 self.mode = "fallback"
+                self.init_error = str(e)
         else:
             self.mode = "fallback"
             if not OPENAI_AVAILABLE:
                 print("⚠️  Install openai: pip install openai")
+                self.init_error = "openai package not available"
             if not self.api_key:
                 print("⚠️  Set OPENAI_API_KEY environment variable")
+                self.init_error = "OPENAI_API_KEY is missing"
         
         # Crisis keywords
         self.crisis_keywords = [
@@ -562,4 +566,16 @@ _openai_assistant = RealEmotionalAIAssistant()
 def get_openai_response(message: str) -> str:
     """Get response from OpenAI assistant (for Flask API)"""
     return _openai_assistant.get_response(message)
+
+
+def get_openai_status() -> Dict[str, Any]:
+    """Return runtime status for OpenAI integration (no secrets)."""
+    return {
+        "package_available": OPENAI_AVAILABLE,
+        "key_set": bool(_openai_assistant.api_key),
+        "mode": _openai_assistant.mode,
+        "client_initialized": _openai_assistant.client is not None,
+        "ready": (_openai_assistant.mode == "openai" and _openai_assistant.client is not None),
+        "init_error": _openai_assistant.init_error,
+    }
 
