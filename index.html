@@ -553,7 +553,16 @@
                 }
 
                 if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
+                    let message = `HTTP ${response.status}`;
+                    try {
+                        const errData = await response.json();
+                        if (errData && errData.error) {
+                            message = errData.error;
+                        }
+                    } catch (_) {
+                        // Keep default HTTP message if response body is not JSON.
+                    }
+                    throw new Error(message);
                 }
 
                 const data = await response.json();
