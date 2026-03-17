@@ -118,7 +118,7 @@ class RealEmotionalAIAssistant:
 You don't have to face this alone. Help is available. 💙
         """
     
-    def analyze_with_openai(self, user_message: str) -> str:
+    def analyze_with_openai(self, user_message: str, options: Dict[str, Any] = None) -> str:
         """Use OpenAI to analyze and respond"""
         try:
             # Add to history
@@ -130,7 +130,8 @@ You don't have to face this alone. Help is available. 💙
             analysis = self._analyze_student_message(user_message)
             has_chinese = analysis['language'] in ['chinese', 'mixed']
             internal = self._build_internal_assessment(user_message, analysis)
-            songs = self._suggest_songs(has_chinese, analysis['primary_emotion'], analysis['primary_topic'])
+            response_options = self._normalize_options(options)
+            songs = self._suggest_songs(has_chinese, analysis['primary_emotion'], analysis['primary_topic']) if response_options['include_songs'] else []
             
             # Create natural, human-style system prompt for emotional support
             system_prompt = """You are a warm, emotionally intelligent student support companion.
@@ -169,14 +170,16 @@ Internal reasoning requirement (do this silently, never expose as headings):
 
 Then reply naturally like a real supportive person, without showing your internal analysis process.
 
-Output style (strict):
-- Use short bullet points (3 to 5 bullets total).
-- Keep each bullet to 1 sentence where possible.
-- Suggested flow in bullets: quick understanding, empathy, practical support, optional song suggestion, one open question.
-- Avoid long paragraphs.
+Output style is controlled by user options passed in context:
+- response_style: bullet | compact | conversational
+- detail_level: short | medium | deep
+- coping_mode: practical | calming | motivational
+- include_action_plan: true/false
+- include_songs: true/false
+- include_emojis: true/false
 
-End with one open question to continue the conversation.
-If student is stressed/sad, you may suggest 1-2 calming songs naturally (no links)."""
+Always include one open question at the end.
+Keep output vivid and interactive, not plain generic text."""
             
             # Pass explicit student context so replies are specific and non-generic.
             context_prompt = (
@@ -191,6 +194,12 @@ If student is stressed/sad, you may suggest 1-2 calming songs naturally (no link
                 f"- suicide_risk: {internal['suicide_risk']}\n"
                 f"- risk_reasons: {', '.join(internal['risk_reasons']) if internal['risk_reasons'] else 'none'}\n"
                 f"- optional_song_ideas: {', '.join(songs) if songs else 'none'}\n"
+                f"- response_style: {response_options['response_style']}\n"
+                f"- detail_level: {response_options['detail_level']}\n"
+                f"- coping_mode: {response_options['coping_mode']}\n"
+                f"- include_action_plan: {response_options['include_action_plan']}\n"
+                f"- include_songs: {response_options['include_songs']}\n"
+                f"- include_emojis: {response_options['include_emojis']}\n"
                 "Use this context naturally. Do not mention this list explicitly."
             )
 
@@ -543,7 +552,7 @@ If student is stressed/sad, you may suggest 1-2 calming songs naturally (no link
         
         return "neutral"
     
-    def get_response(self, user_message: str) -> str:
+    def get_response(self, user_message: str, options: Dict[str, Any] = None) -> str:
         """Main method - get intelligent response"""
         
         # Check for crisis first (safety priority)
@@ -552,9 +561,33 @@ If student is stressed/sad, you may suggest 1-2 calming songs naturally (no link
         
         # Use OpenAI only for normal chat responses
         if self.mode == "openai" and self.client:
-            return self.analyze_with_openai(user_message)
+            return self.analyze_with_openai(user_message, options=options)
         else:
             raise RuntimeError("LLM provider is not available. Please check OPENROUTER_API_KEY or OPENAI_API_KEY and deployment configuration.")
+
+    def _normalize_options(self, options: Dict[str, Any] = None) -> Dict[str, Any]:
+        """Sanitize response customization options from UI/API."""
+        options = options or {}
+
+        response_style = options.get('response_style', 'bullet')
+        detail_level = options.get('detail_level', 'short')
+        coping_mode = options.get('coping_mode', 'practical')
+
+        if response_style not in {'bullet', 'compact', 'conversational'}:
+            response_style = 'bullet'
+        if detail_level not in {'short', 'medium', 'deep'}:
+            detail_level = 'short'
+        if coping_mode not in {'practical', 'calming', 'motivational'}:
+            coping_mode = 'practical'
+
+        return {
+            'response_style': response_style,
+            'detail_level': detail_level,
+            'coping_mode': coping_mode,
+            'include_action_plan': bool(options.get('include_action_plan', True)),
+            'include_songs': bool(options.get('include_songs', True)),
+            'include_emojis': bool(options.get('include_emojis', True)),
+        }
     
     def get_conversation_summary(self) -> Dict[str, Any]:
         """Get summary of conversation for analysis"""
@@ -583,9 +616,9 @@ EmotionalSupportAssistant = RealEmotionalAIAssistant
 # Create global instance for Flask API
 _openai_assistant = RealEmotionalAIAssistant()
 
-def get_openai_response(message: str) -> str:
+def get_openai_response(message: str, options: Dict[str, Any] = None) -> str:
     """Get response from OpenAI assistant (for Flask API)"""
-    return _openai_assistant.get_response(message)
+    return _openai_assistant.get_response(message, options=options)
 
 
 def get_openai_status() -> Dict[str, Any]:

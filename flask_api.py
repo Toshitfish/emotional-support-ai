@@ -262,6 +262,7 @@ def chat():
         assistant_type = data.get('assistant_type', 'openai').lower()
         session_id = data.get('session_id', 'default')
         region = data.get('region', 'HK')
+        options = data.get('options', {})
         
         # Analyze incoming message
         user_sentiment = analyze_sentiment(message)
@@ -275,7 +276,7 @@ def chat():
         used_assistant = None
         
         if get_openai_response:
-            response_text = get_openai_response(message)
+            response_text = get_openai_response(message, options=options)
             used_assistant = 'openai'
         else:
             return jsonify({'error': 'OpenAI API not configured. Please set OPENAI_API_KEY.'}), 500

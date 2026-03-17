@@ -350,6 +350,74 @@
             padding: 14px;
         }
 
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .control-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f7fbff;
+            border: 1px solid #dbe6fa;
+            border-radius: 10px;
+            padding: 7px 9px;
+            font-size: 0.78rem;
+            color: #425273;
+        }
+
+        .control-item label {
+            white-space: nowrap;
+            font-weight: 600;
+        }
+
+        .control-item select,
+        .control-item input[type="checkbox"] {
+            flex: 1;
+        }
+
+        .control-item select {
+            border: 1px solid #c7d8f7;
+            background: white;
+            border-radius: 8px;
+            padding: 5px 8px;
+            font-size: 0.76rem;
+            color: #22304a;
+        }
+
+        .assistant-rich ul {
+            margin: 6px 0 0 18px;
+            padding: 0;
+        }
+
+        .assistant-rich li {
+            margin: 4px 0;
+        }
+
+        .reply-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 9px;
+        }
+
+        .reply-chip {
+            border: 1px solid #c9daf7;
+            background: #ffffff;
+            color: #38568f;
+            border-radius: 999px;
+            padding: 5px 10px;
+            font-size: 0.72rem;
+            cursor: pointer;
+        }
+
+        .reply-chip:hover {
+            background: #f1f7ff;
+        }
+
         .input-group {
             display: flex;
             gap: 10px;
@@ -463,6 +531,10 @@
                 font-size: 0.92rem;
             }
 
+            .controls {
+                grid-template-columns: 1fr;
+            }
+
             button {
                 padding: 10px 14px;
             }
@@ -500,6 +572,44 @@
         </div>
 
         <div class="input-area">
+            <div class="controls">
+                <div class="control-item">
+                    <label for="responseStyle">Style</label>
+                    <select id="responseStyle">
+                        <option value="bullet" selected>Bullet</option>
+                        <option value="compact">Compact</option>
+                        <option value="conversational">Conversational</option>
+                    </select>
+                </div>
+                <div class="control-item">
+                    <label for="detailLevel">Depth</label>
+                    <select id="detailLevel">
+                        <option value="short" selected>Short</option>
+                        <option value="medium">Medium</option>
+                        <option value="deep">Deep</option>
+                    </select>
+                </div>
+                <div class="control-item">
+                    <label for="copingMode">Mode</label>
+                    <select id="copingMode">
+                        <option value="practical" selected>Practical</option>
+                        <option value="calming">Calming</option>
+                        <option value="motivational">Motivational</option>
+                    </select>
+                </div>
+                <div class="control-item">
+                    <label for="togglePlan">Action Plan</label>
+                    <input id="togglePlan" type="checkbox" checked>
+                </div>
+                <div class="control-item">
+                    <label for="toggleSongs">Song Ideas</label>
+                    <input id="toggleSongs" type="checkbox" checked>
+                </div>
+                <div class="control-item">
+                    <label for="toggleEmoji">Emojis</label>
+                    <input id="toggleEmoji" type="checkbox" checked>
+                </div>
+            </div>
             <div class="input-group">
                 <input
                     type="text"
@@ -520,6 +630,12 @@
         const sendBtn = document.getElementById('sendBtn');
         const statusDot = document.getElementById('statusDot');
         const statusText = document.getElementById('statusText');
+        const responseStyle = document.getElementById('responseStyle');
+        const detailLevel = document.getElementById('detailLevel');
+        const copingMode = document.getElementById('copingMode');
+        const togglePlan = document.getElementById('togglePlan');
+        const toggleSongs = document.getElementById('toggleSongs');
+        const toggleEmoji = document.getElementById('toggleEmoji');
 
         window.addEventListener('load', checkHealth);
 
@@ -610,7 +726,15 @@
                         message: message,
                         assistant_type: 'openai',
                         session_id: sessionId,
-                        region: 'HK'
+                        region: 'HK',
+                        options: {
+                            response_style: responseStyle.value,
+                            detail_level: detailLevel.value,
+                            coping_mode: copingMode.value,
+                            include_action_plan: togglePlan.checked,
+                            include_songs: toggleSongs.checked,
+                            include_emojis: toggleEmoji.checked
+                        }
                     })
                 });
 
@@ -658,7 +782,8 @@
             messageDiv.className = `message ${role}`;
 
             const safeText = escapeHtml(text).replace(/\n/g, '<br>');
-            let html = `<div class="message-content"><div>${safeText}</div>`;
+            const rich = role === 'assistant' ? formatAssistantText(text) : `<div>${safeText}</div>`;
+            let html = `<div class="message-content"><div class="assistant-rich">${rich}</div>`;
 
             if (sentiment && role === 'assistant') {
                 const moodEmoji = {
@@ -679,11 +804,42 @@
                 `;
             }
 
+            if (role === 'assistant') {
+                html += `
+                    <div class="reply-actions">
+                        <button class="reply-chip" type="button" data-reply="Can you help me with one small step for tonight?">1 small step</button>
+                        <button class="reply-chip" type="button" data-reply="Can you guide me with a 1-minute breathing exercise?">Breathing guide</button>
+                        <button class="reply-chip" type="button" data-reply="Can you ask me 2 questions to understand me better?">Ask me more</button>
+                    </div>
+                `;
+            }
+
             html += `</div>`;
             messageDiv.innerHTML = html;
 
+            messageDiv.querySelectorAll('.reply-chip').forEach((chip) => {
+                chip.addEventListener('click', () => {
+                    messageInput.value = chip.dataset.reply || '';
+                    messageInput.focus();
+                });
+            });
+
             chatBox.appendChild(messageDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function formatAssistantText(text) {
+            const lines = String(text).split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+            const bulletLines = lines.filter(l => /^[-*•]\s+/.test(l));
+
+            if (bulletLines.length >= 2) {
+                const items = bulletLines.map(l => `<li>${escapeHtml(l.replace(/^[-*•]\s+/, ''))}</li>`).join('');
+                const nonBullets = lines.filter(l => !/^[-*•]\s+/.test(l));
+                const intro = nonBullets.length ? `<div>${escapeHtml(nonBullets.join(' '))}</div>` : '';
+                return `${intro}<ul>${items}</ul>`;
+            }
+
+            return `<div>${escapeHtml(text).replace(/\n/g, '<br>')}</div>`;
         }
 
         function escapeHtml(text) {
