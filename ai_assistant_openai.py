@@ -194,7 +194,7 @@ If student is stressed/sad, you may suggest 1-2 calming songs naturally (no link
             
         except Exception as e:
             print(f"OpenAI API error: {e}")
-            return self.get_fallback_response(user_message)
+            raise RuntimeError(f"OpenAI API error: {e}")
 
     def get_fallback_response(self, user_message: str) -> str:
         """Fallback response: hidden analysis, natural empathetic output."""
@@ -526,15 +526,11 @@ If student is stressed/sad, you may suggest 1-2 calming songs naturally (no link
         if self.detect_crisis(user_message):
             return self.get_crisis_response()
         
-        # Use OpenAI if available, otherwise fallback
+        # Use OpenAI only for normal chat responses
         if self.mode == "openai" and self.client:
             return self.analyze_with_openai(user_message)
         else:
-            # Preserve memory even in fallback mode for continuity.
-            self.conversation_history.append({"role": "user", "content": user_message})
-            reply = self.get_fallback_response(user_message)
-            self.conversation_history.append({"role": "assistant", "content": reply})
-            return reply
+            raise RuntimeError("OpenAI is not available. Please check OPENAI_API_KEY and deployment configuration.")
     
     def get_conversation_summary(self) -> Dict[str, Any]:
         """Get summary of conversation for analysis"""
