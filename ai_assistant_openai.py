@@ -145,10 +145,9 @@ Core behavior for every reply:
 
 Language and tone:
 - Reply in the same language the student used (English, Traditional Chinese, or mixed).
-- Sound natural and conversational. Avoid labels, headings, bullets, or template format.
+- Sound natural and conversational.
 - Avoid repetitive stock phrases and avoid sounding clinical.
-- Keep replies concise (about 4-8 sentences) but personal.
-- Read like real chat, not an essay.
+- Keep replies concise and scannable.
 
 Personalization rules:
 - Use details from what the student just said.
@@ -169,6 +168,13 @@ Internal reasoning requirement (do this silently, never expose as headings):
 3) estimate safety risk (low/moderate/high/critical).
 
 Then reply naturally like a real supportive person, without showing your internal analysis process.
+
+Output style (strict):
+- Use short bullet points (3 to 5 bullets total).
+- Keep each bullet to 1 sentence where possible.
+- Suggested flow in bullets: quick understanding, empathy, practical support, optional song suggestion, one open question.
+- Avoid long paragraphs.
+
 End with one open question to continue the conversation.
 If student is stressed/sad, you may suggest 1-2 calming songs naturally (no links)."""
             
@@ -196,8 +202,8 @@ If student is stressed/sad, you may suggest 1-2 calming songs naturally (no link
                     {"role": "system", "content": context_prompt},
                     *self.conversation_history
                 ],
-                temperature=1.05,
-                max_tokens=1024
+                temperature=0.85,
+                max_tokens=320
             )
             
             assistant_message = response.choices[0].message.content

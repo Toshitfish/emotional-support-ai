@@ -240,6 +240,42 @@
             color: #5e6d86;
         }
 
+        .thinking-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 2px;
+        }
+
+        .thinking-ring {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid #b7d0ff;
+            border-top-color: #2d7ff9;
+            animation: spin 0.9s linear infinite;
+            flex: 0 0 auto;
+        }
+
+        .thinking-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .thinking-title {
+            font-size: 0.84rem;
+            font-weight: 600;
+            color: #2a4f8a;
+            letter-spacing: 0.1px;
+        }
+
+        .thinking-sub {
+            font-size: 0.76rem;
+            color: #6b7d99;
+            min-height: 18px;
+        }
+
         .typing-dots {
             display: flex;
             gap: 4px;
@@ -370,6 +406,15 @@
             40% {
                 transform: scale(1);
                 opacity: 1;
+            }
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
             }
         }
 
@@ -520,8 +565,14 @@
             chatBox.innerHTML += `
                 <div id="${loadingId}" class="message assistant">
                     <div class="message-content">
-                        <div class="loading">
-                            <span>Thinking</span>
+                        <div class="thinking-card">
+                            <div class="thinking-ring"></div>
+                            <div class="thinking-text">
+                                <div class="thinking-title">Thinking with care</div>
+                                <div class="thinking-sub" id="${loadingId}_sub">Reading your message...</div>
+                            </div>
+                        </div>
+                        <div class="loading" style="margin-top: 4px;">
                             <div class="typing-dots">
                                 <div class="typing-dot"></div>
                                 <div class="typing-dot"></div>
@@ -532,6 +583,22 @@
                 </div>
             `;
             chatBox.scrollTop = chatBox.scrollHeight;
+
+            const thinkingSteps = [
+                'Reading your message...',
+                'Understanding your situation...',
+                'Preparing a supportive reply...'
+            ];
+            let thinkingIndex = 0;
+            const thinkingTimer = setInterval(() => {
+                const sub = document.getElementById(`${loadingId}_sub`);
+                if (!sub) {
+                    clearInterval(thinkingTimer);
+                    return;
+                }
+                thinkingIndex = (thinkingIndex + 1) % thinkingSteps.length;
+                sub.textContent = thinkingSteps[thinkingIndex];
+            }, 900);
 
             try {
                 const response = await fetch(`${API_URL}/api/chat`, {
@@ -549,6 +616,7 @@
 
                 const loadingNode = document.getElementById(loadingId);
                 if (loadingNode) {
+                    clearInterval(thinkingTimer);
                     loadingNode.remove();
                 }
 
@@ -575,6 +643,7 @@
             } catch (error) {
                 const loadingNode = document.getElementById(loadingId);
                 if (loadingNode) {
+                    clearInterval(thinkingTimer);
                     loadingNode.remove();
                 }
                 addMessage('Connection issue: ' + error.message, 'assistant');
