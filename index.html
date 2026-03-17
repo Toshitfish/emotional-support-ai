@@ -60,7 +60,7 @@
         .header {
             position: relative;
             overflow: hidden;
-            padding: 22px 28px;
+            padding: 18px 24px 14px;
             color: #fff;
             background:
                 linear-gradient(120deg, var(--brand-3), var(--brand-2) 55%, var(--brand-1));
@@ -102,11 +102,40 @@
         }
 
         .header p {
-            margin-top: 6px;
-            font-size: 0.95rem;
+            margin-top: 4px;
+            font-size: 0.88rem;
             opacity: 0.95;
             position: relative;
             z-index: 1;
+        }
+
+        .intro-card {
+            margin-top: 10px;
+            position: relative;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.16);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            border-radius: 12px;
+            padding: 10px 12px;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .intro-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.22);
+            display: grid;
+            place-items: center;
+            flex: 0 0 auto;
+        }
+
+        .intro-body {
+            font-size: 0.78rem;
+            line-height: 1.35;
+            opacity: 0.95;
         }
 
         .status {
@@ -154,10 +183,10 @@
             background:
                 linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(249, 252, 255, 0.95));
             overflow-y: auto;
-            padding: 20px 18px;
+            padding: 16px 16px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
         }
 
         .welcome {
@@ -347,7 +376,32 @@
         .input-area {
             border-top: 1px solid var(--line);
             background: #fff;
-            padding: 14px;
+            padding: 10px;
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .toolbar-title {
+            font-size: 0.78rem;
+            color: #5f7094;
+            font-weight: 600;
+        }
+
+        .toolbar-toggle {
+            border: 1px solid #c7d8f7;
+            background: #f5f9ff;
+            color: #35558f;
+            border-radius: 9px;
+            padding: 6px 10px;
+            font-size: 0.74rem;
+            font-weight: 600;
+            cursor: pointer;
         }
 
         .controls {
@@ -355,6 +409,11 @@
             grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 8px;
             margin-bottom: 10px;
+            transition: 180ms ease;
+        }
+
+        .controls.collapsed {
+            display: none;
         }
 
         .control-item {
@@ -509,7 +568,7 @@
             }
 
             .header {
-                padding: 18px;
+                padding: 14px;
             }
 
             .header h1 {
@@ -517,7 +576,12 @@
             }
 
             .header p {
-                font-size: 0.86rem;
+                font-size: 0.8rem;
+            }
+
+            .intro-card {
+                margin-top: 8px;
+                padding: 8px 10px;
             }
 
             .status {
@@ -549,6 +613,14 @@
                 <h1>情緒支持平臺 Emotional Support Hub</h1>
             </div>
             <p>A safe place to talk, feel heard, and take one small step forward.</p>
+            <div class="intro-card" id="introCard">
+                <div class="intro-icon">🌱</div>
+                <div class="intro-body">
+                    <strong>About Students' SoulCare</strong><br>
+                    A school-friendly emotional support chatbot for stress, exams, friendships, and family pressure.
+                    You can choose response style and support mode anytime.
+                </div>
+            </div>
         </div>
 
         <div class="status">
@@ -572,6 +644,10 @@
         </div>
 
         <div class="input-area">
+            <div class="toolbar">
+                <span class="toolbar-title">Response Preferences</span>
+                <button id="toggleControls" class="toolbar-toggle" type="button">Hide Options</button>
+            </div>
             <div class="controls">
                 <div class="control-item">
                     <label for="responseStyle">Style</label>
@@ -636,6 +712,13 @@
         const togglePlan = document.getElementById('togglePlan');
         const toggleSongs = document.getElementById('toggleSongs');
         const toggleEmoji = document.getElementById('toggleEmoji');
+        const controlsPanel = document.querySelector('.controls');
+        const toggleControls = document.getElementById('toggleControls');
+
+        toggleControls.addEventListener('click', () => {
+            controlsPanel.classList.toggle('collapsed');
+            toggleControls.textContent = controlsPanel.classList.contains('collapsed') ? 'Show Options' : 'Hide Options';
+        });
 
         window.addEventListener('load', checkHealth);
 
