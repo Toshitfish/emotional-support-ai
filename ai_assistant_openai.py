@@ -44,7 +44,7 @@ class RealEmotionalAIAssistant:
                         base_url=self.base_url,
                         default_headers={
                             "HTTP-Referer": os.getenv("APP_URL", "https://emotional-support-ai.onrender.com"),
-                            "X-Title": os.getenv("APP_NAME", "Students SoulCare")
+                            "X-Title": os.getenv("APP_NAME", "Stu-SoulCare.com")
                         },
                     )
                     print("✅ OpenRouter connected via OpenAI-compatible API")
