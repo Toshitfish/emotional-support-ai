@@ -111,7 +111,7 @@ You don't have to face this alone. Help is available. 💙
 
             analysis = self._analyze_student_message(user_message)
             has_chinese = analysis['language'] in ['chinese', 'mixed']
-            style = self._pick_response_style(has_chinese)
+            internal = self._build_internal_assessment(user_message, analysis)
             songs = self._suggest_songs(has_chinese, analysis['primary_emotion'], analysis['primary_topic'])
             
             # Create natural, human-style system prompt for emotional support
@@ -145,12 +145,12 @@ Important:
 - Never suggest harmful behavior.
 - Your goal is to help the student feel understood and willing to continue chatting.
 
-Output format rule (must follow order):
-1) First section: analyze the student's own words and what they likely mean.
-2) Second section: show empathy in warm human language.
-3) Third section: give practical support/advice.
+Internal reasoning requirement (do this silently, never expose as headings):
+1) infer what the student is facing,
+2) infer how they feel,
+3) estimate safety risk (low/moderate/high/critical).
 
-Show these 3 sections visibly with short section labels, but keep wording natural and varied.
+Then reply naturally like a real supportive person, without showing your internal analysis process.
 End with one open question to continue the conversation.
 If student is stressed/sad, you may suggest 1-2 calming songs naturally (no links)."""
             
@@ -162,9 +162,10 @@ If student is stressed/sad, you may suggest 1-2 calming songs naturally (no link
                 f"- topics: {', '.join(analysis['topics']) if analysis['topics'] else 'general'}\n"
                 f"- urgency: {analysis['urgency']}\n"
                 f"- key_phrases: {', '.join(analysis['key_phrases']) if analysis['key_phrases'] else 'none'}\n"
-                f"- analysis_label: {style['analysis']}\n"
-                f"- empathy_label: {style['empathy']}\n"
-                f"- support_label: {style['support']}\n"
+                f"- situation_summary: {internal['situation_summary']}\n"
+                f"- feeling_summary: {internal['feeling_summary']}\n"
+                f"- suicide_risk: {internal['suicide_risk']}\n"
+                f"- risk_reasons: {', '.join(internal['risk_reasons']) if internal['risk_reasons'] else 'none'}\n"
                 f"- optional_song_ideas: {', '.join(songs) if songs else 'none'}\n"
                 "Use this context naturally. Do not mention this list explicitly."
             )
@@ -196,10 +197,10 @@ If student is stressed/sad, you may suggest 1-2 calming songs naturally (no link
             return self.get_fallback_response(user_message)
 
     def get_fallback_response(self, user_message: str) -> str:
-        """Fallback response with visible analysis, empathy, and support."""
+        """Fallback response: hidden analysis, natural empathetic output."""
         analysis = self._analyze_student_message(user_message)
         has_chinese = analysis['language'] in ['chinese', 'mixed']
-        style = self._pick_response_style(has_chinese)
+        internal = self._build_internal_assessment(user_message, analysis)
 
         topic = analysis['primary_topic']
         if topic == 'general':
@@ -214,77 +215,33 @@ If student is stressed/sad, you may suggest 1-2 calming songs naturally (no link
         followup = self._next_followup(has_chinese=has_chinese, topic=topic, key_phrase=key_phrase)
 
         if has_chinese:
-            analysis_map = {
-                'academic': "我聽到你的重點是學業和考試壓力，{}這部分正在消耗你的能量。",
-                'family': "我理解到你在家庭互動上有拉扯感，{}這讓你很難放鬆。",
-                'social': "我聽到你在人際關係上受了傷，{}這種影響通常會延續到整天心情。",
-                'emotion': "我留意到你現在情緒負擔很重，{}你可能已經忍耐了一段時間。",
-                'general': "我先整理你剛剛的話：{}你現在需要的是被真正聽懂，而不是被敷衍。",
-            }
-            empathy_map = {
-                'academic': "你會緊張不是你不夠好，而是你真的很在乎。這種壓力很多認真的學生都會有。",
-                'family': "你有這些感受很正常，不代表你脆弱。夾在關係裡面本來就很辛苦。",
-                'social': "被誤解或被孤立真的會很痛，你的感受完全合理。你不需要一個人撐住。",
-                'emotion': "你願意說出來已經很勇敢了。我會用你可以承受的節奏陪你走。",
-                'general': "謝謝你願意打開這個話題，你的感受值得被認真對待。",
-            }
+            insight = internal['situation_summary']
+            empathy = internal['feeling_summary']
             support_map = {
-                'academic': "我們先做一個可執行小步驟：只選一科，做25分鐘，之後休息5分鐘。今晚先完成一個最小任務就算成功。",
-                'family': "你可以先把最想講的一句話寫下來，讓情緒先落地，再決定要不要和對方談。必要時先找信任的大人或老師做中間支持。",
-                'social': "先把自己放在安全位置：遠離讓你受傷的場景，並記錄發生的事。若涉及欺凌，盡快找老師或家長介入。",
-                'emotion': "先照顧身體再處理情緒：喝水、慢呼吸一分鐘、站起來走兩圈。之後我們再一起拆開你最卡的那一點。",
-                'general': "如果你願意，我們先選一件最困擾你的事，從『發生了什麼』和『你怎麼感受』兩條線慢慢理清。",
+                'academic': "如果你願意，我們先把今天最急的一件事拆成兩步，先完成第一步就好。",
+                'family': "你可以先寫下一句你最想被理解的話，之後再決定怎樣說出口。",
+                'social': "先保護自己，暫時遠離會讓你受傷的場景，再找一個可信任的人做支援。",
+                'emotion': "先做一分鐘慢呼吸，讓身體降下來，再一起處理你最卡的地方。",
+                'general': "我們先從最近最困擾你的一件事開始，慢慢拆開就會清楚很多。",
             }
-
-            analysis_text = analysis_map.get(topic, analysis_map['general']).format(key_hint if key_hint else "")
-            empathy_text = empathy_map.get(topic, empathy_map['general'])
             support_text = support_map.get(topic, support_map['general'])
             song_line = ""
             if songs:
-                song_line = f"\n你可以試下這兩首歌先穩定情緒：{songs[0]}、{songs[1]}。"
+                song_line = f" 如果想先穩定心情，你可以聽聽：{songs[0]}、{songs[1]}。"
+            return f"我聽到你在面對{insight}。{empathy} {support_text}{song_line} {followup}"
 
-            return (
-                f"{style['analysis']}\n{analysis_text}\n\n"
-                f"{style['empathy']}\n{empathy_text}\n\n"
-                f"{style['support']}\n{support_text}{song_line}\n\n"
-                f"{followup}"
-            )
-
-        analysis_map = {
-            'academic': "From your words, the core issue sounds like exam/academic pressure and a fear of not doing enough{}.",
-            'family': "What I hear is tension in your family space{} and it is draining your emotional energy.",
-            'social': "Your message points to social hurt{} and that kind of pain can linger all day.",
-            'emotion': "I can hear emotional overload in what you wrote{} and you may have been holding this in for a while.",
-            'general': "Here is what I understood from your words{}: you want to be genuinely understood, not given generic lines.",
-        }
-        empathy_map = {
-            'academic': "Your anxiety makes sense. Caring deeply about your future can feel heavy, and you are not weak for feeling this.",
-            'family': "Your feelings are valid. Family pressure can be painful even when you still care about them.",
-            'social': "What you feel is real. Feeling excluded or hurt by people can shake confidence fast.",
-            'emotion': "Thank you for being honest. It takes courage to say this when things feel heavy.",
-            'general': "I appreciate you sharing this. I am taking your feelings seriously.",
-        }
         support_map = {
-            'academic': "Try one micro-plan now: pick one subject, do 25 minutes, then 5-minute break. Tonight, one completed task is already progress.",
-            'family': "Write down the one sentence you wish they understood first. It helps you express clearly before any hard conversation.",
-            'social': "Protect your space first: step away from harmful interactions, document what happened, and involve a trusted adult if needed.",
-            'emotion': "Start with body regulation first: sip water, do one minute of slow breathing, then we can unpack the hardest part together.",
-            'general': "If you want, we can break this into two parts: what happened and what you felt, then pick one next step.",
+            'academic': "If you want, let us split your most urgent task into two tiny steps and finish step one first.",
+            'family': "You could write one sentence you wish they understood before deciding how to say it.",
+            'social': "Protect your space first, then reach out to one trusted person for support.",
+            'emotion': "Start with one minute of slow breathing to settle your body, then we can unpack the hardest part.",
+            'general': "Let us start with one specific moment that felt hardest and break it down together.",
         }
-
-        analysis_text = analysis_map.get(topic, analysis_map['general']).format(f" around {key_hint}" if key_hint else "")
-        empathy_text = empathy_map.get(topic, empathy_map['general'])
         support_text = support_map.get(topic, support_map['general'])
         song_line = ""
         if songs:
-            song_line = f"\nIf it helps, try these two songs to settle your nerves: {songs[0]} and {songs[1]}."
-
-        return (
-            f"{style['analysis']}\n{analysis_text}\n\n"
-            f"{style['empathy']}\n{empathy_text}\n\n"
-            f"{style['support']}\n{support_text}{song_line}\n\n"
-            f"{followup}"
-        )
+            song_line = f" If it helps, try {songs[0]} or {songs[1]} to calm your mind first."
+        return f"From what you shared, you seem to be dealing with {internal['situation_summary']}. {internal['feeling_summary']} {support_text}{song_line} {followup}"
 
     def _analyze_student_message(self, user_message: str) -> Dict[str, Any]:
         """Extract lightweight context so responses can mirror the student's message."""
@@ -355,6 +312,51 @@ If student is stressed/sad, you may suggest 1-2 calming songs naturally (no link
             'urgency': urgency,
             'primary_emotion': primary_emotion,
             'key_phrases': key_phrases,
+        }
+
+    def _build_internal_assessment(self, user_message: str, analysis: Dict[str, Any]) -> Dict[str, Any]:
+        """Internal-only assessment used for safer, more personalized replies."""
+        text_lower = user_message.lower()
+
+        topic_map = {
+            'academic': 'academic pressure and performance anxiety',
+            'family': 'family conflict or pressure at home',
+            'social': 'social hurt, exclusion, or bullying stress',
+            'emotion': 'ongoing emotional overload',
+            'general': 'a difficult personal situation that feels heavy',
+        }
+        situation_summary = topic_map.get(analysis.get('primary_topic', 'general'), topic_map['general'])
+
+        emotion_map = {
+            'anxiety': 'It sounds like they are tense, worried, and mentally exhausted.',
+            'sadness': 'It sounds like they are feeling low, hurt, and emotionally drained.',
+            'hopeless': 'It sounds like they may feel trapped and losing hope.',
+            'despair': 'It sounds like they may be in severe emotional pain and possible danger.',
+            'mixed': 'It sounds like they are carrying mixed emotions and need emotional safety first.',
+        }
+        feeling_summary = emotion_map.get(analysis.get('primary_emotion', 'mixed'), emotion_map['mixed'])
+
+        risk_reasons = []
+        suicide_risk = 'low'
+        if any(w in text_lower for w in ['suicide', 'kill myself', 'want to die', 'end my life', '自殺', '自杀', '想死']):
+            suicide_risk = 'critical'
+            risk_reasons.append('explicit self-harm/suicide language present')
+        elif any(w in text_lower for w in ['hopeless', 'worthless', "can't go on", '絕望', '绝望', '無望', '无望']):
+            suicide_risk = 'high'
+            risk_reasons.append('strong hopelessness indicators')
+        elif any(w in text_lower for w in ['panic', 'anxious', 'anxiety', 'nervous', '焦慮', '焦虑', '壓力', '压力']):
+            suicide_risk = 'moderate'
+            risk_reasons.append('high distress/anxiety indicators')
+
+        if analysis.get('urgency') == 'critical' and suicide_risk != 'critical':
+            suicide_risk = 'high'
+            risk_reasons.append('model urgency detected as critical')
+
+        return {
+            'situation_summary': situation_summary,
+            'feeling_summary': feeling_summary,
+            'suicide_risk': suicide_risk,
+            'risk_reasons': risk_reasons,
         }
 
     def _pick_response_style(self, has_chinese: bool) -> Dict[str, str]:
