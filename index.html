@@ -888,11 +888,12 @@
             }
 
             if (role === 'assistant') {
+                const dynamicReplies = getDynamicReplyOptions(text, sentiment, crisis);
                 html += `
                     <div class="reply-actions">
-                        <button class="reply-chip" type="button" data-reply="Can you help me with one small step for tonight?">1 small step</button>
-                        <button class="reply-chip" type="button" data-reply="Can you guide me with a 1-minute breathing exercise?">Breathing guide</button>
-                        <button class="reply-chip" type="button" data-reply="Can you ask me 2 questions to understand me better?">Ask me more</button>
+                        <button class="reply-chip" type="button" data-reply="${escapeHtml(dynamicReplies[0].reply)}">${escapeHtml(dynamicReplies[0].label)}</button>
+                        <button class="reply-chip" type="button" data-reply="${escapeHtml(dynamicReplies[1].reply)}">${escapeHtml(dynamicReplies[1].label)}</button>
+                        <button class="reply-chip" type="button" data-reply="${escapeHtml(dynamicReplies[2].reply)}">${escapeHtml(dynamicReplies[2].label)}</button>
                     </div>
                 `;
             }
@@ -923,6 +924,128 @@
             }
 
             return `<div>${escapeHtml(text).replace(/\n/g, '<br>')}</div>`;
+        }
+
+        function getDynamicReplyOptions(text, sentiment, crisis) {
+            const lower = String(text || '').toLowerCase();
+            const mood = sentiment && sentiment.mood ? sentiment.mood : 'neutral';
+
+            if (crisis && (crisis.crisis_level === 'critical' || crisis.crisis_level === 'high')) {
+                return [
+                    {
+                        label: 'Immediate Help',
+                        reply: 'Please help me contact immediate support resources now.'
+                    },
+                    {
+                        label: 'Stay With Me',
+                        reply: 'Please stay with me and guide me step by step for the next 10 minutes.'
+                    },
+                    {
+                        label: 'Safety Plan',
+                        reply: 'Can you help me make a short safety plan for tonight?'
+                    }
+                ];
+            }
+
+            if (/exam|dse|assignment|school|study|revision|考試|考试|功課|功课|溫習|温习/.test(lower)) {
+                return [
+                    {
+                        label: 'Study Plan',
+                        reply: 'Can you create a simple 1-hour study plan for me right now?'
+                    },
+                    {
+                        label: 'Calm Before Study',
+                        reply: 'Guide me through a short routine to calm down before studying.'
+                    },
+                    {
+                        label: 'Prioritize Tasks',
+                        reply: 'Help me decide what I should focus on first today.'
+                    }
+                ];
+            }
+
+            if (/family|parent|home|家人|家庭|父母|媽媽|妈妈|爸爸/.test(lower)) {
+                return [
+                    {
+                        label: 'Say It Better',
+                        reply: 'Can you help me phrase what I want to say to my family calmly?'
+                    },
+                    {
+                        label: 'Set Boundaries',
+                        reply: 'What is one respectful boundary I can set with my family?'
+                    },
+                    {
+                        label: 'Handle Conflict',
+                        reply: 'Please give me a step-by-step way to handle the next conflict.'
+                    }
+                ];
+            }
+
+            if (/bull(y|ied)|lonely|alone|friend|social|霸凌|欺凌|孤獨|孤独|朋友/.test(lower)) {
+                return [
+                    {
+                        label: 'What To Do Next',
+                        reply: 'What should I do next if this happens again?'
+                    },
+                    {
+                        label: 'Talk To Someone',
+                        reply: 'Help me choose who I should talk to first and what to say.'
+                    },
+                    {
+                        label: 'Rebuild Confidence',
+                        reply: 'Give me 3 small actions to rebuild my confidence this week.'
+                    }
+                ];
+            }
+
+            if (mood === 'negative') {
+                return [
+                    {
+                        label: 'Breathe 1 Minute',
+                        reply: 'Please guide me through a 1-minute breathing exercise now.'
+                    },
+                    {
+                        label: 'One Small Step',
+                        reply: 'What is one tiny step I can take in the next 15 minutes?'
+                    },
+                    {
+                        label: 'Music Suggestions',
+                        reply: 'Can you suggest a few songs to help me regulate my mood?'
+                    }
+                ];
+            }
+
+            if (mood === 'positive') {
+                return [
+                    {
+                        label: 'Keep Momentum',
+                        reply: 'How can I keep this positive momentum for the rest of today?'
+                    },
+                    {
+                        label: 'Reflect',
+                        reply: 'Can you help me reflect on what went well and why?'
+                    },
+                    {
+                        label: 'Next Goal',
+                        reply: 'What is a healthy next goal I can set for this week?'
+                    }
+                ];
+            }
+
+            return [
+                {
+                    label: 'Ask Me More',
+                    reply: 'Can you ask me 2 questions to understand my situation better?'
+                },
+                {
+                    label: 'Action Plan',
+                    reply: 'Can you give me a short action plan for today?'
+                },
+                {
+                    label: 'Calm Technique',
+                    reply: 'Teach me a quick calming technique I can use right now.'
+                }
+            ];
         }
 
         function escapeHtml(text) {
