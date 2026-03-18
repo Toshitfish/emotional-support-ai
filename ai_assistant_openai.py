@@ -24,13 +24,30 @@ class RealEmotionalAIAssistant:
     """
     
     def __init__(self):
-        # Provider selection: OpenRouter first, then native OpenAI.
-        self.provider = "openrouter" if os.getenv("OPENROUTER_API_KEY") else "openai"
-        self.api_key = os.getenv("OPENROUTER_API_KEY") or os.getenv("OPENAI_API_KEY")
-        self.base_url = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1") if self.provider == "openrouter" else None
+        # Provider selection priority: Teamplus -> OpenRouter -> native OpenAI.
+        if os.getenv("TEAMPLUS_API_KEY"):
+            self.provider = "teamplus"
+        elif os.getenv("OPENROUTER_API_KEY"):
+            self.provider = "openrouter"
+        else:
+            self.provider = "openai"
+
+        if self.provider == "teamplus":
+            self.api_key = os.getenv("TEAMPLUS_API_KEY")
+            self.base_url = os.getenv("TEAMPLUS_BASE_URL", "https://api.teamplus.space/v1")
+        elif self.provider == "openrouter":
+            self.api_key = os.getenv("OPENROUTER_API_KEY")
+            self.base_url = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
+        else:
+            self.api_key = os.getenv("OPENAI_API_KEY")
+            self.base_url = None
         self.client = None
         self.conversation_history = []
-        self.model = os.getenv("OPENAI_MODEL") or ("openai/gpt-4o-mini" if self.provider == "openrouter" else "gpt-4o-mini")
+        self.model = (
+            os.getenv("TEAMPLUS_MODEL")
+            or os.getenv("OPENAI_MODEL")
+            or ("openai/gpt-4o-mini" if self.provider == "openrouter" else "gpt-4o-mini")
+        )
         self.last_followup = None
         self.last_style = None
         self.init_error = None
@@ -38,7 +55,7 @@ class RealEmotionalAIAssistant:
         # Initialize OpenAI if API key is available
         if OPENAI_AVAILABLE and self.api_key:
             try:
-                if self.provider == "openrouter":
+                if self.provider in {"teamplus", "openrouter"}:
                     self.client = OpenAI(
                         api_key=self.api_key,
                         base_url=self.base_url,
@@ -47,7 +64,10 @@ class RealEmotionalAIAssistant:
                             "X-Title": os.getenv("APP_NAME", "Stu-SoulCare.com")
                         },
                     )
-                    print("✅ OpenRouter connected via OpenAI-compatible API")
+                    if self.provider == "teamplus":
+                        print("✅ Teamplus connected via OpenAI-compatible API")
+                    else:
+                        print("✅ OpenRouter connected via OpenAI-compatible API")
                 else:
                     self.client = OpenAI(api_key=self.api_key)
                     print("✅ OpenAI API connected - Using ChatGPT intelligence")
@@ -62,8 +82,8 @@ class RealEmotionalAIAssistant:
                 print("⚠️  Install openai: pip install openai")
                 self.init_error = "openai package not available"
             if not self.api_key:
-                print("⚠️  Set OPENROUTER_API_KEY or OPENAI_API_KEY environment variable")
-                self.init_error = "OPENROUTER_API_KEY / OPENAI_API_KEY is missing"
+                print("⚠️  Set TEAMPLUS_API_KEY, OPENROUTER_API_KEY, or OPENAI_API_KEY environment variable")
+                self.init_error = "TEAMPLUS_API_KEY / OPENROUTER_API_KEY / OPENAI_API_KEY is missing"
         
         # Crisis keywords
         self.crisis_keywords = [
@@ -563,7 +583,7 @@ Keep output vivid and interactive, not plain generic text."""
         if self.mode == "openai" and self.client:
             return self.analyze_with_openai(user_message, options=options)
         else:
-            raise RuntimeError("LLM provider is not available. Please check OPENROUTER_API_KEY or OPENAI_API_KEY and deployment configuration.")
+            raise RuntimeError("LLM provider is not available. Please check TEAMPLUS_API_KEY, OPENROUTER_API_KEY, or OPENAI_API_KEY and deployment configuration.")
 
     def _normalize_options(self, options: Dict[str, Any] = None) -> Dict[str, Any]:
         """Sanitize response customization options from UI/API."""

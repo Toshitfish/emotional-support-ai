@@ -629,7 +629,7 @@
                 <span class="status-dot" id="statusDot"></span>
                 <span id="statusText">Connecting...</span>
             </div>
-            <div class="ai-info">OpenAI support is active</div>
+            <div class="ai-info" id="aiInfo">AI provider: checking...</div>
         </div>
 
         <div class="chat-box" id="chatBox">
@@ -707,6 +707,7 @@
         const sendBtn = document.getElementById('sendBtn');
         const statusDot = document.getElementById('statusDot');
         const statusText = document.getElementById('statusText');
+        const aiInfo = document.getElementById('aiInfo');
         const responseStyle = document.getElementById('responseStyle');
         const detailLevel = document.getElementById('detailLevel');
         const copingMode = document.getElementById('copingMode');
@@ -733,13 +734,25 @@
         function checkHealth() {
             fetch(`${API_URL}/api/health`)
                 .then(res => res.json())
-                .then(() => {
+                .then((data) => {
                     statusDot.classList.remove('offline');
                     statusText.textContent = 'Connected';
+
+                    const provider = data?.openai?.provider;
+                    if (provider === 'teamplus') {
+                        aiInfo.textContent = 'Teamplus support is active';
+                    } else if (provider === 'openrouter') {
+                        aiInfo.textContent = 'OpenRouter support is active';
+                    } else if (provider === 'openai') {
+                        aiInfo.textContent = 'OpenAI support is active';
+                    } else {
+                        aiInfo.textContent = 'AI provider status unavailable';
+                    }
                 })
                 .catch(() => {
                     statusDot.classList.add('offline');
                     statusText.textContent = 'Offline';
+                    aiInfo.textContent = 'AI provider offline';
                     chatBox.innerHTML = '<div class="error">Cannot connect to API. Please check your network or server status.</div>';
                 });
         }

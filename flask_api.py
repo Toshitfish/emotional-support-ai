@@ -208,7 +208,7 @@ def health():
     """Health check endpoint"""
     openai_runtime = {
         'package_available': False,
-        'key_set': bool(os.getenv('OPENAI_API_KEY') or os.getenv('OPENROUTER_API_KEY')),
+        'key_set': bool(os.getenv('TEAMPLUS_API_KEY') or os.getenv('OPENAI_API_KEY') or os.getenv('OPENROUTER_API_KEY')),
         'mode': 'unknown',
         'client_initialized': False,
         'ready': False,
