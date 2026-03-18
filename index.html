@@ -415,6 +415,26 @@
             color: #304773;
         }
 
+        .game-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 8px;
+            padding: 4px 9px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            background: rgba(125, 89, 246, 0.1);
+            border: 1px solid rgba(125, 89, 246, 0.25);
+            color: #5d3cc7;
+        }
+
+        body.dark-mode .game-badge {
+            background: rgba(145, 117, 255, 0.2);
+            border-color: rgba(169, 147, 255, 0.35);
+            color: #d8c7ff;
+        }
+
         .sentiment-badge.positive {
             background: #ddf8ea;
             color: #1c6e46;
@@ -782,6 +802,45 @@
             gap: 10px;
         }
 
+        .bubble-wrap-grid {
+            margin-top: 10px;
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 8px;
+            max-width: 360px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .bubble-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1px solid rgba(95, 140, 215, 0.45);
+            background: radial-gradient(circle at 30% 30%, #e8f3ff, #b6d1f7);
+            box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.9), 0 3px 8px rgba(56, 91, 145, 0.22);
+            cursor: pointer;
+            transition: transform 110ms ease, filter 110ms ease, opacity 160ms ease;
+        }
+
+        .bubble-dot:hover {
+            transform: translateY(-1px);
+        }
+
+        .bubble-dot.popped {
+            background: radial-gradient(circle at 40% 40%, #c4ccda, #9fa7b5);
+            filter: grayscale(0.25);
+            opacity: 0.82;
+            animation: pop 170ms ease;
+        }
+
+        .bubble-meta {
+            margin-top: 8px;
+            text-align: center;
+            font-size: 0.82rem;
+            color: #5c7196;
+        }
+
         .breathe-circle {
             width: 120px;
             height: 120px;
@@ -917,6 +976,18 @@
             }
         }
 
+        @keyframes pop {
+            0% {
+                transform: scale(1);
+            }
+            60% {
+                transform: scale(0.78);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
         @media (max-width: 800px) {
             body {
                 padding: 0;
@@ -1008,6 +1079,7 @@
             <div class="status-actions">
                 <button class="utility-btn danger" id="emergencyBtn" type="button">Emergency Help</button>
                 <button class="utility-btn" id="breatheBtn" type="button">Breathe 1 min</button>
+                <button class="utility-btn" id="bubbleWrapBtn" type="button">🫧 Bubble Wrap</button>
             </div>
         </div>
 
@@ -1025,6 +1097,7 @@
                     <button class="prompt-chip" type="button" data-prompt="I can't sleep lately and my mind won't stop racing.">Can't sleep</button>
                     <button class="prompt-chip" type="button" data-prompt="I had a fight with a friend and I feel really upset.">Fight with friend</button>
                     <button class="prompt-chip" type="button" data-prompt="I feel overwhelmed and don't know where to start.">Overwhelmed</button>
+                    <button class="prompt-chip" type="button" data-prompt="🎲 Play a game with me. Start an emoji movie guessing game and wait for my guess.">🎲 Play a Game</button>
                 </div>
             </div>
         </div>
@@ -1057,6 +1130,7 @@
                         <option value="practical" selected>Practical</option>
                         <option value="calming">Calming</option>
                         <option value="motivational">Motivational</option>
+                        <option value="hype">🎉 Hype / Funny</option>
                     </select>
                 </div>
                 <div class="control-item">
@@ -1112,6 +1186,16 @@
         </div>
     </div>
 
+    <div class="modal" id="bubbleWrapModal" role="dialog" aria-modal="true" aria-labelledby="bubbleWrapTitle">
+        <div class="modal-card">
+            <h3 id="bubbleWrapTitle">🫧 Digital Bubble Wrap</h3>
+            <div class="bubble-meta" id="bubbleCount">Popped: 0 / 64</div>
+            <div class="bubble-wrap-grid" id="bubbleWrapGrid"></div>
+            <button class="utility-btn" id="resetBubbleWrap" type="button">Reset bubbles</button>
+            <button class="utility-btn modal-close" id="closeBubbleWrap" type="button">Close</button>
+        </div>
+    </div>
+
     <div class="toast" id="appToast" role="status" aria-live="polite"></div>
 
     <script>
@@ -1132,13 +1216,19 @@
         const toggleControls = document.getElementById('toggleControls');
         const emergencyBtn = document.getElementById('emergencyBtn');
         const breatheBtn = document.getElementById('breatheBtn');
+        const bubbleWrapBtn = document.getElementById('bubbleWrapBtn');
         const darkModeBtn = document.getElementById('darkModeBtn');
         const aboutToggle = document.getElementById('aboutToggle');
         const introCard = document.getElementById('introCard');
         const emergencyModal = document.getElementById('emergencyModal');
         const breatheModal = document.getElementById('breatheModal');
+        const bubbleWrapModal = document.getElementById('bubbleWrapModal');
         const closeEmergency = document.getElementById('closeEmergency');
         const closeBreathe = document.getElementById('closeBreathe');
+        const closeBubbleWrap = document.getElementById('closeBubbleWrap');
+        const bubbleWrapGrid = document.getElementById('bubbleWrapGrid');
+        const bubbleCount = document.getElementById('bubbleCount');
+        const resetBubbleWrap = document.getElementById('resetBubbleWrap');
         const startBreathe = document.getElementById('startBreathe');
         const breatheCircle = document.getElementById('breatheCircle');
         const breatheInstruction = document.getElementById('breatheInstruction');
@@ -1147,6 +1237,30 @@
 
         let breatheTick = null;
         let toastTimer = null;
+        let gameState = {
+            active: false,
+            round: 0,
+            score: 0,
+            streak: 0,
+            attempts: 0,
+            current: null,
+            usedIndexes: [],
+        };
+
+        const EMOJI_GAME_BANK = [
+            { emoji: '🚢🧊💔', answer: 'Titanic', aliases: ['titanic'], hint: 'A famous ship and iceberg love story.' },
+            { emoji: '🦁👑', answer: 'The Lion King', aliases: ['lion king', 'the lion king'], hint: 'Hakuna Matata.' },
+            { emoji: '🧙‍♂️⚡🏰', answer: 'Harry Potter', aliases: ['harry potter'], hint: 'A boy wizard with a lightning scar.' },
+            { emoji: '🕷️🧑‍🎓🏙️', answer: 'Spider-Man', aliases: ['spider man', 'spiderman'], hint: 'Friendly neighborhood hero.' },
+            { emoji: '🧊❄️👭', answer: 'Frozen', aliases: ['frozen'], hint: 'Let it go.' },
+            { emoji: '🤖🚀🪐', answer: 'WALL-E', aliases: ['wall e', 'walle'], hint: 'A tiny robot cleaning Earth.' },
+            { emoji: '🧠😊😢😡', answer: 'Inside Out', aliases: ['inside out'], hint: 'Emotions are the main characters.' },
+            { emoji: '🦖🏝️', answer: 'Jurassic Park', aliases: ['jurassic park', 'jurassic world'], hint: 'Dinosaurs in a theme park.' },
+            { emoji: '🎈🏠☁️', answer: 'Up', aliases: ['up'], hint: 'A house lifted by balloons.' },
+            { emoji: '🐠🔍', answer: 'Finding Nemo', aliases: ['finding nemo', 'nemo'], hint: 'A clownfish goes on a journey.' },
+            { emoji: '👻🔫', answer: 'Ghostbusters', aliases: ['ghostbusters', 'ghost busters'], hint: 'Who you gonna call?' },
+            { emoji: '🏎️🏁', answer: 'Cars', aliases: ['cars'], hint: 'Lightning McQueen.' },
+        ];
 
         toggleControls.addEventListener('click', () => {
             controlsPanel.classList.toggle('collapsed');
@@ -1167,6 +1281,13 @@
             stopBreathingExercise();
         });
 
+        bubbleWrapBtn.addEventListener('click', () => {
+            bubbleWrapModal.classList.add('show');
+            ensureBubbleWrap();
+        });
+        closeBubbleWrap.addEventListener('click', () => bubbleWrapModal.classList.remove('show'));
+        resetBubbleWrap.addEventListener('click', resetBubbleDots);
+
         darkModeBtn.addEventListener('click', () => {
             document.body.classList.toggle('dark-mode');
             darkModeBtn.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
@@ -1177,6 +1298,7 @@
         window.addEventListener('load', checkHealth);
         window.addEventListener('load', greetUser);
         window.addEventListener('load', autoResizeInput);
+        window.addEventListener('load', ensureBubbleWrap);
 
         document.querySelectorAll('.prompt-chip').forEach((chip) => {
             chip.addEventListener('click', () => {
@@ -1225,6 +1347,12 @@
             addMessage(message, 'user');
             messageInput.value = '';
             autoResizeInput();
+
+            if (handleGameMessage(message)) {
+                messageInput.focus();
+                return;
+            }
+
             sendBtn.disabled = true;
 
             const loadingId = 'loading_' + Date.now();
@@ -1327,13 +1455,19 @@
             messageInput.focus();
         }
 
-        function addMessage(text, role, sentiment = null, crisis = null, hotline = null) {
+        function addMessage(text, role, sentiment = null, crisis = null, hotline = null, gameMeta = null) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${role}`;
 
             const safeText = escapeHtml(text).replace(/\n/g, '<br>');
             const rich = role === 'assistant' ? formatAssistantText(text) : `<div>${safeText}</div>`;
             let html = `<div class="message-content"><div class="assistant-rich">${rich}</div>`;
+
+            if (role === 'assistant' && gameMeta && gameMeta.round) {
+                const score = Number.isFinite(gameMeta.score) ? ` • Score ${gameMeta.score}` : '';
+                const streak = Number.isFinite(gameMeta.streak) && gameMeta.streak > 0 ? ` • Streak ${gameMeta.streak}` : '';
+                html = `<div class="message-content"><div class="game-badge">🎲 ${escapeHtml(gameMeta.label)} • Round ${gameMeta.round}${score}${streak}</div><div class="assistant-rich">${rich}</div>`;
+            }
 
             if (sentiment && role === 'assistant') {
                 const moodEmoji = {
@@ -1453,6 +1587,23 @@
         function getDynamicReplyOptions(text, sentiment, crisis) {
             const lower = String(text || '').toLowerCase();
             const mood = sentiment && sentiment.mood ? sentiment.mood : 'neutral';
+
+            if (gameState.active) {
+                return [
+                    {
+                        label: 'My Guess',
+                        reply: 'My guess is: '
+                    },
+                    {
+                        label: 'Hint Please',
+                        reply: 'Hint please'
+                    },
+                    {
+                        label: 'Exit Game',
+                        reply: 'Thanks, let us go back to emotional support mode now.'
+                    }
+                ];
+            }
 
             if (crisis && (crisis.crisis_level === 'critical' || crisis.crisis_level === 'high')) {
                 return [
@@ -1700,11 +1851,220 @@
             }, 1600);
         }
 
+        function ensureBubbleWrap() {
+            if (bubbleWrapGrid.children.length > 0) return;
+            for (let i = 0; i < 64; i += 1) {
+                const dot = document.createElement('button');
+                dot.type = 'button';
+                dot.className = 'bubble-dot';
+                dot.setAttribute('aria-label', `Bubble ${i + 1}`);
+                dot.addEventListener('click', () => {
+                    if (!dot.classList.contains('popped')) {
+                        dot.classList.add('popped');
+                        updateBubbleCount();
+                    }
+                });
+                bubbleWrapGrid.appendChild(dot);
+            }
+            updateBubbleCount();
+        }
+
+        function resetBubbleDots() {
+            bubbleWrapGrid.querySelectorAll('.bubble-dot').forEach((dot) => {
+                dot.classList.remove('popped');
+            });
+            updateBubbleCount();
+        }
+
+        function updateBubbleCount() {
+            const popped = bubbleWrapGrid.querySelectorAll('.bubble-dot.popped').length;
+            bubbleCount.textContent = `Popped: ${popped} / 64`;
+        }
+
         function autoResizeInput() {
             messageInput.style.height = 'auto';
             const next = Math.min(messageInput.scrollHeight, 140);
             messageInput.style.height = `${Math.max(40, next)}px`;
             messageInput.style.overflowY = messageInput.scrollHeight > 140 ? 'auto' : 'hidden';
+        }
+
+        function handleGameMessage(rawMessage) {
+            const message = String(rawMessage || '').trim();
+            const lower = message.toLowerCase();
+
+            if (isGameStartMessage(lower)) {
+                startEmojiGame();
+                return true;
+            }
+
+            if (!gameState.active) {
+                return false;
+            }
+
+            if (/(back to support|stop game|end game|no game|quit game|exit game)/.test(lower)) {
+                endEmojiGame();
+                return true;
+            }
+
+            if (/(hint|clue|提示)/.test(lower)) {
+                provideGameHint();
+                return true;
+            }
+
+            if (/(skip|pass|reveal|答案)/.test(lower)) {
+                skipCurrentRound();
+                return true;
+            }
+
+            if (/(next round|next|another one|下一題|下一题)/.test(lower)) {
+                askNextGameRound();
+                return true;
+            }
+
+            evaluateGameGuess(message);
+            return true;
+        }
+
+        function isGameStartMessage(lower) {
+            return /(play a game|emoji game|movie game|guessing game|trivia|riddle|🎲)/.test(lower);
+        }
+
+        function startEmojiGame() {
+            gameState.active = true;
+            gameState.round = 0;
+            gameState.score = 0;
+            gameState.streak = 0;
+            gameState.attempts = 0;
+            gameState.current = null;
+            gameState.usedIndexes = [];
+
+            const intro = [
+                'Game on! 🎲 Welcome to Emoji Movie Guess!',
+                'Rules: Guess the movie title from emojis.',
+                'Type `Hint please` anytime, or `skip` if you are stuck.',
+                'Type `back to support` whenever you want to return to emotional support chat.'
+            ].join('\n');
+
+            addMessage(intro, 'assistant', null, null, null, buildGameMeta('Emoji Guessing Game'));
+            askNextGameRound();
+        }
+
+        function buildGameMeta(label) {
+            return {
+                label,
+                round: gameState.round,
+                score: gameState.score,
+                streak: gameState.streak,
+            };
+        }
+
+        function askNextGameRound() {
+            const next = pickNextGameQuestion();
+            if (!next) {
+                gameState.usedIndexes = [];
+                const fallback = pickNextGameQuestion();
+                gameState.current = fallback;
+            } else {
+                gameState.current = next;
+            }
+
+            gameState.round += 1;
+            gameState.attempts = 0;
+
+            const q = gameState.current;
+            const prompt = [
+                `Round ${gameState.round}: ${q.emoji}`,
+                'What movie is this?'
+            ].join('\n');
+            addMessage(prompt, 'assistant', null, null, null, buildGameMeta('Emoji Guessing Game'));
+        }
+
+        function pickNextGameQuestion() {
+            if (EMOJI_GAME_BANK.length === 0) return null;
+            const available = [];
+            for (let i = 0; i < EMOJI_GAME_BANK.length; i += 1) {
+                if (!gameState.usedIndexes.includes(i)) available.push(i);
+            }
+            if (available.length === 0) return null;
+            const idx = available[Math.floor(Math.random() * available.length)];
+            gameState.usedIndexes.push(idx);
+            return EMOJI_GAME_BANK[idx];
+        }
+
+        function normalizeGuess(value) {
+            return String(value || '').toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]+/g, ' ').trim();
+        }
+
+        function isCorrectGuess(guess, question) {
+            const g = normalizeGuess(guess);
+            if (!g) return false;
+            const answers = [question.answer, ...(question.aliases || [])].map(normalizeGuess);
+            return answers.some((ans) => g === ans || g.includes(ans) || ans.includes(g));
+        }
+
+        function evaluateGameGuess(guess) {
+            if (!gameState.current) {
+                askNextGameRound();
+                return;
+            }
+
+            gameState.attempts += 1;
+
+            if (isCorrectGuess(guess, gameState.current)) {
+                gameState.score += 1;
+                gameState.streak += 1;
+                const celebrate = [
+                    'Correct! 🏆 That is right.',
+                    gameState.streak >= 2 ? `You are on fire: ${gameState.streak} in a row!` : 'Nice guess!'
+                ].join(' ');
+                addMessage(celebrate, 'assistant', null, null, null, buildGameMeta('Emoji Guessing Game'));
+                askNextGameRound();
+                return;
+            }
+
+            gameState.streak = 0;
+
+            if (gameState.attempts >= 3) {
+                const reveal = `Good try! The answer was **${gameState.current.answer}**. Let us jump to the next round.`;
+                addMessage(reveal, 'assistant', null, null, null, buildGameMeta('Emoji Guessing Game'));
+                askNextGameRound();
+                return;
+            }
+
+            const remain = 3 - gameState.attempts;
+            const hintTip = gameState.attempts >= 2 ? ` Hint: ${gameState.current.hint}` : ' Need a hint? Type `Hint please`.';
+            addMessage(`Close guess! Try again (${remain} tries left).${hintTip}`, 'assistant', null, null, null, buildGameMeta('Emoji Guessing Game'));
+        }
+
+        function provideGameHint() {
+            if (!gameState.current) {
+                askNextGameRound();
+                return;
+            }
+            addMessage(`Hint 💡 ${gameState.current.hint}`, 'assistant', null, null, null, buildGameMeta('Emoji Guessing Game'));
+        }
+
+        function skipCurrentRound() {
+            if (!gameState.current) {
+                askNextGameRound();
+                return;
+            }
+            const reveal = `No worries. This one was **${gameState.current.answer}**. Next round!`;
+            gameState.streak = 0;
+            addMessage(reveal, 'assistant', null, null, null, buildGameMeta('Emoji Guessing Game'));
+            askNextGameRound();
+        }
+
+        function endEmojiGame() {
+            const summary = `Game session ended. Final score: ${gameState.score} over ${gameState.round} rounds. Nice job 🌟 We can return to support mode now.`;
+            addMessage(summary, 'assistant', null, null, null, buildGameMeta('Emoji Guessing Game'));
+            gameState.active = false;
+            gameState.round = 0;
+            gameState.score = 0;
+            gameState.streak = 0;
+            gameState.attempts = 0;
+            gameState.current = null;
+            gameState.usedIndexes = [];
         }
     </script>
 </body>
