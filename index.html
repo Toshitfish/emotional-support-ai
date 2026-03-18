@@ -22,6 +22,18 @@
             --assistant-bubble: #f5f8ff;
             --danger-bg: #fff2f2;
             --danger-ink: #bf2e38;
+            --surface-soft: #f6f9ff;
+        }
+
+        body.dark-mode {
+            --bg-start: #0f1724;
+            --bg-end: #1c2535;
+            --card: #1f2a3d;
+            --ink: #e7eefc;
+            --muted: #a4b2ce;
+            --line: #334560;
+            --assistant-bubble: #25344c;
+            --surface-soft: #223147;
         }
 
         * {
@@ -150,6 +162,11 @@
             color: var(--muted);
         }
 
+        body.dark-mode .status,
+        body.dark-mode .input-area {
+            background: #1b2638;
+        }
+
         .status-indicator {
             display: flex;
             align-items: center;
@@ -189,6 +206,10 @@
             gap: 10px;
         }
 
+        body.dark-mode .chat-box {
+            background: linear-gradient(180deg, rgba(28, 39, 58, 0.95), rgba(26, 36, 54, 0.96));
+        }
+
         .welcome {
             text-align: center;
             color: #5f6d84;
@@ -210,6 +231,24 @@
             flex-wrap: wrap;
             margin-top: 10px;
             justify-content: center;
+        }
+
+        .safety-strip {
+            margin-top: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .safety-chip {
+            border: 1px solid #f7c6cb;
+            background: #fff4f4;
+            color: #a33a44;
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-size: 0.72rem;
+            font-weight: 600;
         }
 
         .prompt-chip {
@@ -478,6 +517,28 @@
             background: #f1f7ff;
         }
 
+        .assist-tools {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .assist-tool-btn {
+            border: 1px solid #bfd0f0;
+            background: #fff;
+            color: #315083;
+            border-radius: 10px;
+            padding: 4px 8px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .assist-tool-btn:hover {
+            background: #eef5ff;
+        }
+
         .input-group {
             display: flex;
             gap: 10px;
@@ -486,6 +547,141 @@
             border: 1px solid #dbe6fa;
             border-radius: 16px;
             padding: 6px;
+        }
+
+        .trust-row {
+            margin-top: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .privacy-badge {
+            font-size: 0.72rem;
+            color: #4d5f80;
+            background: #f4f8ff;
+            border: 1px solid #d9e5fa;
+            padding: 5px 9px;
+            border-radius: 999px;
+        }
+
+        .status-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .utility-btn {
+            border: 1px solid #c7d8f7;
+            background: #f5f9ff;
+            color: #35558f;
+            border-radius: 9px;
+            padding: 6px 10px;
+            font-size: 0.74rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: none;
+        }
+
+        .utility-btn.danger {
+            border-color: #efb1b9;
+            color: #9d3341;
+            background: #fff2f3;
+        }
+
+        .utility-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(16, 25, 38, 0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 30;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-card {
+            width: min(520px, 96vw);
+            border-radius: 16px;
+            background: #fff;
+            border: 1px solid #d8e5f8;
+            box-shadow: 0 18px 40px rgba(21, 36, 66, 0.24);
+            padding: 14px;
+        }
+
+        .modal-card h3 {
+            font-size: 1rem;
+            color: #23406f;
+            margin-bottom: 8px;
+        }
+
+        .modal-close {
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+        .resource-list {
+            margin-top: 8px;
+            font-size: 0.88rem;
+            line-height: 1.45;
+            color: #2d3f61;
+        }
+
+        .resource-list div {
+            padding: 8px;
+            border-radius: 10px;
+            border: 1px solid #dbe7fb;
+            background: #f8fbff;
+            margin-bottom: 8px;
+        }
+
+        .breathe-wrap {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .breathe-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #8ec9ff, #4f8fe5);
+            transform: scale(1);
+            transition: transform 1s ease;
+            box-shadow: 0 14px 28px rgba(60, 107, 184, 0.32);
+        }
+
+        .breathe-circle.inhale {
+            transform: scale(1.2);
+        }
+
+        .breathe-circle.exhale {
+            transform: scale(0.9);
+        }
+
+        body.dark-mode .modal-card {
+            background: #1f2a3d;
+            border-color: #3a4d68;
+            color: #d7e5ff;
+        }
+
+        body.dark-mode .resource-list div {
+            background: #24344c;
+            border-color: #3f5779;
+            color: #d7e5ff;
         }
 
         input[type="text"] {
@@ -591,6 +787,11 @@
                 flex-wrap: wrap;
             }
 
+            .status-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
             .message-content {
                 max-width: 92%;
                 font-size: 0.92rem;
@@ -629,17 +830,32 @@
                 <span class="status-dot" id="statusDot"></span>
                 <span id="statusText">Connecting...</span>
             </div>
-            <div class="ai-info" id="aiInfo">AI provider: checking...</div>
+            <div class="status-actions">
+                <div class="ai-info" id="aiInfo">AI provider: checking...</div>
+                <button class="utility-btn danger" id="emergencyBtn" type="button">Emergency Help</button>
+                <button class="utility-btn" id="breatheBtn" type="button">Breathe 1 min</button>
+                <button class="utility-btn" id="darkModeBtn" type="button">Dark Mode</button>
+            </div>
         </div>
 
         <div class="chat-box" id="chatBox">
             <div class="welcome" id="welcomeCard">
                 <div>Talk to me like a friend. I will listen without judging.</div>
                 <div class="small">Your message can be in English, 中文, or mixed language.</div>
+                <div class="small" style="margin-top:6px;">
+                    I am an AI, not a licensed therapist. If you are in immediate danger, use Emergency Help now.
+                </div>
                 <div class="quick-prompts">
                     <button class="prompt-chip" type="button" data-prompt="I feel stressed about my exams">Exam stress</button>
                     <button class="prompt-chip" type="button" data-prompt="I feel lonely lately">Lonely</button>
                     <button class="prompt-chip" type="button" data-prompt="我最近和家人關係很緊張">Family pressure</button>
+                    <button class="prompt-chip" type="button" data-prompt="I can't sleep lately and my mind won't stop racing.">Can't sleep</button>
+                    <button class="prompt-chip" type="button" data-prompt="I had a fight with a friend and I feel really upset.">Fight with friend</button>
+                    <button class="prompt-chip" type="button" data-prompt="I feel overwhelmed and don't know where to start.">Overwhelmed</button>
+                </div>
+                <div class="safety-strip">
+                    <span class="safety-chip">Emergency resources available</span>
+                    <span class="safety-chip">Crisis keywords trigger hotline support</span>
                 </div>
             </div>
         </div>
@@ -647,9 +863,9 @@
         <div class="input-area">
             <div class="toolbar">
                 <span class="toolbar-title">Response Preferences</span>
-                <button id="toggleControls" class="toolbar-toggle" type="button">Hide Options</button>
+                <button id="toggleControls" class="toolbar-toggle" type="button">⚙ Customize your AI</button>
             </div>
-            <div class="controls">
+            <div class="controls collapsed">
                 <div class="control-item">
                     <label for="responseStyle">Style</label>
                     <select id="responseStyle">
@@ -696,6 +912,35 @@
                 >
                 <button id="sendBtn" onclick="sendMessage()">Send</button>
             </div>
+            <div class="trust-row">
+                <span class="privacy-badge">Privacy: chats are anonymous in this demo and only used to provide support responses.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="emergencyModal" role="dialog" aria-modal="true" aria-labelledby="emergencyTitle">
+        <div class="modal-card">
+            <h3 id="emergencyTitle">Emergency Help and Crisis Resources</h3>
+            <div class="resource-list">
+                <div><strong>Hong Kong Samaritans</strong><br>24/7 Hotline: 2389 2222</div>
+                <div><strong>Taiwan Lifeline</strong><br>1925</div>
+                <div><strong>US 988 Suicide and Crisis Lifeline</strong><br>Call or text 988</div>
+                <div><strong>If immediate danger:</strong><br>Call local emergency services now.</div>
+            </div>
+            <button class="utility-btn modal-close" id="closeEmergency" type="button">Close</button>
+        </div>
+    </div>
+
+    <div class="modal" id="breatheModal" role="dialog" aria-modal="true" aria-labelledby="breatheTitle">
+        <div class="modal-card">
+            <h3 id="breatheTitle">1-Minute Breathing Exercise</h3>
+            <div class="breathe-wrap">
+                <div class="breathe-circle" id="breatheCircle"></div>
+                <div id="breatheInstruction">Tap Start and follow the rhythm.</div>
+                <div id="breatheTimer">60s</div>
+                <button class="utility-btn" id="startBreathe" type="button">Start</button>
+            </div>
+            <button class="utility-btn modal-close" id="closeBreathe" type="button">Close</button>
         </div>
     </div>
 
@@ -716,13 +961,45 @@
         const toggleEmoji = document.getElementById('toggleEmoji');
         const controlsPanel = document.querySelector('.controls');
         const toggleControls = document.getElementById('toggleControls');
+        const emergencyBtn = document.getElementById('emergencyBtn');
+        const breatheBtn = document.getElementById('breatheBtn');
+        const darkModeBtn = document.getElementById('darkModeBtn');
+        const emergencyModal = document.getElementById('emergencyModal');
+        const breatheModal = document.getElementById('breatheModal');
+        const closeEmergency = document.getElementById('closeEmergency');
+        const closeBreathe = document.getElementById('closeBreathe');
+        const startBreathe = document.getElementById('startBreathe');
+        const breatheCircle = document.getElementById('breatheCircle');
+        const breatheInstruction = document.getElementById('breatheInstruction');
+        const breatheTimer = document.getElementById('breatheTimer');
+
+        let lastAssistantMessage = '';
+        let breatheInterval = null;
+        let breatheTick = null;
 
         toggleControls.addEventListener('click', () => {
             controlsPanel.classList.toggle('collapsed');
-            toggleControls.textContent = controlsPanel.classList.contains('collapsed') ? 'Show Options' : 'Hide Options';
+            toggleControls.textContent = controlsPanel.classList.contains('collapsed') ? '⚙ Customize your AI' : 'Hide Options';
         });
 
+        emergencyBtn.addEventListener('click', () => emergencyModal.classList.add('show'));
+        closeEmergency.addEventListener('click', () => emergencyModal.classList.remove('show'));
+
+        breatheBtn.addEventListener('click', () => breatheModal.classList.add('show'));
+        closeBreathe.addEventListener('click', () => {
+            breatheModal.classList.remove('show');
+            stopBreathingExercise();
+        });
+
+        darkModeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            darkModeBtn.textContent = document.body.classList.contains('dark-mode') ? 'Light Mode' : 'Dark Mode';
+        });
+
+        startBreathe.addEventListener('click', startBreathingExercise);
+
         window.addEventListener('load', checkHealth);
+        window.addEventListener('load', greetUser);
 
         document.querySelectorAll('.prompt-chip').forEach((chip) => {
             chip.addEventListener('click', () => {
@@ -756,6 +1033,11 @@
                     chatBox.innerHTML = '<div class="error">Cannot connect to API. Please check your network or server status.</div>';
                 });
         }
+
+            function greetUser() {
+                const text = "Hi there! 💛 I'm Stu-SoulCare. How are you feeling right now? You can vent to me, ask for advice, or just chat.";
+                addMessage(text, 'assistant');
+            }
 
         messageInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') sendMessage();
@@ -902,12 +1184,17 @@
             }
 
             if (role === 'assistant') {
+                lastAssistantMessage = text;
                 const dynamicReplies = getDynamicReplyOptions(text, sentiment, crisis);
                 html += `
                     <div class="reply-actions">
                         <button class="reply-chip" type="button" data-reply="${escapeHtml(dynamicReplies[0].reply)}">${escapeHtml(dynamicReplies[0].label)}</button>
                         <button class="reply-chip" type="button" data-reply="${escapeHtml(dynamicReplies[1].reply)}">${escapeHtml(dynamicReplies[1].label)}</button>
                         <button class="reply-chip" type="button" data-reply="${escapeHtml(dynamicReplies[2].reply)}">${escapeHtml(dynamicReplies[2].label)}</button>
+                    </div>
+                    <div class="assist-tools">
+                        <button class="assist-tool-btn" type="button" data-tool="copy">Copy reply</button>
+                        <button class="assist-tool-btn" type="button" data-tool="save">Save action plan</button>
                     </div>
                 `;
             }
@@ -919,6 +1206,21 @@
                 chip.addEventListener('click', () => {
                     messageInput.value = chip.dataset.reply || '';
                     messageInput.focus();
+                });
+            });
+
+            messageDiv.querySelectorAll('.assist-tool-btn').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    const tool = btn.dataset.tool;
+                    if (tool === 'copy') {
+                        navigator.clipboard.writeText(lastAssistantMessage || text).then(() => {
+                            btn.textContent = 'Copied';
+                            setTimeout(() => { btn.textContent = 'Copy reply'; }, 1000);
+                        });
+                    }
+                    if (tool === 'save') {
+                        downloadTextFile(lastAssistantMessage || text, 'stu-soulcare-action-plan.txt');
+                    }
                 });
             });
 
@@ -1071,6 +1373,65 @@
                 "'": '&#039;'
             };
             return String(text).replace(/[&<>"']/g, m => map[m]);
+        }
+
+        function downloadTextFile(content, filename) {
+            const blob = new Blob([String(content)], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(link.href);
+        }
+
+        function startBreathingExercise() {
+            stopBreathingExercise();
+            let remaining = 60;
+            const phases = [
+                { text: 'Inhale', cls: 'inhale', duration: 4 },
+                { text: 'Hold', cls: '', duration: 4 },
+                { text: 'Exhale', cls: 'exhale', duration: 6 },
+            ];
+            let phaseIndex = 0;
+            let phaseRemaining = phases[0].duration;
+            applyBreathingPhase(phases[0]);
+
+            breatheTimer.textContent = `${remaining}s`;
+            breatheTick = setInterval(() => {
+                remaining -= 1;
+                phaseRemaining -= 1;
+                breatheTimer.textContent = `${Math.max(remaining, 0)}s`;
+                if (phaseRemaining <= 0) {
+                    phaseIndex = (phaseIndex + 1) % phases.length;
+                    phaseRemaining = phases[phaseIndex].duration;
+                    applyBreathingPhase(phases[phaseIndex]);
+                }
+                if (remaining <= 0) {
+                    stopBreathingExercise();
+                    breatheInstruction.textContent = 'Great job. You completed 1 minute of breathing.';
+                }
+            }, 1000);
+        }
+
+        function applyBreathingPhase(phase) {
+            breatheCircle.classList.remove('inhale', 'exhale');
+            if (phase.cls) breatheCircle.classList.add(phase.cls);
+            breatheInstruction.textContent = `${phase.text}...`;
+        }
+
+        function stopBreathingExercise() {
+            if (breatheInterval) {
+                clearInterval(breatheInterval);
+                breatheInterval = null;
+            }
+            if (breatheTick) {
+                clearInterval(breatheTick);
+                breatheTick = null;
+            }
+            breatheCircle.classList.remove('inhale', 'exhale');
+            if (breatheTimer) breatheTimer.textContent = '60s';
         }
     </script>
 </body>
