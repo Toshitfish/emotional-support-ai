@@ -48,6 +48,7 @@ class RealEmotionalAIAssistant:
             or os.getenv("OPENAI_MODEL")
             or ("openai/gpt-4o-mini" if self.provider == "openrouter" else "gpt-4o-mini")
         )
+        self.last_response_frame = None
         self.last_followup = None
         self.last_style = None
         self.init_error = None
@@ -152,6 +153,7 @@ You don't have to face this alone. Help is available. 💙
             internal = self._build_internal_assessment(user_message, analysis)
             response_options = self._normalize_options(options)
             songs = self._suggest_songs(has_chinese, analysis['primary_emotion'], analysis['primary_topic']) if response_options['include_songs'] else []
+            response_frame = self._choose_response_frame(has_chinese)
             
             # Create natural, human-style system prompt for emotional support
             system_prompt = """You are a warm, emotionally intelligent student support companion.
@@ -198,6 +200,12 @@ Output style is controlled by user options passed in context:
 - include_songs: true/false
 - include_emojis: true/false
 
+Structure variability requirement:
+- Do NOT always use the same 3-part or 4-part format.
+- Vary sentence rhythm and paragraph shape each turn.
+- If bullets are used, vary bullet count and order naturally.
+- Avoid repeating identical opening phrases across replies.
+
 Always include one open question at the end.
 Keep output vivid and interactive, not plain generic text."""
             
@@ -220,6 +228,7 @@ Keep output vivid and interactive, not plain generic text."""
                 f"- include_action_plan: {response_options['include_action_plan']}\n"
                 f"- include_songs: {response_options['include_songs']}\n"
                 f"- include_emojis: {response_options['include_emojis']}\n"
+                f"- response_frame: {response_frame}\n"
                 "Use this context naturally. Do not mention this list explicitly."
             )
 
@@ -608,6 +617,27 @@ Keep output vivid and interactive, not plain generic text."""
             'include_songs': bool(options.get('include_songs', True)),
             'include_emojis': bool(options.get('include_emojis', True)),
         }
+
+    def _choose_response_frame(self, has_chinese: bool) -> str:
+        """Rotate reply structure hints so model output does not feel repetitive."""
+        zh_frames = [
+            "先共感一句，再給2個短建議，最後用問題收尾",
+            "先抓住重點情境，再給1個可立即做的步驟，再提問",
+            "用自然對話段落，不用固定標題，收尾加溫柔追問",
+            "先肯定感受，再給微行動清單(2至3點)，最後提問",
+        ]
+        en_frames = [
+            "Start with empathy, add two concise actionable suggestions, then end with one open question",
+            "Reflect the key situation first, offer one immediate next step, then ask a gentle follow-up",
+            "Use natural conversational paragraphs with no fixed headings, ending with one open question",
+            "Validate emotion first, then give a 2-3 point micro plan, and close with a warm question",
+        ]
+
+        pool = zh_frames if has_chinese else en_frames
+        candidates = [frame for frame in pool if frame != self.last_response_frame]
+        selected = choice(candidates if candidates else pool)
+        self.last_response_frame = selected
+        return selected
     
     def get_conversation_summary(self) -> Dict[str, Any]:
         """Get summary of conversation for analysis"""
