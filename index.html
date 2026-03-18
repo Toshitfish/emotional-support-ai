@@ -532,6 +532,59 @@
             margin: 4px 0;
         }
 
+        .assistant-checklist {
+            margin-top: 8px;
+            display: grid;
+            gap: 6px;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 7px 8px;
+            border: 1px solid rgba(188, 208, 240, 0.75);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            transition: 150ms ease;
+        }
+
+        .checklist-item.done {
+            opacity: 0.78;
+            background: rgba(235, 246, 255, 0.75);
+            border-color: rgba(135, 180, 240, 0.7);
+        }
+
+        .checklist-item input[type="checkbox"] {
+            margin-top: 2px;
+            width: 15px;
+            height: 15px;
+            flex: 0 0 auto;
+            accent-color: #2d7ff9;
+            cursor: pointer;
+        }
+
+        .checklist-item label {
+            font-size: 0.86rem;
+            line-height: 1.35;
+            color: #2a3d60;
+            cursor: pointer;
+        }
+
+        .checklist-item.done label {
+            text-decoration: line-through;
+            color: #5f769b;
+        }
+
+        body.dark-mode .checklist-item {
+            background: rgba(37, 54, 78, 0.9);
+            border-color: rgba(96, 127, 175, 0.7);
+        }
+
+        body.dark-mode .checklist-item label {
+            color: #d3e1fb;
+        }
+
         .reply-actions {
             display: flex;
             gap: 6px;
@@ -1352,13 +1405,40 @@
                 });
             });
 
+            messageDiv.querySelectorAll('.checklist-item input[type="checkbox"]').forEach((cb) => {
+                cb.addEventListener('change', () => {
+                    const item = cb.closest('.checklist-item');
+                    if (!item) return;
+                    item.classList.toggle('done', cb.checked);
+                });
+            });
+
             chatBox.appendChild(messageDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
         function formatAssistantText(text) {
             const lines = String(text).split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+            const checklistLines = lines.filter(l => /^-\s*\[(\s|x|X)\]\s+/.test(l));
             const bulletLines = lines.filter(l => /^[-*•]\s+/.test(l));
+
+            if (checklistLines.length >= 2) {
+                const checklistItems = checklistLines.map((line, idx) => {
+                    const checked = /^-\s*\[[xX]\]\s+/.test(line);
+                    const itemText = line.replace(/^-\s*\[(\s|x|X)\]\s+/, '');
+                    const id = `check_${Date.now()}_${idx}_${Math.random().toString(36).slice(2, 7)}`;
+                    return `
+                        <div class="checklist-item ${checked ? 'done' : ''}">
+                            <input type="checkbox" id="${id}" ${checked ? 'checked' : ''}>
+                            <label for="${id}">${escapeHtml(itemText)}</label>
+                        </div>
+                    `;
+                }).join('');
+
+                const nonChecklist = lines.filter(l => !/^-\s*\[(\s|x|X)\]\s+/.test(l));
+                const intro = nonChecklist.length ? `<div>${escapeHtml(nonChecklist.join(' '))}</div>` : '';
+                return `${intro}<div class="assistant-checklist">${checklistItems}</div>`;
+            }
 
             if (bulletLines.length >= 2) {
                 const items = bulletLines.map(l => `<li>${escapeHtml(l.replace(/^[-*•]\s+/, ''))}</li>`).join('');
