@@ -45,6 +45,7 @@
         body {
             font-family: "Poppins", "Noto Sans TC", sans-serif;
             color: var(--ink);
+            background-size: 120% 120%, 120% 120%, 120% 120%;
             background:
                 radial-gradient(900px 400px at -10% -20%, rgba(255, 127, 80, 0.18), transparent 70%),
                 radial-gradient(700px 400px at 110% -10%, rgba(30, 168, 150, 0.22), transparent 70%),
@@ -53,6 +54,7 @@
             padding: 0;
             display: grid;
             place-items: stretch;
+            animation: auroraShift 22s ease-in-out infinite alternate;
         }
 
         .container {
@@ -63,7 +65,7 @@
             background: var(--card);
             border: 1px solid rgba(255, 255, 255, 0.6);
             box-shadow:
-                0 20px 50px rgba(34, 57, 100, 0.15),
+                0 16px 42px rgba(34, 57, 100, 0.12),
                 0 2px 0 rgba(255, 255, 255, 0.8) inset;
             display: grid;
             grid-template-rows: auto auto minmax(0, 1fr) auto;
@@ -146,6 +148,23 @@
             z-index: 1;
         }
 
+        .about-toggle {
+            margin-top: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.32);
+            background: rgba(255, 255, 255, 0.18);
+            color: #fff;
+            border-radius: 10px;
+            padding: 5px 10px;
+            font-size: 0.74rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: none;
+        }
+
+        .about-toggle:hover {
+            background: rgba(255, 255, 255, 0.28);
+        }
+
         .intro-card {
             margin-top: 8px;
             position: relative;
@@ -157,6 +176,10 @@
             display: flex;
             gap: 10px;
             align-items: flex-start;
+        }
+
+        .intro-card.collapsed {
+            display: none;
         }
 
         .intro-icon {
@@ -185,6 +208,16 @@
             gap: 10px;
             font-size: 0.86rem;
             color: var(--muted);
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.62);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        body.dark-mode .glass-panel {
+            background: rgba(24, 36, 56, 0.62);
         }
 
         body.dark-mode .status,
@@ -293,15 +326,16 @@
             color: #fff;
             background: linear-gradient(135deg, #2d7ff9, #1a63cc);
             border-top-right-radius: 4px;
-            box-shadow: 0 8px 18px rgba(45, 127, 249, 0.3);
+            box-shadow: 0 8px 24px rgba(45, 127, 249, 0.24);
         }
 
         .message.assistant .message-content {
             color: #22304a;
             background: var(--assistant-bubble);
-            border: 1px solid #dce8ff;
+            border: 1px solid rgba(190, 210, 240, 0.6);
             border-top-left-radius: 4px;
             max-width: 96%;
+            box-shadow: 0 8px 24px rgba(19, 43, 90, 0.06);
         }
 
         .loading {
@@ -583,7 +617,7 @@
         .input-group {
             display: flex;
             gap: 10px;
-            align-items: center;
+            align-items: flex-end;
             background: #f6f9ff;
             border: 1px solid #dbe6fa;
             border-radius: 16px;
@@ -725,17 +759,23 @@
             color: #d7e5ff;
         }
 
-        input[type="text"] {
+        textarea#messageInput {
             flex: 1;
             border: 0;
             background: transparent;
-            padding: 10px 10px;
+            padding: 10px;
             font-size: 0.95rem;
             color: #22304a;
             outline: none;
+            resize: none;
+            min-height: 40px;
+            max-height: 140px;
+            line-height: 1.4;
+            overflow-y: auto;
+            font-family: inherit;
         }
 
-        input[type="text"]::placeholder {
+        textarea#messageInput::placeholder {
             color: #7f8da8;
         }
 
@@ -761,6 +801,24 @@
             transform: none;
             cursor: not-allowed;
             box-shadow: none;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: rgba(120, 138, 168, 0.32);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(120, 138, 168, 0.58);
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
         }
 
         @keyframes pulse {
@@ -794,6 +852,18 @@
             }
         }
 
+        @keyframes auroraShift {
+            0% {
+                background-position: 0% 0%, 100% 0%, 50% 0%;
+            }
+            50% {
+                background-position: 8% 10%, 92% 12%, 50% 50%;
+            }
+            100% {
+                background-position: 14% 16%, 84% 20%, 50% 100%;
+            }
+        }
+
         @media (max-width: 800px) {
             body {
                 padding: 0;
@@ -815,6 +885,10 @@
 
             .header p {
                 font-size: 0.8rem;
+            }
+
+            .about-toggle {
+                margin-top: 6px;
             }
 
             .intro-card {
@@ -862,7 +936,8 @@
                 <button class="theme-toggle" id="darkModeBtn" type="button" aria-label="Toggle dark mode">🌙</button>
             </div>
             <p>A safe place to talk, feel heard, and take one small step forward.</p>
-            <div class="intro-card" id="introCard">
+            <button class="about-toggle" id="aboutToggle" type="button">ℹ️ About this platform</button>
+            <div class="intro-card collapsed" id="introCard">
                 <div class="intro-icon">🌱</div>
                 <div class="intro-body">
                     <strong>About Stu-SoulCare.com</strong><br>
@@ -872,7 +947,7 @@
             </div>
         </div>
 
-        <div class="status">
+        <div class="status glass-panel">
             <div class="status-indicator">
                 <span class="status-dot" id="statusDot"></span>
                 <span id="statusText">Connecting...</span>
@@ -901,7 +976,7 @@
             </div>
         </div>
 
-        <div class="input-area">
+        <div class="input-area glass-panel">
             <div class="toolbar">
                 <span class="toolbar-title">Response Preferences</span>
                 <button id="toggleControls" class="toolbar-toggle" type="button">⚙ Customize your AI</button>
@@ -945,12 +1020,11 @@
                 </div>
             </div>
             <div class="input-group">
-                <input
-                    type="text"
+                <textarea
                     id="messageInput"
                     placeholder="Share what is on your mind..."
-                    autocomplete="off"
-                >
+                    rows="1"
+                ></textarea>
                 <button id="sendBtn" onclick="sendMessage()">Send</button>
             </div>
             <div class="trust-row">
@@ -1006,6 +1080,8 @@
         const emergencyBtn = document.getElementById('emergencyBtn');
         const breatheBtn = document.getElementById('breatheBtn');
         const darkModeBtn = document.getElementById('darkModeBtn');
+        const aboutToggle = document.getElementById('aboutToggle');
+        const introCard = document.getElementById('introCard');
         const emergencyModal = document.getElementById('emergencyModal');
         const breatheModal = document.getElementById('breatheModal');
         const closeEmergency = document.getElementById('closeEmergency');
@@ -1022,6 +1098,11 @@
         toggleControls.addEventListener('click', () => {
             controlsPanel.classList.toggle('collapsed');
             toggleControls.textContent = controlsPanel.classList.contains('collapsed') ? '⚙ Customize your AI' : 'Hide Options';
+        });
+
+        aboutToggle.addEventListener('click', () => {
+            introCard.classList.toggle('collapsed');
+            aboutToggle.textContent = introCard.classList.contains('collapsed') ? 'ℹ️ About this platform' : '✖ Hide about';
         });
 
         emergencyBtn.addEventListener('click', () => emergencyModal.classList.add('show'));
@@ -1042,6 +1123,7 @@
 
         window.addEventListener('load', checkHealth);
         window.addEventListener('load', greetUser);
+        window.addEventListener('load', autoResizeInput);
 
         document.querySelectorAll('.prompt-chip').forEach((chip) => {
             chip.addEventListener('click', () => {
@@ -1055,23 +1137,28 @@
                 .then(res => res.json())
                 .then(() => {
                     statusDot.classList.remove('offline');
-                    statusText.textContent = 'Online';
+                    statusText.textContent = '🟢 AI is online and ready to listen.';
                 })
                 .catch(() => {
                     statusDot.classList.add('offline');
-                    statusText.textContent = 'Offline';
+                    statusText.textContent = '🔴 Offline. Please check your connection.';
                     chatBox.innerHTML = '<div class="error">Cannot connect to API. Please check your network or server status.</div>';
                 });
         }
 
             function greetUser() {
-                const text = "Hi there! 💛 I'm Stu-SoulCare. How are you feeling right now? You can vent to me, ask for advice, or just chat.";
+                const text = "Hi there 💛 I'm Stu-SoulCare. You can vent to me, ask for advice, or just share what's on your mind. How are you feeling right now?";
                 addMessage(text, 'assistant');
             }
 
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendMessage();
+        messageInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
         });
+
+        messageInput.addEventListener('input', autoResizeInput);
 
         async function sendMessage() {
             const message = messageInput.value.trim();
@@ -1084,6 +1171,7 @@
 
             addMessage(message, 'user');
             messageInput.value = '';
+            autoResizeInput();
             sendBtn.disabled = true;
 
             const loadingId = 'loading_' + Date.now();
@@ -1530,6 +1618,13 @@
             toastTimer = setTimeout(() => {
                 appToast.classList.remove('show');
             }, 1600);
+        }
+
+        function autoResizeInput() {
+            messageInput.style.height = 'auto';
+            const next = Math.min(messageInput.scrollHeight, 140);
+            messageInput.style.height = `${Math.max(40, next)}px`;
+            messageInput.style.overflowY = messageInput.scrollHeight > 140 ? 'auto' : 'hidden';
         }
     </script>
 </body>
