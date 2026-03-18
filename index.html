@@ -1600,7 +1600,7 @@
                     },
                     {
                         label: 'Exit Game',
-                        reply: 'Thanks, let us go back to emotional support mode now.'
+                        reply: 'Exit game and go back to support mode.'
                     }
                 ];
             }
@@ -1901,7 +1901,7 @@
                 return false;
             }
 
-            if (/(back to support|stop game|end game|no game|quit game|exit game)/.test(lower)) {
+            if (isGameExitMessage(lower)) {
                 endEmojiGame();
                 return true;
             }
@@ -1923,6 +1923,10 @@
 
             evaluateGameGuess(message);
             return true;
+        }
+
+        function isGameExitMessage(lower) {
+            return /(back to support|return to support|stop game|end game|no game|quit game|exit game|go back to support|back to emotional support|emotional support mode|support mode)/.test(lower);
         }
 
         function isGameStartMessage(lower) {
