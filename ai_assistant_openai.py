@@ -25,11 +25,11 @@ class RealEmotionalAIAssistant:
     """
     
     def __init__(self):
-        # Provider selection priority: Teamplus -> OpenRouter -> native OpenAI.
-        if os.getenv("TEAMPLUS_API_KEY"):
-            self.provider = "teamplus"
-        elif os.getenv("OPENROUTER_API_KEY"):
+        # Provider selection priority: OpenRouter -> Teamplus -> native OpenAI.
+        if os.getenv("OPENROUTER_API_KEY"):
             self.provider = "openrouter"
+        elif os.getenv("TEAMPLUS_API_KEY"):
+            self.provider = "teamplus"
         else:
             self.provider = "openai"
 
@@ -88,8 +88,8 @@ class RealEmotionalAIAssistant:
                 print("⚠️  Install openai: pip install openai")
                 self.init_error = "openai package not available"
             if not self.api_key:
-                print("⚠️  Set TEAMPLUS_API_KEY, OPENROUTER_API_KEY, or OPENAI_API_KEY environment variable")
-                self.init_error = "TEAMPLUS_API_KEY / OPENROUTER_API_KEY / OPENAI_API_KEY is missing"
+                print("⚠️  Set OPENROUTER_API_KEY, TEAMPLUS_API_KEY, or OPENAI_API_KEY environment variable")
+                self.init_error = "OPENROUTER_API_KEY / TEAMPLUS_API_KEY / OPENAI_API_KEY is missing"
         
         # Crisis keywords
         self.crisis_keywords = [
@@ -643,7 +643,7 @@ Keep output vivid and interactive, not plain generic text."""
         if self.mode == "openai" and self.client:
             return self.analyze_with_openai(user_message, options=options)
         else:
-            raise RuntimeError("LLM provider is not available. Please check TEAMPLUS_API_KEY, OPENROUTER_API_KEY, or OPENAI_API_KEY and deployment configuration.")
+            raise RuntimeError("LLM provider is not available. Please check OPENROUTER_API_KEY, TEAMPLUS_API_KEY, or OPENAI_API_KEY and deployment configuration.")
 
     def _normalize_options(self, options: Dict[str, Any] = None) -> Dict[str, Any]:
         """Sanitize response customization options from UI/API."""
