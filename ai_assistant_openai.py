@@ -5,6 +5,7 @@ For users in regions where Claude is unavailable (e.g., Hong Kong, China)
 
 import os
 import json
+import time
 from datetime import datetime
 from typing import Tuple, Dict, Any
 from random import choice
@@ -41,6 +42,10 @@ class RealEmotionalAIAssistant:
         else:
             self.api_key = os.getenv("OPENAI_API_KEY")
             self.base_url = None
+
+        # Normalize base URL for OpenAI-compatible providers.
+        if self.base_url and not self.base_url.startswith(("http://", "https://")):
+            self.base_url = f"https://{self.base_url.lstrip('/')}"
         self.client = None
         self.conversation_history = []
         self.model = (
@@ -232,8 +237,8 @@ Keep output vivid and interactive, not plain generic text."""
                 "Use this context naturally. Do not mention this list explicitly."
             )
 
-            # Get OpenAI's response
-            response = self.client.chat.completions.create(
+            # Get model response with retries for transient network/provider issues.
+            response = self._create_chat_completion_with_retries(
                 model=self.model,
                 messages=[
                     {"role": "system", "content": system_prompt},
@@ -241,7 +246,9 @@ Keep output vivid and interactive, not plain generic text."""
                     *self.conversation_history
                 ],
                 temperature=0.85,
-                max_tokens=320
+                max_tokens=320,
+                timeout=45,
+                max_attempts=3,
             )
             
             assistant_message = response.choices[0].message.content
@@ -256,7 +263,51 @@ Keep output vivid and interactive, not plain generic text."""
             
         except Exception as e:
             print(f"OpenAI API error: {e}")
+            if self._is_connection_error(e):
+                if self.provider == "teamplus":
+                    raise RuntimeError(
+                        f"Teamplus API connection error. Check TEAMPLUS_BASE_URL, TEAMPLUS_API_KEY, and outbound network. "
+                        f"Current base_url={self.base_url}, model={self.model}."
+                    )
+                raise RuntimeError(
+                    f"{self.provider.capitalize()} API connection error. Check provider endpoint/network. "
+                    f"Current base_url={self.base_url}, model={self.model}."
+                )
             raise RuntimeError(f"OpenAI API error: {e}")
+
+    def _create_chat_completion_with_retries(self, *, model, messages, temperature, max_tokens, timeout=45, max_attempts=3):
+        """Retry transient connection failures to reduce random provider/network flakiness."""
+        last_error = None
+        for attempt in range(max_attempts):
+            try:
+                return self.client.chat.completions.create(
+                    model=model,
+                    messages=messages,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    timeout=timeout,
+                )
+            except Exception as e:
+                last_error = e
+                if not self._is_connection_error(e) or attempt == max_attempts - 1:
+                    break
+                time.sleep(1.2 * (attempt + 1))
+        raise last_error
+
+    def _is_connection_error(self, err: Exception) -> bool:
+        """Best-effort detection for network and transport failures from OpenAI-compatible SDKs."""
+        msg = str(err).lower()
+        indicators = [
+            "connection error",
+            "connect error",
+            "timed out",
+            "timeout",
+            "name or service not known",
+            "temporary failure in name resolution",
+            "connection reset",
+            "network is unreachable",
+        ]
+        return any(token in msg for token in indicators)
 
     def get_fallback_response(self, user_message: str) -> str:
         """Fallback response: hidden analysis, natural empathetic output."""

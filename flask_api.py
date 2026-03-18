@@ -308,6 +308,8 @@ def chat():
         # RuntimeError is used for OpenAI availability/API failures in assistant layer.
         print(f"Runtime error in /api/chat: {str(e)}")
         msg = str(e)
+        if 'connection error' in msg.lower():
+            return jsonify({'error': msg, 'success': False}), 503
         if 'OpenAI is not available' in msg:
             return jsonify({'error': msg, 'success': False}), 503
         if 'OpenAI API error' in msg:
