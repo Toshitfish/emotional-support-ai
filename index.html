@@ -97,6 +97,31 @@
             z-index: 1;
         }
 
+        .title-spacer {
+            flex: 1;
+        }
+
+        .theme-toggle {
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border-radius: 10px;
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: none;
+            padding: 0;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.28);
+            transform: translateY(-1px);
+        }
+
         .title-badge {
             width: 40px;
             height: 40px;
@@ -187,15 +212,6 @@
             box-shadow: 0 0 0 5px rgba(229, 83, 83, 0.15);
         }
 
-        .ai-info {
-            padding: 6px 10px;
-            border-radius: 999px;
-            background: rgba(45, 127, 249, 0.08);
-            color: #2258af;
-            font-weight: 600;
-            font-size: 0.8rem;
-        }
-
         .chat-box {
             background:
                 linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(249, 252, 255, 0.95));
@@ -228,27 +244,12 @@
         .quick-prompts {
             display: flex;
             gap: 8px;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             margin-top: 10px;
-            justify-content: center;
-        }
-
-        .safety-strip {
-            margin-top: 8px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            justify-content: center;
-        }
-
-        .safety-chip {
-            border: 1px solid #f7c6cb;
-            background: #fff4f4;
-            color: #a33a44;
-            border-radius: 999px;
-            padding: 6px 10px;
-            font-size: 0.72rem;
-            font-weight: 600;
+            justify-content: flex-start;
+            overflow-x: auto;
+            scrollbar-width: thin;
+            padding-bottom: 2px;
         }
 
         .prompt-chip {
@@ -260,6 +261,7 @@
             font-size: 0.78rem;
             cursor: pointer;
             transition: 180ms ease;
+            flex: 0 0 auto;
         }
 
         .prompt-chip:hover {
@@ -535,6 +537,10 @@
             cursor: pointer;
         }
 
+        .assist-tool-btn.copy {
+            min-width: 82px;
+        }
+
         .assist-tool-btn:hover {
             background: #eef5ff;
         }
@@ -792,6 +798,10 @@
                 justify-content: flex-start;
             }
 
+            .quick-prompts {
+                gap: 6px;
+            }
+
             .message-content {
                 max-width: 92%;
                 font-size: 0.92rem;
@@ -813,6 +823,8 @@
             <div class="title-row">
                 <div class="title-badge">💛</div>
                 <h1>情緒支持平臺 Stu-SoulCare.com</h1>
+                <span class="title-spacer"></span>
+                <button class="theme-toggle" id="darkModeBtn" type="button" aria-label="Toggle dark mode">🌙</button>
             </div>
             <p>A safe place to talk, feel heard, and take one small step forward.</p>
             <div class="intro-card" id="introCard">
@@ -831,10 +843,8 @@
                 <span id="statusText">Connecting...</span>
             </div>
             <div class="status-actions">
-                <div class="ai-info" id="aiInfo">AI provider: checking...</div>
                 <button class="utility-btn danger" id="emergencyBtn" type="button">Emergency Help</button>
                 <button class="utility-btn" id="breatheBtn" type="button">Breathe 1 min</button>
-                <button class="utility-btn" id="darkModeBtn" type="button">Dark Mode</button>
             </div>
         </div>
 
@@ -852,10 +862,6 @@
                     <button class="prompt-chip" type="button" data-prompt="I can't sleep lately and my mind won't stop racing.">Can't sleep</button>
                     <button class="prompt-chip" type="button" data-prompt="I had a fight with a friend and I feel really upset.">Fight with friend</button>
                     <button class="prompt-chip" type="button" data-prompt="I feel overwhelmed and don't know where to start.">Overwhelmed</button>
-                </div>
-                <div class="safety-strip">
-                    <span class="safety-chip">Emergency resources available</span>
-                    <span class="safety-chip">Crisis keywords trigger hotline support</span>
                 </div>
             </div>
         </div>
@@ -913,7 +919,7 @@
                 <button id="sendBtn" onclick="sendMessage()">Send</button>
             </div>
             <div class="trust-row">
-                <span class="privacy-badge">Privacy: chats are anonymous in this demo and only used to provide support responses.</span>
+                <span class="privacy-badge">🔒 Your privacy matters. Chats are 100% anonymous and disappear when you leave or refresh the page.</span>
             </div>
         </div>
     </div>
@@ -952,7 +958,6 @@
         const sendBtn = document.getElementById('sendBtn');
         const statusDot = document.getElementById('statusDot');
         const statusText = document.getElementById('statusText');
-        const aiInfo = document.getElementById('aiInfo');
         const responseStyle = document.getElementById('responseStyle');
         const detailLevel = document.getElementById('detailLevel');
         const copingMode = document.getElementById('copingMode');
@@ -974,7 +979,6 @@
         const breatheTimer = document.getElementById('breatheTimer');
 
         let lastAssistantMessage = '';
-        let breatheInterval = null;
         let breatheTick = null;
 
         toggleControls.addEventListener('click', () => {
@@ -993,7 +997,7 @@
 
         darkModeBtn.addEventListener('click', () => {
             document.body.classList.toggle('dark-mode');
-            darkModeBtn.textContent = document.body.classList.contains('dark-mode') ? 'Light Mode' : 'Dark Mode';
+            darkModeBtn.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
         });
 
         startBreathe.addEventListener('click', startBreathingExercise);
@@ -1011,25 +1015,13 @@
         function checkHealth() {
             fetch(`${API_URL}/api/health`)
                 .then(res => res.json())
-                .then((data) => {
+                .then(() => {
                     statusDot.classList.remove('offline');
-                    statusText.textContent = 'Connected';
-
-                    const provider = data?.openai?.provider;
-                    if (provider === 'teamplus') {
-                        aiInfo.textContent = 'Teamplus support is active';
-                    } else if (provider === 'openrouter') {
-                        aiInfo.textContent = 'OpenRouter support is active';
-                    } else if (provider === 'openai') {
-                        aiInfo.textContent = 'OpenAI support is active';
-                    } else {
-                        aiInfo.textContent = 'AI provider status unavailable';
-                    }
+                    statusText.textContent = 'Online';
                 })
                 .catch(() => {
                     statusDot.classList.add('offline');
                     statusText.textContent = 'Offline';
-                    aiInfo.textContent = 'AI provider offline';
                     chatBox.innerHTML = '<div class="error">Cannot connect to API. Please check your network or server status.</div>';
                 });
         }
@@ -1193,7 +1185,7 @@
                         <button class="reply-chip" type="button" data-reply="${escapeHtml(dynamicReplies[2].reply)}">${escapeHtml(dynamicReplies[2].label)}</button>
                     </div>
                     <div class="assist-tools">
-                        <button class="assist-tool-btn" type="button" data-tool="copy">Copy reply</button>
+                        <button class="assist-tool-btn copy" type="button" data-tool="copy">📋 Copy</button>
                         <button class="assist-tool-btn" type="button" data-tool="save">Save action plan</button>
                     </div>
                 `;
@@ -1214,8 +1206,8 @@
                     const tool = btn.dataset.tool;
                     if (tool === 'copy') {
                         navigator.clipboard.writeText(lastAssistantMessage || text).then(() => {
-                            btn.textContent = 'Copied';
-                            setTimeout(() => { btn.textContent = 'Copy reply'; }, 1000);
+                            btn.textContent = '✅ Copied';
+                            setTimeout(() => { btn.textContent = '📋 Copy'; }, 1000);
                         });
                     }
                     if (tool === 'save') {
@@ -1422,10 +1414,6 @@
         }
 
         function stopBreathingExercise() {
-            if (breatheInterval) {
-                clearInterval(breatheInterval);
-                breatheInterval = null;
-            }
             if (breatheTick) {
                 clearInterval(breatheTick);
                 breatheTick = null;
