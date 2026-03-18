@@ -687,6 +687,161 @@
             transform: translateX(-50%) translateY(0);
         }
 
+        .feedback-panel {
+            position: fixed;
+            bottom: 88px;
+            left: 50%;
+            transform: translateX(-50%) translateY(140%);
+            width: min(92vw, 360px);
+            background: rgba(255, 255, 255, 0.84);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            border-radius: 16px;
+            padding: 14px;
+            box-shadow: 0 12px 30px rgba(26, 41, 68, 0.18);
+            transition: transform 300ms cubic-bezier(0.175, 0.885, 0.32, 1.2);
+            z-index: 45;
+            text-align: center;
+        }
+
+        .feedback-panel.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .feedback-close {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            border: 0;
+            background: transparent;
+            color: #8b99b2;
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            box-shadow: none;
+        }
+
+        .feedback-title {
+            margin: 2px 0 10px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #3f506f;
+        }
+
+        .emoji-rating {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .emoji-rating button {
+            border: 0;
+            background: transparent;
+            box-shadow: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0.65;
+            transform: scale(1);
+            transition: 140ms ease;
+            padding: 0;
+        }
+
+        .emoji-rating button:hover,
+        .emoji-rating button.selected {
+            opacity: 1;
+            transform: scale(1.16);
+        }
+
+        #feedbackText {
+            width: 100%;
+            border-radius: 10px;
+            border: 1px solid #d8e5f8;
+            padding: 8px;
+            font-family: inherit;
+            font-size: 0.82rem;
+            resize: none;
+            margin-bottom: 10px;
+            min-height: 58px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .feedback-submit {
+            width: 100%;
+            border: 0;
+            border-radius: 999px;
+            padding: 8px 12px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(135deg, #79b17f, #5f9a6e);
+            box-shadow: none;
+            cursor: pointer;
+        }
+
+        .report-link-btn {
+            border: 0;
+            background: transparent;
+            box-shadow: none;
+            color: #7b8eae;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            cursor: pointer;
+            font-size: 0.78rem;
+            padding: 0;
+        }
+
+        .bug-form {
+            display: grid;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .bug-form select,
+        .bug-form textarea {
+            width: 100%;
+            border-radius: 9px;
+            border: 1px solid #d7e3f7;
+            padding: 9px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .bug-submit {
+            border: 0;
+            border-radius: 10px;
+            padding: 9px 12px;
+            color: #fff;
+            font-size: 0.84rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #e35562, #c73f4d);
+            box-shadow: none;
+            cursor: pointer;
+        }
+
+        body.dark-mode .feedback-panel {
+            background: rgba(30, 44, 67, 0.85);
+            border-color: rgba(102, 129, 173, 0.55);
+        }
+
+        body.dark-mode .feedback-title,
+        body.dark-mode .report-link-btn {
+            color: #d3def4;
+        }
+
+        body.dark-mode #feedbackText,
+        body.dark-mode .bug-form select,
+        body.dark-mode .bug-form textarea {
+            background: rgba(36, 52, 79, 0.92);
+            border-color: #49608a;
+            color: #deebff;
+        }
+
         .input-group {
             display: flex;
             gap: 10px;
@@ -1156,6 +1311,7 @@
             </div>
             <div class="trust-row">
                 <span class="privacy-badge">🔒 Your privacy matters. Chats are 100% anonymous and disappear when you leave or refresh the page.</span>
+                <button class="report-link-btn" id="openBugReport" type="button">Report a bug or issue</button>
             </div>
         </div>
     </div>
@@ -1196,6 +1352,36 @@
         </div>
     </div>
 
+    <div class="modal" id="bugModal" role="dialog" aria-modal="true" aria-labelledby="bugModalTitle">
+        <div class="modal-card">
+            <h3 id="bugModalTitle">Report an Issue 🐛</h3>
+            <p style="font-size: 0.84rem; color: #7083a6;">Notice something broken or unhelpful? Tell us so we can improve.</p>
+            <form id="bugForm" class="bug-form">
+                <select id="bugType" name="issue_type">
+                    <option value="AI is not responding">AI is not responding</option>
+                    <option value="Visual glitch or layout issue">Visual glitch or layout issue</option>
+                    <option value="Inappropriate AI response">Inappropriate AI response</option>
+                    <option value="Other">Other</option>
+                </select>
+                <textarea id="bugDescription" name="description" rows="4" placeholder="Please describe what happened..." required></textarea>
+                <button class="bug-submit" type="submit">Send Report</button>
+            </form>
+            <button class="utility-btn modal-close" id="closeBugReport" type="button">Close</button>
+        </div>
+    </div>
+
+    <div id="feedbackSlider" class="feedback-panel" role="dialog" aria-live="polite" aria-label="Feedback panel">
+        <button class="feedback-close" id="closeFeedback" type="button" aria-label="Close feedback">×</button>
+        <p class="feedback-title">Is this conversation helping?</p>
+        <div class="emoji-rating" id="emojiRating">
+            <button type="button" data-rating="helpful" title="Helpful">💚</button>
+            <button type="button" data-rating="neutral" title="Okay">💛</button>
+            <button type="button" data-rating="unhelpful" title="Not helpful">💔</button>
+        </div>
+        <textarea id="feedbackText" rows="2" placeholder="Any suggestion to make me better? (Optional)"></textarea>
+        <button class="feedback-submit" id="submitFeedback" type="button">Send Feedback</button>
+    </div>
+
     <div class="toast" id="appToast" role="status" aria-live="polite"></div>
 
     <script>
@@ -1229,6 +1415,17 @@
         const bubbleWrapGrid = document.getElementById('bubbleWrapGrid');
         const bubbleCount = document.getElementById('bubbleCount');
         const resetBubbleWrap = document.getElementById('resetBubbleWrap');
+        const openBugReport = document.getElementById('openBugReport');
+        const bugModal = document.getElementById('bugModal');
+        const closeBugReport = document.getElementById('closeBugReport');
+        const bugForm = document.getElementById('bugForm');
+        const bugType = document.getElementById('bugType');
+        const bugDescription = document.getElementById('bugDescription');
+        const feedbackSlider = document.getElementById('feedbackSlider');
+        const closeFeedbackBtn = document.getElementById('closeFeedback');
+        const emojiRating = document.getElementById('emojiRating');
+        const feedbackText = document.getElementById('feedbackText');
+        const submitFeedbackBtn = document.getElementById('submitFeedback');
         const startBreathe = document.getElementById('startBreathe');
         const breatheCircle = document.getElementById('breatheCircle');
         const breatheInstruction = document.getElementById('breatheInstruction');
@@ -1246,6 +1443,10 @@
             current: null,
             usedIndexes: [],
         };
+        let aiMessageCount = 0;
+        let userRating = '';
+        const FEEDBACK_WEBHOOK_URL = '';
+        const BUG_REPORT_WEBHOOK_URL = '';
 
         const EMOJI_GAME_BANK = [
             { emoji: '🚢🧊💔', answer: 'Titanic', aliases: ['titanic'], hint: 'A famous ship and iceberg love story.' },
@@ -1287,6 +1488,15 @@
         });
         closeBubbleWrap.addEventListener('click', () => bubbleWrapModal.classList.remove('show'));
         resetBubbleWrap.addEventListener('click', resetBubbleDots);
+        openBugReport.addEventListener('click', () => bugModal.classList.add('show'));
+        closeBugReport.addEventListener('click', () => bugModal.classList.remove('show'));
+        closeFeedbackBtn.addEventListener('click', closeFeedback);
+        submitFeedbackBtn.addEventListener('click', submitFeedback);
+        emojiRating.querySelectorAll('button').forEach((btn) => {
+            btn.addEventListener('click', () => selectRating(btn.dataset.rating));
+        });
+
+        bugForm.addEventListener('submit', submitBugReport);
 
         darkModeBtn.addEventListener('click', () => {
             document.body.classList.toggle('dark-mode');
@@ -1549,6 +1759,10 @@
 
             chatBox.appendChild(messageDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
+
+            if (role === 'assistant') {
+                aiResponded();
+            }
         }
 
         function formatAssistantText(text) {
@@ -1849,6 +2063,88 @@
             toastTimer = setTimeout(() => {
                 appToast.classList.remove('show');
             }, 1600);
+        }
+
+        function aiResponded() {
+            aiMessageCount += 1;
+            if (aiMessageCount % 5 === 0) {
+                feedbackSlider.classList.add('show');
+            }
+        }
+
+        function closeFeedback() {
+            feedbackSlider.classList.remove('show');
+        }
+
+        function selectRating(rating) {
+            userRating = rating;
+            emojiRating.querySelectorAll('button').forEach((btn) => {
+                btn.classList.toggle('selected', btn.dataset.rating === rating);
+            });
+        }
+
+        async function submitFeedback() {
+            const payload = {
+                session_id: sessionId,
+                rating: userRating || 'unspecified',
+                suggestion: feedbackText.value.trim(),
+                ai_message_count: aiMessageCount,
+                timestamp: new Date().toISOString(),
+            };
+
+            if (FEEDBACK_WEBHOOK_URL) {
+                try {
+                    await fetch(FEEDBACK_WEBHOOK_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload),
+                    });
+                } catch (_) {
+                    // Silent fail, still thank user locally.
+                }
+            } else {
+                console.log('Feedback received:', payload);
+            }
+
+            closeFeedback();
+            userRating = '';
+            feedbackText.value = '';
+            emojiRating.querySelectorAll('button').forEach((btn) => btn.classList.remove('selected'));
+            showToast('Thank you 💛 This helps us support you better.');
+        }
+
+        async function submitBugReport(e) {
+            e.preventDefault();
+            const payload = {
+                session_id: sessionId,
+                issue_type: bugType.value,
+                description: bugDescription.value.trim(),
+                timestamp: new Date().toISOString(),
+            };
+
+            if (!payload.description) {
+                showToast('Please describe the issue first.');
+                return;
+            }
+
+            if (BUG_REPORT_WEBHOOK_URL) {
+                try {
+                    await fetch(BUG_REPORT_WEBHOOK_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload),
+                    });
+                } catch (_) {
+                    showToast('Could not send report right now.');
+                    return;
+                }
+            } else {
+                console.log('Bug report:', payload);
+            }
+
+            bugForm.reset();
+            bugModal.classList.remove('show');
+            showToast('Thank you! Your report was sent to the developer.');
         }
 
         function ensureBubbleWrap() {
