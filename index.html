@@ -1643,6 +1643,12 @@
             }
         }
 
+        @media (prefers-reduced-motion: reduce) {
+            .sos-breathing-circle {
+                animation: none;
+            }
+        }
+
         @media (max-width: 800px) {
             body {
                 padding: 0;
@@ -2213,7 +2219,20 @@
         });
         skipMoodCheckin.addEventListener('click', hideMoodCheckin);
 
-        micBtn.addEventListener('click', toggleVoiceInput);
+        micBtn.addEventListener('click', (event) => event.preventDefault());
+        micBtn.addEventListener('pointerdown', (event) => {
+            event.preventDefault();
+            startVoiceInput();
+        });
+        micBtn.addEventListener('pointerup', stopVoiceInput);
+        micBtn.addEventListener('pointerleave', stopVoiceInput);
+        micBtn.addEventListener('pointercancel', stopVoiceInput);
+        micBtn.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                toggleVoiceInput();
+            }
+        });
 
         sosBtn.addEventListener('click', startSOSFlow);
         sosEmergencyBtn.addEventListener('click', () => {
@@ -2246,6 +2265,12 @@
             installAppBtn.disabled = true;
             installAppBtn.textContent = '✅ App installed';
             showToast('Stu-SoulCare installed successfully.');
+        });
+
+        window.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && sosActive) {
+                exitSOSFlow();
+            }
         });
 
         document.querySelectorAll('.prompt-chip').forEach((chip) => {
@@ -2430,7 +2455,7 @@
             recognition.onstart = () => {
                 isListening = true;
                 micBtn.classList.add('listening');
-                showToast('Listening... tap mic again to stop.');
+                showToast('Listening... release mic to stop.');
             };
 
             recognition.onresult = (event) => {
@@ -2473,13 +2498,27 @@
                 return;
             }
             if (isListening) {
-                recognition.stop();
+                stopVoiceInput();
                 return;
             }
+            startVoiceInput();
+        }
+
+        function startVoiceInput() {
+            if (!voiceSupported || !recognition || isListening || sosActive) return;
             try {
                 recognition.start();
             } catch (_) {
                 // Ignore invalid repeated starts.
+            }
+        }
+
+        function stopVoiceInput() {
+            if (!voiceSupported || !recognition || !isListening) return;
+            try {
+                recognition.stop();
+            } catch (_) {
+                // Ignore stop edge cases.
             }
         }
 
@@ -3060,20 +3099,46 @@
                 showToast('Read aloud is not supported in this browser.');
                 return;
             }
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+                showToast('Read aloud stopped.');
+                return;
+            }
             const cleaned = String(text || '').trim();
             if (!cleaned) return;
-            window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(cleaned);
             utterance.rate = 0.95;
             utterance.pitch = 1;
-            utterance.lang = 'en-US';
+            utterance.lang = detectSpeechLang(cleaned);
+            const selectedVoice = chooseBestVoice(utterance.lang);
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+            }
             window.speechSynthesis.speak(utterance);
+        }
+
+        function detectSpeechLang(text) {
+            if (/[\u4e00-\u9fff]/.test(text)) {
+                return 'zh-HK';
+            }
+            return navigator.language || 'en-US';
+        }
+
+        function chooseBestVoice(lang) {
+            const voices = window.speechSynthesis.getVoices();
+            if (!voices || voices.length === 0) return null;
+            const exact = voices.find((v) => v.lang === lang);
+            if (exact) return exact;
+            const samePrefix = voices.find((v) => v.lang && lang && v.lang.split('-')[0] === lang.split('-')[0]);
+            if (samePrefix) return samePrefix;
+            return voices.find((v) => v.default) || voices[0] || null;
         }
 
         function startSOSFlow() {
             if (sosActive) return;
             sosActive = true;
             sosOverlay.classList.add('show');
+            sosOverlay.setAttribute('aria-hidden', 'false');
             hideMoodCheckin();
             setChatInteractionLocked(true);
             if (recognition && isListening) {
@@ -3117,6 +3182,7 @@
             sosActive = false;
             clearSOSTimers();
             sosOverlay.classList.remove('show');
+            sosOverlay.setAttribute('aria-hidden', 'true');
             setChatInteractionLocked(false);
             sosScript.textContent = 'Tap Start SOS when you need immediate grounding support.';
             sosGroundingBtn.disabled = true;
