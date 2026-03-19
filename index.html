@@ -2301,6 +2301,8 @@
         const API_URL = 'https://emotional-support-ai.onrender.com';
         let sessionId = 'session_' + Date.now();
         const chatBox = document.getElementById('chatBox');
+        const inputArea = document.querySelector('.input-area');
+        const inputGroup = document.querySelector('.input-group');
         const messageInput = document.getElementById('messageInput');
         const sendBtn = document.getElementById('sendBtn');
         const statusDot = document.getElementById('statusDot');
@@ -2561,6 +2563,7 @@
         window.addEventListener('load', autoResizeInput);
         window.addEventListener('load', ensureBubbleWrap);
         window.addEventListener('load', initializeV2Features);
+        window.addEventListener('load', ensureComposerVisible);
 
         window.addEventListener('beforeinstallprompt', (event) => {
             event.preventDefault();
@@ -2636,6 +2639,26 @@
             if (announce) {
                 showToast(compactModeEnabled ? 'Compact chat enabled.' : 'Compact chat disabled.');
             }
+        }
+
+        function ensureComposerVisible() {
+            if (!inputArea || !inputGroup || !messageInput || !sendBtn) return;
+
+            inputArea.style.removeProperty('display');
+            inputArea.style.removeProperty('visibility');
+            inputArea.style.removeProperty('opacity');
+
+            inputGroup.style.display = 'flex';
+            inputGroup.style.visibility = 'visible';
+            inputGroup.style.opacity = '1';
+
+            if (!sosActive) {
+                messageInput.disabled = false;
+                sendBtn.disabled = false;
+                micBtn.disabled = !voiceSupported;
+            }
+
+            autoResizeInput();
         }
 
         function markAudioInteraction() {
@@ -2946,6 +2969,7 @@
                 mainApp.classList.add('app-visible');
                 checkHealth();
                 greetUser();
+                ensureComposerVisible();
                 autoResizeInput();
                 messageInput.focus();
             }, 360);
@@ -3118,6 +3142,7 @@
             }
 
             sendBtn.disabled = false;
+            ensureComposerVisible();
             messageInput.focus();
         }
 
@@ -3299,6 +3324,8 @@
                 playMessageChime();
                 aiResponded();
             }
+
+            ensureComposerVisible();
         }
 
         function insertDaySeparatorIfNeeded(dateObj) {
