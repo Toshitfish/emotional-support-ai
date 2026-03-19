@@ -280,6 +280,14 @@ Keep output vivid and interactive, not plain generic text."""
             
         except Exception as e:
             print(f"OpenAI API error: {e}")
+            if self._is_insufficient_credits_error(e):
+                # Keep support available even when provider credits are exhausted.
+                fallback = self.get_fallback_response(user_message)
+                return (
+                    "I cannot reach the cloud model right now because provider credits are unavailable. "
+                    "I can still support you here.\n\n"
+                    f"{fallback}"
+                )
             if self._is_connection_error(e):
                 if self.provider == "teamplus":
                     raise RuntimeError(
@@ -323,6 +331,19 @@ Keep output vivid and interactive, not plain generic text."""
             "temporary failure in name resolution",
             "connection reset",
             "network is unreachable",
+        ]
+        return any(token in msg for token in indicators)
+
+    def _is_insufficient_credits_error(self, err: Exception) -> bool:
+        """Detect provider billing/credit failures (commonly OpenRouter HTTP 402)."""
+        msg = str(err).lower()
+        indicators = [
+            "insufficient credits",
+            "error code: 402",
+            "'code': 402",
+            '"code": 402',
+            "payment required",
+            "purchase more",
         ]
         return any(token in msg for token in indicators)
 
