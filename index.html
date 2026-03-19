@@ -57,6 +57,220 @@
             animation: auroraShift 22s ease-in-out infinite alternate;
         }
 
+        .landing-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 38px 20px;
+            text-align: center;
+            transition: opacity 420ms ease;
+        }
+
+        .landing-logo {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.75);
+            background: rgba(255, 255, 255, 0.62);
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #425379;
+            margin-bottom: 18px;
+        }
+
+        .landing-title {
+            font-size: clamp(1.7rem, 4.2vw, 2.8rem);
+            line-height: 1.2;
+            color: #2d3a52;
+            margin-bottom: 14px;
+        }
+
+        .landing-subtitle {
+            max-width: 650px;
+            margin: 0 auto 26px;
+            color: #617392;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .landing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+            width: min(980px, 96vw);
+            margin-bottom: 22px;
+        }
+
+        .landing-card {
+            text-align: left;
+            border-radius: 18px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 12px 30px rgba(32, 49, 80, 0.08);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .landing-card h3 {
+            font-size: 1rem;
+            color: #2f415f;
+            margin-bottom: 6px;
+        }
+
+        .landing-card p {
+            font-size: 0.86rem;
+            color: #6b7f9f;
+            line-height: 1.45;
+        }
+
+        .landing-start-btn {
+            border: 0;
+            border-radius: 999px;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(135deg, #2d7ff9, #2961cc);
+            box-shadow: 0 12px 26px rgba(45, 99, 210, 0.3);
+            cursor: pointer;
+        }
+
+        .landing-footnote {
+            margin-top: 16px;
+            font-size: 0.78rem;
+            color: #7f90ac;
+        }
+
+        .app-hidden {
+            display: none;
+            opacity: 0;
+            transition: opacity 420ms ease;
+        }
+
+        .app-visible {
+            display: block;
+            opacity: 1;
+        }
+
+        .sidebar-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(14, 22, 34, 0.35);
+            opacity: 0;
+            pointer-events: none;
+            transition: 220ms ease;
+            z-index: 70;
+        }
+
+        .sidebar-backdrop.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -320px;
+            width: 300px;
+            height: 100vh;
+            background: rgba(251, 254, 255, 0.95);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-right: 1px solid rgba(182, 201, 234, 0.65);
+            box-shadow: 12px 0 28px rgba(24, 40, 66, 0.12);
+            z-index: 80;
+            transition: left 260ms ease;
+            overflow-y: auto;
+            padding: 14px 12px 18px;
+        }
+
+        .sidebar.open {
+            left: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            color: #2e4267;
+            font-weight: 700;
+        }
+
+        .sidebar-close {
+            border: 0;
+            background: transparent;
+            box-shadow: none;
+            color: #6f83a8;
+            font-size: 1.2rem;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .sidebar-group {
+            margin: 10px 0 14px;
+        }
+
+        .sidebar-group h4 {
+            font-size: 0.8rem;
+            color: #657999;
+            letter-spacing: 0.2px;
+            margin-bottom: 8px;
+        }
+
+        .tool-item {
+            border: 1px solid #d6e3fa;
+            border-radius: 12px;
+            padding: 8px;
+            background: #f8fbff;
+            margin-bottom: 8px;
+        }
+
+        .tool-item button {
+            width: 100%;
+            text-align: left;
+            border: 0;
+            background: transparent;
+            box-shadow: none;
+            color: #304f83;
+            font-size: 0.84rem;
+            font-weight: 700;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        .tool-item p {
+            font-size: 0.76rem;
+            line-height: 1.35;
+            color: #7085a7;
+            margin-top: 4px;
+            font-style: italic;
+        }
+
+        .menu-btn,
+        .top-emergency-btn {
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.18);
+            color: #fff;
+            border-radius: 10px;
+            box-shadow: none;
+            padding: 8px 10px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .top-emergency-btn {
+            border-color: rgba(255, 214, 214, 0.72);
+            background: rgba(255, 96, 96, 0.18);
+        }
+
         .container {
             width: 100vw;
             height: 100vh;
@@ -476,7 +690,7 @@
         }
 
         .toolbar {
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: space-between;
             gap: 8px;
@@ -1159,7 +1373,7 @@
             }
 
             .header h1 {
-                font-size: 1.25rem;
+                font-size: 1.08rem;
             }
 
             .header p {
@@ -1186,6 +1400,15 @@
                 justify-content: flex-start;
             }
 
+            .landing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                width: 92vw;
+                left: -100vw;
+            }
+
             .quick-prompts {
                 gap: 6px;
             }
@@ -1206,46 +1429,141 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="title-row">
-                <div class="title-badge">💛</div>
-                <h1>情緒支持平臺 Stu-SoulCare.com</h1>
-                <span class="title-spacer"></span>
-                <button class="theme-toggle" id="darkModeBtn" type="button" aria-label="Toggle dark mode">🌙</button>
+    <div id="landingPage" class="landing-container">
+        <div class="landing-logo">💛 Stu-SoulCare</div>
+        <h1 class="landing-title">A safe place to talk,<br>feel heard, and breathe.</h1>
+        <p class="landing-subtitle">Your 24/7 AI companion for school stress, family pressure, and overwhelming thoughts.</p>
+        <div class="landing-grid">
+            <div class="landing-card">
+                <h3>💬 Listen Without Judgment</h3>
+                <p>Talk like you would to a friend. Choose practical, calming, motivational, or hype support.</p>
             </div>
-            <p>A safe place to talk, feel heard, and take one small step forward.</p>
-            <button class="about-toggle" id="aboutToggle" type="button">ℹ️ About this platform</button>
-            <div class="intro-card collapsed" id="introCard">
-                <div class="intro-icon">🌱</div>
-                <div class="intro-body">
-                    <strong>About Stu-SoulCare.com</strong><br>
-                    A school-friendly emotional support chatbot for stress, exams, friendships, and family pressure.
-                    You can choose response style and support mode anytime.
-                </div>
+            <div class="landing-card">
+                <h3>🧰 Grounding Toolkit</h3>
+                <p>Use breathing, bubble wrap, and lightweight games when your mind needs a quick reset.</p>
             </div>
-        </div>
-
-        <div class="status glass-panel">
-            <div class="status-indicator">
-                <span class="status-dot" id="statusDot"></span>
-                <span id="statusText">Connecting...</span>
-            </div>
-            <div class="status-actions">
-                <button class="utility-btn danger" id="emergencyBtn" type="button">Emergency Help</button>
-                <button class="utility-btn" id="breatheBtn" type="button">Breathe 1 min</button>
-                <button class="utility-btn" id="bubbleWrapBtn" type="button">🫧 Bubble Wrap</button>
+            <div class="landing-card">
+                <h3>🔒 Anonymous By Design</h3>
+                <p>No sign-up required. Start talking instantly and keep the focus on support.</p>
             </div>
         </div>
+        <button id="enterAppBtn" class="landing-start-btn" type="button">Let's Start 💛</button>
+        <p class="landing-footnote">If you are in immediate danger, call local emergency services now.</p>
+    </div>
 
-        <div class="chat-box" id="chatBox">
-            <div class="welcome" id="welcomeCard">
-                <div>Talk to me like a friend. I will listen without judging.</div>
-                <div class="small">Your message can be in English, 中文, or mixed language.</div>
-                <div class="small" style="margin-top:6px;">
-                    I am an AI, not a licensed therapist. If you are in immediate danger, use Emergency Help now.
+    <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+    <aside id="appSidebar" class="sidebar" aria-label="Tool menu">
+        <div class="sidebar-header">
+            <span>🧰 Stu-SoulCare Toolkit</span>
+            <button id="closeSidebarBtn" class="sidebar-close" type="button" aria-label="Close menu">×</button>
+        </div>
+        <div class="sidebar-group">
+            <h4>Tools For Anxiety</h4>
+            <div class="tool-item">
+                <button id="sidebarBreatheBtn" type="button">🫁 Breathe (1 min)</button>
+                <p>A guided visual exercise to slow your heart rate.</p>
+            </div>
+            <div class="tool-item">
+                <button id="sidebarBubbleBtn" type="button">🫧 Pop Bubble Wrap</button>
+                <p>A tactile distraction to interrupt overthinking.</p>
+            </div>
+            <div class="tool-item">
+                <button id="sidebarDarkModeBtn" type="button">🌙 Toggle Dark Mode</button>
+                <p>Softer contrast for night use and tired eyes.</p>
+            </div>
+        </div>
+        <div class="sidebar-group">
+            <h4>AI Customization</h4>
+            <div class="tool-item">
+                <button id="sidebarCustomizeBtn" type="button">⚙️ Adjust AI Personality</button>
+                <p>Open style, depth, and coping-mode controls.</p>
+            </div>
+        </div>
+        <div class="sidebar-group">
+            <h4>Information</h4>
+            <div class="tool-item">
+                <button id="sidebarAboutBtn" type="button">ℹ️ About this space</button>
+                <p>See what Stu-SoulCare can do for students.</p>
+            </div>
+            <div class="tool-item">
+                <button id="openBugReport" type="button">🐛 Report an issue</button>
+                <p>Share bugs so we can improve quickly.</p>
+            </div>
+        </div>
+    </aside>
+
+    <div id="mainApp" class="app-hidden">
+        <div class="container">
+            <div class="header">
+                <div class="title-row">
+                    <button class="menu-btn" id="menuBtn" type="button" aria-label="Open menu">☰ Menu</button>
+                    <div class="title-badge">💛</div>
+                    <h1>情緒支持平臺 Stu-SoulCare.com</h1>
+                    <span class="title-spacer"></span>
+                    <button class="top-emergency-btn" id="emergencyBtn" type="button">🚨 Emergency Help</button>
                 </div>
-                <div class="quick-prompts">
+                <p>A safe place to talk, feel heard, and take one small step forward.</p>
+            </div>
+
+            <div class="status glass-panel">
+                <div class="status-indicator">
+                    <span class="status-dot" id="statusDot"></span>
+                    <span id="statusText">Connecting...</span>
+                </div>
+                <div class="status-actions"></div>
+            </div>
+
+            <div class="chat-box" id="chatBox">
+                <div class="welcome" id="welcomeCard">
+                    <div>Talk to me like a friend. I will listen without judging.</div>
+                    <div class="small">Your message can be in English, 中文, or mixed language.</div>
+                    <div class="small" style="margin-top:6px;">
+                        I am an AI, not a licensed therapist. If you are in immediate danger, use Emergency Help now.
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-area glass-panel">
+                <div class="controls collapsed">
+                    <div class="control-item">
+                        <label for="responseStyle">Style</label>
+                        <select id="responseStyle">
+                            <option value="bullet" selected>Bullet</option>
+                            <option value="compact">Compact</option>
+                            <option value="conversational">Conversational</option>
+                        </select>
+                    </div>
+                    <div class="control-item">
+                        <label for="detailLevel">Depth</label>
+                        <select id="detailLevel">
+                            <option value="short" selected>Short</option>
+                            <option value="medium">Medium</option>
+                            <option value="deep">Deep</option>
+                        </select>
+                    </div>
+                    <div class="control-item">
+                        <label for="copingMode">Mode</label>
+                        <select id="copingMode">
+                            <option value="practical" selected>Practical</option>
+                            <option value="calming">Calming</option>
+                            <option value="motivational">Motivational</option>
+                            <option value="hype">🎉 Hype / Funny</option>
+                        </select>
+                    </div>
+                    <div class="control-item">
+                        <label for="togglePlan">Action Plan</label>
+                        <input id="togglePlan" type="checkbox" checked>
+                    </div>
+                    <div class="control-item">
+                        <label for="toggleSongs">Song Ideas</label>
+                        <input id="toggleSongs" type="checkbox" checked>
+                    </div>
+                    <div class="control-item">
+                        <label for="toggleEmoji">Emojis</label>
+                        <input id="toggleEmoji" type="checkbox" checked>
+                    </div>
+                </div>
+                <div class="quick-prompts" id="quickPromptBar">
                     <button class="prompt-chip" type="button" data-prompt="I feel stressed about my exams">Exam stress</button>
                     <button class="prompt-chip" type="button" data-prompt="I feel lonely lately">Lonely</button>
                     <button class="prompt-chip" type="button" data-prompt="我最近和家人關係很緊張">Family pressure</button>
@@ -1254,65 +1572,33 @@
                     <button class="prompt-chip" type="button" data-prompt="I feel overwhelmed and don't know where to start.">Overwhelmed</button>
                     <button class="prompt-chip" type="button" data-prompt="🎲 Play a game with me. Start an emoji movie guessing game and wait for my guess.">🎲 Play a Game</button>
                 </div>
+                <div class="input-group">
+                    <textarea
+                        id="messageInput"
+                        placeholder="Share what is on your mind..."
+                        rows="1"
+                    ></textarea>
+                    <button id="sendBtn" onclick="sendMessage()">Send</button>
+                </div>
+                <div class="trust-row">
+                    <span class="privacy-badge">🔒 Your privacy matters. Chats are 100% anonymous and disappear when you leave or refresh the page.</span>
+                </div>
             </div>
         </div>
+    </div>
 
-        <div class="input-area glass-panel">
-            <div class="toolbar">
-                <span class="toolbar-title">Response Preferences</span>
-                <button id="toggleControls" class="toolbar-toggle" type="button">⚙ Customize your AI</button>
-            </div>
-            <div class="controls collapsed">
-                <div class="control-item">
-                    <label for="responseStyle">Style</label>
-                    <select id="responseStyle">
-                        <option value="bullet" selected>Bullet</option>
-                        <option value="compact">Compact</option>
-                        <option value="conversational">Conversational</option>
-                    </select>
-                </div>
-                <div class="control-item">
-                    <label for="detailLevel">Depth</label>
-                    <select id="detailLevel">
-                        <option value="short" selected>Short</option>
-                        <option value="medium">Medium</option>
-                        <option value="deep">Deep</option>
-                    </select>
-                </div>
-                <div class="control-item">
-                    <label for="copingMode">Mode</label>
-                    <select id="copingMode">
-                        <option value="practical" selected>Practical</option>
-                        <option value="calming">Calming</option>
-                        <option value="motivational">Motivational</option>
-                        <option value="hype">🎉 Hype / Funny</option>
-                    </select>
-                </div>
-                <div class="control-item">
-                    <label for="togglePlan">Action Plan</label>
-                    <input id="togglePlan" type="checkbox" checked>
-                </div>
-                <div class="control-item">
-                    <label for="toggleSongs">Song Ideas</label>
-                    <input id="toggleSongs" type="checkbox" checked>
-                </div>
-                <div class="control-item">
-                    <label for="toggleEmoji">Emojis</label>
-                    <input id="toggleEmoji" type="checkbox" checked>
-                </div>
-            </div>
-            <div class="input-group">
-                <textarea
-                    id="messageInput"
-                    placeholder="Share what is on your mind..."
-                    rows="1"
-                ></textarea>
-                <button id="sendBtn" onclick="sendMessage()">Send</button>
-            </div>
-            <div class="trust-row">
-                <span class="privacy-badge">🔒 Your privacy matters. Chats are 100% anonymous and disappear when you leave or refresh the page.</span>
-                <button class="report-link-btn" id="openBugReport" type="button">Report a bug or issue</button>
-            </div>
+    <div class="modal" id="aboutModal" role="dialog" aria-modal="true" aria-labelledby="aboutModalTitle">
+        <div class="modal-card">
+            <h3 id="aboutModalTitle">About Stu-SoulCare</h3>
+            <p style="font-size: 0.9rem; line-height: 1.5; color: #5f7295;">
+                Stu-SoulCare is a student-focused emotional support companion for exam stress, family pressure,
+                social challenges, and daily overwhelm. It offers supportive conversation, grounding tools,
+                and practical next-step guidance in a safe, low-pressure space.
+            </p>
+            <p style="font-size: 0.82rem; margin-top: 8px; color: #7b8dab;">
+                This is not a licensed therapy service. If you may be in danger, use Emergency Help immediately.
+            </p>
+            <button class="utility-btn modal-close" id="closeAboutModal" type="button">Close</button>
         </div>
     </div>
 
@@ -1399,13 +1685,21 @@
         const toggleSongs = document.getElementById('toggleSongs');
         const toggleEmoji = document.getElementById('toggleEmoji');
         const controlsPanel = document.querySelector('.controls');
-        const toggleControls = document.getElementById('toggleControls');
+        const landingPage = document.getElementById('landingPage');
+        const mainApp = document.getElementById('mainApp');
+        const enterAppBtn = document.getElementById('enterAppBtn');
+        const menuBtn = document.getElementById('menuBtn');
+        const appSidebar = document.getElementById('appSidebar');
+        const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+        const closeSidebarBtn = document.getElementById('closeSidebarBtn');
+        const sidebarBreatheBtn = document.getElementById('sidebarBreatheBtn');
+        const sidebarBubbleBtn = document.getElementById('sidebarBubbleBtn');
+        const sidebarDarkModeBtn = document.getElementById('sidebarDarkModeBtn');
+        const sidebarCustomizeBtn = document.getElementById('sidebarCustomizeBtn');
+        const sidebarAboutBtn = document.getElementById('sidebarAboutBtn');
         const emergencyBtn = document.getElementById('emergencyBtn');
-        const breatheBtn = document.getElementById('breatheBtn');
-        const bubbleWrapBtn = document.getElementById('bubbleWrapBtn');
-        const darkModeBtn = document.getElementById('darkModeBtn');
-        const aboutToggle = document.getElementById('aboutToggle');
-        const introCard = document.getElementById('introCard');
+        const aboutModal = document.getElementById('aboutModal');
+        const closeAboutModal = document.getElementById('closeAboutModal');
         const emergencyModal = document.getElementById('emergencyModal');
         const breatheModal = document.getElementById('breatheModal');
         const bubbleWrapModal = document.getElementById('bubbleWrapModal');
@@ -1447,6 +1741,7 @@
         let userRating = '';
         const FEEDBACK_WEBHOOK_URL = '';
         const BUG_REPORT_WEBHOOK_URL = '';
+        let hasEnteredApp = false;
 
         const EMOJI_GAME_BANK = [
             { emoji: '🚢🧊💔', answer: 'Titanic', aliases: ['titanic'], hint: 'A famous ship and iceberg love story.' },
@@ -1463,32 +1758,46 @@
             { emoji: '🏎️🏁', answer: 'Cars', aliases: ['cars'], hint: 'Lightning McQueen.' },
         ];
 
-        toggleControls.addEventListener('click', () => {
-            controlsPanel.classList.toggle('collapsed');
-            toggleControls.textContent = controlsPanel.classList.contains('collapsed') ? '⚙ Customize your AI' : 'Hide Options';
-        });
-
-        aboutToggle.addEventListener('click', () => {
-            introCard.classList.toggle('collapsed');
-            aboutToggle.textContent = introCard.classList.contains('collapsed') ? 'ℹ️ About this platform' : '✖ Hide about';
-        });
+        enterAppBtn.addEventListener('click', enterApp);
+        menuBtn.addEventListener('click', openSidebar);
+        closeSidebarBtn.addEventListener('click', closeSidebar);
+        sidebarBackdrop.addEventListener('click', closeSidebar);
 
         emergencyBtn.addEventListener('click', () => emergencyModal.classList.add('show'));
         closeEmergency.addEventListener('click', () => emergencyModal.classList.remove('show'));
+        closeAboutModal.addEventListener('click', () => aboutModal.classList.remove('show'));
 
-        breatheBtn.addEventListener('click', () => breatheModal.classList.add('show'));
+        sidebarBreatheBtn.addEventListener('click', () => {
+            breatheModal.classList.add('show');
+            closeSidebar();
+        });
         closeBreathe.addEventListener('click', () => {
             breatheModal.classList.remove('show');
             stopBreathingExercise();
         });
 
-        bubbleWrapBtn.addEventListener('click', () => {
+        sidebarBubbleBtn.addEventListener('click', () => {
             bubbleWrapModal.classList.add('show');
             ensureBubbleWrap();
+            closeSidebar();
         });
         closeBubbleWrap.addEventListener('click', () => bubbleWrapModal.classList.remove('show'));
         resetBubbleWrap.addEventListener('click', resetBubbleDots);
-        openBugReport.addEventListener('click', () => bugModal.classList.add('show'));
+        openBugReport.addEventListener('click', () => {
+            bugModal.classList.add('show');
+            closeSidebar();
+        });
+        sidebarAboutBtn.addEventListener('click', () => {
+            aboutModal.classList.add('show');
+            closeSidebar();
+        });
+        sidebarCustomizeBtn.addEventListener('click', () => {
+            controlsPanel.classList.toggle('collapsed');
+            if (!controlsPanel.classList.contains('collapsed')) {
+                showToast('AI preferences opened below the chat.');
+            }
+            closeSidebar();
+        });
         closeBugReport.addEventListener('click', () => bugModal.classList.remove('show'));
         closeFeedbackBtn.addEventListener('click', closeFeedback);
         submitFeedbackBtn.addEventListener('click', submitFeedback);
@@ -1498,15 +1807,19 @@
 
         bugForm.addEventListener('submit', submitBugReport);
 
-        darkModeBtn.addEventListener('click', () => {
+        sidebarDarkModeBtn.addEventListener('click', () => {
             document.body.classList.toggle('dark-mode');
-            darkModeBtn.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+            sidebarDarkModeBtn.textContent = document.body.classList.contains('dark-mode') ? '☀️ Toggle Light Mode' : '🌙 Toggle Dark Mode';
+            closeSidebar();
         });
 
         startBreathe.addEventListener('click', startBreathingExercise);
 
-        window.addEventListener('load', checkHealth);
-        window.addEventListener('load', greetUser);
+        window.addEventListener('load', () => {
+            mainApp.classList.remove('app-visible');
+            mainApp.classList.add('app-hidden');
+            landingPage.style.display = 'flex';
+        });
         window.addEventListener('load', autoResizeInput);
         window.addEventListener('load', ensureBubbleWrap);
 
@@ -1516,6 +1829,31 @@
                 messageInput.focus();
             });
         });
+
+        function enterApp() {
+            if (hasEnteredApp) return;
+            hasEnteredApp = true;
+            landingPage.style.opacity = '0';
+            setTimeout(() => {
+                landingPage.style.display = 'none';
+                mainApp.classList.remove('app-hidden');
+                mainApp.classList.add('app-visible');
+                checkHealth();
+                greetUser();
+                autoResizeInput();
+                messageInput.focus();
+            }, 360);
+        }
+
+        function openSidebar() {
+            appSidebar.classList.add('open');
+            sidebarBackdrop.classList.add('show');
+        }
+
+        function closeSidebar() {
+            appSidebar.classList.remove('open');
+            sidebarBackdrop.classList.remove('show');
+        }
 
         function checkHealth() {
             fetch(`${API_URL}/api/health`)
