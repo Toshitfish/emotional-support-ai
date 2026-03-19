@@ -3,7 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2d7ff9">
+    <meta name="description" content="Stu-SoulCare is an anonymous emotional support companion for students.">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Stu-SoulCare">
     <title>Stu-SoulCare.com</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="icons/icon-192.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
@@ -269,6 +276,17 @@
         .top-emergency-btn {
             border-color: rgba(255, 214, 214, 0.72);
             background: rgba(255, 96, 96, 0.18);
+        }
+
+        .top-sos-btn {
+            border: 1px solid rgba(255, 138, 138, 0.75);
+            background: linear-gradient(135deg, #f95a5a, #cc2f4e);
+            color: #fff;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 8px 12px;
+            box-shadow: 0 8px 18px rgba(173, 33, 51, 0.36);
         }
 
         .container {
@@ -1066,6 +1084,23 @@
             padding: 6px;
         }
 
+        .voice-btn {
+            border: 1px solid #c5d9f9;
+            background: #fff;
+            color: #38568f;
+            box-shadow: none;
+            padding: 8px 10px;
+            min-width: 42px;
+            line-height: 1;
+        }
+
+        .voice-btn.listening {
+            border-color: #f2a4ac;
+            background: #fff0f3;
+            color: #ab3140;
+            animation: pulse 1.1s infinite ease-in-out;
+        }
+
         .trust-row {
             margin-top: 6px;
             display: flex;
@@ -1082,6 +1117,67 @@
             border: 1px solid #d9e5fa;
             padding: 5px 9px;
             border-radius: 999px;
+        }
+
+        .mood-checkin {
+            margin-top: 8px;
+            border: 1px solid #d8e7ff;
+            border-radius: 12px;
+            background: #f8fbff;
+            padding: 8px 10px;
+            display: none;
+        }
+
+        .mood-checkin.show {
+            display: block;
+            animation: fadeUp 220ms ease;
+        }
+
+        .mood-checkin-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .mood-checkin-title {
+            font-size: 0.76rem;
+            color: #44608f;
+            font-weight: 700;
+        }
+
+        .mood-checkin-note {
+            font-size: 0.72rem;
+            color: #687fa5;
+        }
+
+        .mood-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .mood-btn {
+            border: 1px solid #d5e3fb;
+            border-radius: 999px;
+            padding: 5px 9px;
+            background: #fff;
+            color: #38568f;
+            box-shadow: none;
+            font-size: 0.76rem;
+            line-height: 1;
+        }
+
+        .mood-skip {
+            border: 0;
+            background: transparent;
+            box-shadow: none;
+            color: #6a7fa3;
+            font-size: 0.74rem;
+            text-decoration: underline;
+            padding: 4px 0;
         }
 
         .status-actions {
@@ -1163,6 +1259,79 @@
             margin-bottom: 8px;
         }
 
+        .journey-meta {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .journey-chip {
+            border: 1px solid #d6e4fb;
+            border-radius: 10px;
+            padding: 8px;
+            background: #f8fbff;
+            font-size: 0.8rem;
+            color: #355080;
+        }
+
+        .journey-privacy {
+            margin-top: 8px;
+            font-size: 0.78rem;
+            color: #6880a8;
+            background: #f2f7ff;
+            border: 1px solid #d9e5fa;
+            border-radius: 10px;
+            padding: 7px 8px;
+        }
+
+        .journey-grid {
+            margin-top: 10px;
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 5px;
+        }
+
+        .journey-cell {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 4px;
+            border: 1px solid rgba(150, 177, 224, 0.45);
+            background: #edf3ff;
+        }
+
+        .journey-cell.level-1 {
+            background: #f9e7ec;
+        }
+
+        .journey-cell.level-2 {
+            background: #f7d0dd;
+        }
+
+        .journey-cell.level-3 {
+            background: #ffd28a;
+        }
+
+        .journey-cell.level-4 {
+            background: #b9e7d6;
+        }
+
+        .journey-cell.level-5 {
+            background: #7ad7b6;
+        }
+
+        .journey-cell.today {
+            outline: 2px solid #2d7ff9;
+            outline-offset: 1px;
+        }
+
+        .journey-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
         .breathe-wrap {
             margin-top: 10px;
             display: flex;
@@ -1238,6 +1407,108 @@
             background: #24344c;
             border-color: #3f5779;
             color: #d7e5ff;
+        }
+
+        body.dark-mode .mood-checkin {
+            background: #22324b;
+            border-color: #445f8f;
+        }
+
+        body.dark-mode .mood-btn {
+            background: #2a3f60;
+            color: #d3e3ff;
+            border-color: #47638f;
+        }
+
+        body.dark-mode .mood-skip,
+        body.dark-mode .mood-checkin-note,
+        body.dark-mode .journey-privacy {
+            color: #b7caec;
+        }
+
+        body.dark-mode .journey-chip,
+        body.dark-mode .journey-privacy {
+            background: #243a5d;
+            border-color: #3f5f91;
+        }
+
+        .sos-overlay {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 50% 20%, rgba(94, 23, 39, 0.36), rgba(10, 15, 24, 0.94));
+            z-index: 95;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .sos-overlay.show {
+            display: flex;
+        }
+
+        .sos-card {
+            width: min(560px, 96vw);
+            border-radius: 18px;
+            background: rgba(18, 26, 41, 0.94);
+            border: 1px solid rgba(235, 163, 179, 0.34);
+            box-shadow: 0 20px 44px rgba(0, 0, 0, 0.35);
+            padding: 18px;
+            color: #f4f8ff;
+            text-align: center;
+        }
+
+        .sos-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+
+        .sos-sub {
+            margin-top: 6px;
+            color: #ced8ed;
+            font-size: 0.9rem;
+        }
+
+        .sos-breathing-circle {
+            width: 130px;
+            height: 130px;
+            margin: 18px auto;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ff8ea7, #9a2742);
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(255, 145, 170, 0.45);
+            animation: sosBreath 8s ease-in-out infinite;
+        }
+
+        .sos-script {
+            min-height: 54px;
+            font-size: 1.02rem;
+            line-height: 1.45;
+            color: #f9fcff;
+        }
+
+        .sos-actions {
+            margin-top: 14px;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .sos-action-btn {
+            border-radius: 999px;
+            border: 1px solid rgba(255, 197, 211, 0.5);
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            box-shadow: none;
+            font-size: 0.84rem;
+            padding: 8px 12px;
+        }
+
+        .sos-action-btn.primary {
+            background: linear-gradient(135deg, #f95a5a, #bf2e47);
+            border-color: rgba(255, 171, 184, 0.65);
         }
 
         textarea#messageInput {
@@ -1357,6 +1628,21 @@
             }
         }
 
+        @keyframes sosBreath {
+            0% {
+                transform: scale(0.9);
+                box-shadow: 0 0 0 0 rgba(255, 145, 170, 0.35);
+            }
+            45% {
+                transform: scale(1.12);
+                box-shadow: 0 0 0 16px rgba(255, 145, 170, 0.12);
+            }
+            100% {
+                transform: scale(0.9);
+                box-shadow: 0 0 0 0 rgba(255, 145, 170, 0.35);
+            }
+        }
+
         @media (max-width: 800px) {
             body {
                 padding: 0;
@@ -1416,6 +1702,15 @@
             .message-content {
                 max-width: 92%;
                 font-size: 0.92rem;
+            }
+
+            .journey-grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+
+            .top-sos-btn {
+                font-size: 0.74rem;
+                padding: 8px 10px;
             }
 
             .controls {
@@ -1480,6 +1775,17 @@
             </div>
         </div>
         <div class="sidebar-group">
+            <h4>My Journey</h4>
+            <div class="tool-item">
+                <button id="openJourneyBtn" type="button">📅 Open Mood Heatmap</button>
+                <p>Saved only on this device for your private 30-day journey.</p>
+            </div>
+            <div class="tool-item">
+                <button id="installAppBtn" type="button">📲 Add Stu-SoulCare To Home Screen</button>
+                <p>Install the app shell for faster access during difficult moments.</p>
+            </div>
+        </div>
+        <div class="sidebar-group">
             <h4>Information</h4>
             <div class="tool-item">
                 <button id="sidebarAboutBtn" type="button">ℹ️ About this space</button>
@@ -1500,6 +1806,7 @@
                     <div class="title-badge">💛</div>
                     <h1>情緒支持平臺 Stu-SoulCare.com</h1>
                     <span class="title-spacer"></span>
+                    <button class="top-sos-btn" id="sosBtn" type="button">I can't breathe / SOS</button>
                     <button class="top-emergency-btn" id="emergencyBtn" type="button">🚨 Emergency Help</button>
                 </div>
                 <p>A safe place to talk, feel heard, and take one small step forward.</p>
@@ -1578,10 +1885,25 @@
                         placeholder="Share what is on your mind..."
                         rows="1"
                     ></textarea>
+                    <button id="micBtn" class="voice-btn" type="button" aria-label="Voice input">🎙️</button>
                     <button id="sendBtn" onclick="sendMessage()">Send</button>
                 </div>
                 <div class="trust-row">
                     <span class="privacy-badge">🔒 Your privacy matters. Chats are 100% anonymous and disappear when you leave or refresh the page.</span>
+                </div>
+                <div id="moodCheckin" class="mood-checkin" aria-live="polite">
+                    <div class="mood-checkin-top">
+                        <span class="mood-checkin-title">Quick check-in: how are you feeling now?</span>
+                        <span class="mood-checkin-note">Saved only on this device</span>
+                    </div>
+                    <div class="mood-row" id="moodButtons">
+                        <button class="mood-btn" type="button" data-mood="1" aria-label="Very low mood">😢</button>
+                        <button class="mood-btn" type="button" data-mood="2" aria-label="Low mood">😕</button>
+                        <button class="mood-btn" type="button" data-mood="3" aria-label="Neutral mood">😐</button>
+                        <button class="mood-btn" type="button" data-mood="4" aria-label="Better mood">🙂</button>
+                        <button class="mood-btn" type="button" data-mood="5" aria-label="Strong mood">😄</button>
+                        <button id="skipMoodCheckin" class="mood-skip" type="button">Skip</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1638,6 +1960,23 @@
         </div>
     </div>
 
+    <div class="modal" id="journeyModal" role="dialog" aria-modal="true" aria-labelledby="journeyTitle">
+        <div class="modal-card">
+            <h3 id="journeyTitle">My Journey (Last 30 Days)</h3>
+            <div class="journey-meta">
+                <div class="journey-chip" id="journeyStreak">Current streak: 0 day</div>
+                <div class="journey-chip" id="journeyAverage">Average mood: -</div>
+            </div>
+            <div class="journey-privacy">Your mood history is stored only in this browser on this device. We never upload it.</div>
+            <div class="journey-grid" id="journeyGrid" aria-label="30 day mood heatmap"></div>
+            <div class="journey-actions">
+                <button class="utility-btn" id="exportJourneyBtn" type="button">Export local JSON</button>
+                <button class="utility-btn danger" id="clearJourneyBtn" type="button">Clear local mood data</button>
+            </div>
+            <button class="utility-btn modal-close" id="closeJourneyModal" type="button">Close</button>
+        </div>
+    </div>
+
     <div class="modal" id="bugModal" role="dialog" aria-modal="true" aria-labelledby="bugModalTitle">
         <div class="modal-card">
             <h3 id="bugModalTitle">Report an Issue 🐛</h3>
@@ -1666,6 +2005,20 @@
         </div>
         <textarea id="feedbackText" rows="2" placeholder="Any suggestion to make me better? (Optional)"></textarea>
         <button class="feedback-submit" id="submitFeedback" type="button">Send Feedback</button>
+    </div>
+
+    <div id="sosOverlay" class="sos-overlay" role="dialog" aria-modal="true" aria-labelledby="sosTitle">
+        <div class="sos-card">
+            <div class="sos-title" id="sosTitle">You are not alone. I am here with you.</div>
+            <div class="sos-sub">We will do this one step at a time.</div>
+            <div class="sos-breathing-circle" aria-hidden="true"></div>
+            <div class="sos-script" id="sosScript">Tap Start SOS when you need immediate grounding support.</div>
+            <div class="sos-actions">
+                <button class="sos-action-btn" id="sosGroundingBtn" type="button" disabled>I found 5 things</button>
+                <button class="sos-action-btn" id="sosEmergencyBtn" type="button">Open emergency resources</button>
+                <button class="sos-action-btn primary" id="sosExitBtn" type="button">Exit SOS</button>
+            </div>
+        </div>
     </div>
 
     <div class="toast" id="appToast" role="status" aria-live="polite"></div>
@@ -1697,18 +2050,28 @@
         const sidebarDarkModeBtn = document.getElementById('sidebarDarkModeBtn');
         const sidebarCustomizeBtn = document.getElementById('sidebarCustomizeBtn');
         const sidebarAboutBtn = document.getElementById('sidebarAboutBtn');
+        const openJourneyBtn = document.getElementById('openJourneyBtn');
+        const installAppBtn = document.getElementById('installAppBtn');
         const emergencyBtn = document.getElementById('emergencyBtn');
+        const sosBtn = document.getElementById('sosBtn');
         const aboutModal = document.getElementById('aboutModal');
         const closeAboutModal = document.getElementById('closeAboutModal');
         const emergencyModal = document.getElementById('emergencyModal');
         const breatheModal = document.getElementById('breatheModal');
         const bubbleWrapModal = document.getElementById('bubbleWrapModal');
+        const journeyModal = document.getElementById('journeyModal');
         const closeEmergency = document.getElementById('closeEmergency');
         const closeBreathe = document.getElementById('closeBreathe');
         const closeBubbleWrap = document.getElementById('closeBubbleWrap');
+        const closeJourneyModal = document.getElementById('closeJourneyModal');
         const bubbleWrapGrid = document.getElementById('bubbleWrapGrid');
         const bubbleCount = document.getElementById('bubbleCount');
         const resetBubbleWrap = document.getElementById('resetBubbleWrap');
+        const clearJourneyBtn = document.getElementById('clearJourneyBtn');
+        const exportJourneyBtn = document.getElementById('exportJourneyBtn');
+        const journeyGrid = document.getElementById('journeyGrid');
+        const journeyStreak = document.getElementById('journeyStreak');
+        const journeyAverage = document.getElementById('journeyAverage');
         const openBugReport = document.getElementById('openBugReport');
         const bugModal = document.getElementById('bugModal');
         const closeBugReport = document.getElementById('closeBugReport');
@@ -1724,6 +2087,15 @@
         const breatheCircle = document.getElementById('breatheCircle');
         const breatheInstruction = document.getElementById('breatheInstruction');
         const breatheTimer = document.getElementById('breatheTimer');
+        const micBtn = document.getElementById('micBtn');
+        const moodCheckin = document.getElementById('moodCheckin');
+        const skipMoodCheckin = document.getElementById('skipMoodCheckin');
+        const moodButtons = document.querySelectorAll('#moodButtons .mood-btn');
+        const sosOverlay = document.getElementById('sosOverlay');
+        const sosScript = document.getElementById('sosScript');
+        const sosGroundingBtn = document.getElementById('sosGroundingBtn');
+        const sosEmergencyBtn = document.getElementById('sosEmergencyBtn');
+        const sosExitBtn = document.getElementById('sosExitBtn');
         const appToast = document.getElementById('appToast');
 
         let breatheTick = null;
@@ -1742,6 +2114,14 @@
         const FEEDBACK_WEBHOOK_URL = '';
         const BUG_REPORT_WEBHOOK_URL = '';
         let hasEnteredApp = false;
+        const MOOD_STORAGE_KEY = 'stuSoulCareMood.v1';
+        let deferredInstallPrompt = null;
+        let journeyEntries = {};
+        let recognition = null;
+        let isListening = false;
+        let voiceSupported = false;
+        let sosActive = false;
+        let sosTimers = [];
 
         const EMOJI_GAME_BANK = [
             { emoji: '🚢🧊💔', answer: 'Titanic', aliases: ['titanic'], hint: 'A famous ship and iceberg love story.' },
@@ -1791,6 +2171,15 @@
             aboutModal.classList.add('show');
             closeSidebar();
         });
+        openJourneyBtn.addEventListener('click', () => {
+            renderJourneyHeatmap();
+            journeyModal.classList.add('show');
+            closeSidebar();
+        });
+        closeJourneyModal.addEventListener('click', () => journeyModal.classList.remove('show'));
+        clearJourneyBtn.addEventListener('click', clearJourneyData);
+        exportJourneyBtn.addEventListener('click', exportJourneyData);
+        installAppBtn.addEventListener('click', installApp);
         sidebarCustomizeBtn.addEventListener('click', () => {
             controlsPanel.classList.toggle('collapsed');
             if (!controlsPanel.classList.contains('collapsed')) {
@@ -1813,6 +2202,26 @@
             closeSidebar();
         });
 
+        moodButtons.forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const mood = Number(btn.dataset.mood || '0');
+                if (!mood) return;
+                recordMood(mood);
+                hideMoodCheckin();
+                showToast('Mood saved locally on this device.');
+            });
+        });
+        skipMoodCheckin.addEventListener('click', hideMoodCheckin);
+
+        micBtn.addEventListener('click', toggleVoiceInput);
+
+        sosBtn.addEventListener('click', startSOSFlow);
+        sosEmergencyBtn.addEventListener('click', () => {
+            emergencyModal.classList.add('show');
+        });
+        sosGroundingBtn.addEventListener('click', completeGroundingStep);
+        sosExitBtn.addEventListener('click', exitSOSFlow);
+
         startBreathe.addEventListener('click', startBreathingExercise);
 
         window.addEventListener('load', () => {
@@ -1822,6 +2231,22 @@
         });
         window.addEventListener('load', autoResizeInput);
         window.addEventListener('load', ensureBubbleWrap);
+        window.addEventListener('load', initializeV2Features);
+
+        window.addEventListener('beforeinstallprompt', (event) => {
+            event.preventDefault();
+            deferredInstallPrompt = event;
+            installAppBtn.disabled = false;
+            installAppBtn.textContent = '📲 Add Stu-SoulCare To Home Screen';
+            showToast('Install is ready. Open the sidebar to add this app.');
+        });
+
+        window.addEventListener('appinstalled', () => {
+            deferredInstallPrompt = null;
+            installAppBtn.disabled = true;
+            installAppBtn.textContent = '✅ App installed';
+            showToast('Stu-SoulCare installed successfully.');
+        });
 
         document.querySelectorAll('.prompt-chip').forEach((chip) => {
             chip.addEventListener('click', () => {
@@ -1829,6 +2254,234 @@
                 messageInput.focus();
             });
         });
+
+        function initializeV2Features() {
+            registerServiceWorker();
+            journeyEntries = loadJourneyEntries();
+            renderJourneyHeatmap();
+            setupVoiceRecognition();
+            if (!('serviceWorker' in navigator)) {
+                installAppBtn.disabled = true;
+                installAppBtn.textContent = 'Install not supported here';
+            }
+        }
+
+        function registerServiceWorker() {
+            if (!('serviceWorker' in navigator)) return;
+            navigator.serviceWorker.register('sw.js').catch(() => {
+                showToast('Offline support could not be enabled.');
+            });
+        }
+
+        async function installApp() {
+            if (!deferredInstallPrompt) {
+                showToast('On iPhone: use Share > Add to Home Screen.');
+                return;
+            }
+            deferredInstallPrompt.prompt();
+            const choice = await deferredInstallPrompt.userChoice;
+            if (choice && choice.outcome === 'accepted') {
+                showToast('Installing Stu-SoulCare...');
+            } else {
+                showToast('Install canceled. You can try again anytime.');
+            }
+        }
+
+        function getLocalDateKey(date = new Date()) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        function loadJourneyEntries() {
+            try {
+                const raw = localStorage.getItem(MOOD_STORAGE_KEY);
+                if (!raw) return {};
+                const parsed = JSON.parse(raw);
+                if (parsed && typeof parsed === 'object' && parsed.entries) {
+                    return parsed.entries;
+                }
+                return {};
+            } catch (_) {
+                return {};
+            }
+        }
+
+        function persistJourneyEntries() {
+            try {
+                localStorage.setItem(MOOD_STORAGE_KEY, JSON.stringify({
+                    version: 1,
+                    updatedAt: new Date().toISOString(),
+                    entries: journeyEntries,
+                }));
+            } catch (_) {
+                showToast('Could not save mood history on this browser.');
+            }
+        }
+
+        function recordMood(moodValue) {
+            const mood = Math.min(5, Math.max(1, Number(moodValue) || 3));
+            const key = getLocalDateKey();
+            journeyEntries[key] = {
+                mood,
+                timestamp: new Date().toISOString(),
+                source: 'post-chat-checkin',
+            };
+            persistJourneyEntries();
+            renderJourneyHeatmap();
+        }
+
+        function renderJourneyHeatmap() {
+            if (!journeyGrid) return;
+            journeyGrid.innerHTML = '';
+            const today = new Date();
+            const days = [];
+            for (let i = 29; i >= 0; i -= 1) {
+                const date = new Date(today);
+                date.setDate(today.getDate() - i);
+                days.push(date);
+            }
+
+            let moodTotal = 0;
+            let moodCount = 0;
+
+            days.forEach((date) => {
+                const key = getLocalDateKey(date);
+                const entry = journeyEntries[key];
+                const cell = document.createElement('div');
+                const mood = entry && entry.mood ? Number(entry.mood) : 0;
+                const cls = mood ? `level-${Math.min(5, Math.max(1, mood))}` : '';
+                cell.className = `journey-cell ${cls}`.trim();
+                if (key === getLocalDateKey(today)) {
+                    cell.classList.add('today');
+                }
+                cell.title = `${key}${mood ? `: mood ${mood}/5` : ': no check-in'}`;
+                journeyGrid.appendChild(cell);
+
+                if (mood) {
+                    moodTotal += mood;
+                    moodCount += 1;
+                }
+            });
+
+            const avg = moodCount > 0 ? (moodTotal / moodCount).toFixed(1) : '-';
+            journeyAverage.textContent = `Average mood: ${avg}${moodCount > 0 ? ' / 5' : ''}`;
+            journeyStreak.textContent = `Current streak: ${computeMoodStreak()} day${computeMoodStreak() === 1 ? '' : 's'}`;
+        }
+
+        function computeMoodStreak() {
+            let streak = 0;
+            const today = new Date();
+            for (let i = 0; i < 30; i += 1) {
+                const date = new Date(today);
+                date.setDate(today.getDate() - i);
+                const key = getLocalDateKey(date);
+                if (journeyEntries[key] && journeyEntries[key].mood) {
+                    streak += 1;
+                } else {
+                    break;
+                }
+            }
+            return streak;
+        }
+
+        function clearJourneyData() {
+            journeyEntries = {};
+            persistJourneyEntries();
+            renderJourneyHeatmap();
+            showToast('Local mood data cleared from this device.');
+        }
+
+        function exportJourneyData() {
+            const payload = {
+                exportedAt: new Date().toISOString(),
+                entries: journeyEntries,
+            };
+            downloadTextFile(JSON.stringify(payload, null, 2), 'stu-soulcare-mood-journey.json');
+            showToast('Mood journey exported locally.');
+        }
+
+        function showMoodCheckin() {
+            if (sosActive) return;
+            moodCheckin.classList.add('show');
+        }
+
+        function hideMoodCheckin() {
+            moodCheckin.classList.remove('show');
+        }
+
+        function setupVoiceRecognition() {
+            const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!Recognition) {
+                micBtn.disabled = true;
+                micBtn.title = 'Voice input not supported in this browser';
+                return;
+            }
+
+            recognition = new Recognition();
+            recognition.lang = 'en-US';
+            recognition.interimResults = true;
+            recognition.maxAlternatives = 1;
+            voiceSupported = true;
+
+            let transcriptBuffer = '';
+
+            recognition.onstart = () => {
+                isListening = true;
+                micBtn.classList.add('listening');
+                showToast('Listening... tap mic again to stop.');
+            };
+
+            recognition.onresult = (event) => {
+                let finalChunk = '';
+                for (let i = event.resultIndex; i < event.results.length; i += 1) {
+                    const part = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalChunk += `${part} `;
+                    } else {
+                        transcriptBuffer = part;
+                    }
+                }
+
+                const merged = `${finalChunk}${transcriptBuffer}`.trim();
+                if (!merged) return;
+                const base = messageInput.value.trim();
+                messageInput.value = base ? `${base} ${merged}`.trim() : merged;
+                autoResizeInput();
+            };
+
+            recognition.onerror = () => {
+                isListening = false;
+                micBtn.classList.remove('listening');
+            };
+
+            recognition.onend = () => {
+                isListening = false;
+                micBtn.classList.remove('listening');
+                transcriptBuffer = '';
+            };
+        }
+
+        function toggleVoiceInput() {
+            if (!voiceSupported || !recognition) {
+                showToast('Voice input is not available in this browser.');
+                return;
+            }
+            if (sosActive) {
+                showToast('Voice input is paused during SOS mode.');
+                return;
+            }
+            if (isListening) {
+                recognition.stop();
+                return;
+            }
+            try {
+                recognition.start();
+            } catch (_) {
+                // Ignore invalid repeated starts.
+            }
+        }
 
         function enterApp() {
             if (hasEnteredApp) return;
@@ -1884,6 +2537,10 @@
         messageInput.addEventListener('input', autoResizeInput);
 
         async function sendMessage() {
+            if (sosActive) {
+                showToast('SOS mode is active. Complete or exit SOS to resume chat.');
+                return;
+            }
             const message = messageInput.value.trim();
             if (!message) return;
 
@@ -2045,6 +2702,7 @@
                         <button class="reply-chip" type="button" data-reply="${escapeHtml(dynamicReplies[2].reply)}">${escapeHtml(dynamicReplies[2].label)}</button>
                     </div>
                     <div class="assist-tools">
+                        <button class="assist-tool-btn" type="button" data-tool="speak">🔊 Read</button>
                         <button class="assist-tool-btn" type="button" data-tool="share">↗ Share</button>
                         <button class="assist-tool-btn copy" type="button" data-tool="copy">📋 Copy</button>
                         <button class="assist-tool-btn" type="button" data-tool="save">⬇ Save</button>
@@ -2066,6 +2724,9 @@
                 btn.addEventListener('click', () => {
                     const tool = btn.dataset.tool;
                     const aiTextForThisBubble = text;
+                    if (tool === 'speak') {
+                        speakResponse(aiTextForThisBubble);
+                    }
                     if (tool === 'share') {
                         shareAIResponse(aiTextForThisBubble);
                     }
@@ -2394,6 +3055,90 @@
             }
         }
 
+        function speakResponse(text) {
+            if (!('speechSynthesis' in window)) {
+                showToast('Read aloud is not supported in this browser.');
+                return;
+            }
+            const cleaned = String(text || '').trim();
+            if (!cleaned) return;
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(cleaned);
+            utterance.rate = 0.95;
+            utterance.pitch = 1;
+            utterance.lang = 'en-US';
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function startSOSFlow() {
+            if (sosActive) return;
+            sosActive = true;
+            sosOverlay.classList.add('show');
+            hideMoodCheckin();
+            setChatInteractionLocked(true);
+            if (recognition && isListening) {
+                recognition.stop();
+            }
+
+            sosScript.textContent = 'Stay with me. We are settling your breathing now...';
+            sosGroundingBtn.disabled = true;
+            sosGroundingBtn.textContent = 'I found 5 things';
+            clearSOSTimers();
+
+            sosTimers.push(setTimeout(() => {
+                sosScript.textContent = 'I am here. You are safe.';
+            }, 3000));
+
+            sosTimers.push(setTimeout(() => {
+                sosScript.textContent = 'Let us breathe together. In... out...';
+            }, 8000));
+
+            sosTimers.push(setTimeout(() => {
+                sosScript.textContent = 'Can you find 5 things in the room you can see? Tap the button when you find them.';
+                sosGroundingBtn.disabled = false;
+            }, 23000));
+
+            sosTimers.push(setTimeout(() => {
+                if (!sosActive) return;
+                sosScript.textContent = 'You are doing well. Keep breathing. I am still with you.';
+            }, 38000));
+        }
+
+        function completeGroundingStep() {
+            if (!sosActive) return;
+            sosScript.textContent = 'Great job. You grounded yourself. We can continue slowly, one step at a time.';
+            sosGroundingBtn.disabled = true;
+            sosGroundingBtn.textContent = 'Grounding complete';
+            showToast('Grounding complete. You can return to chat anytime.');
+        }
+
+        function exitSOSFlow() {
+            if (!sosActive) return;
+            sosActive = false;
+            clearSOSTimers();
+            sosOverlay.classList.remove('show');
+            setChatInteractionLocked(false);
+            sosScript.textContent = 'Tap Start SOS when you need immediate grounding support.';
+            sosGroundingBtn.disabled = true;
+            sosGroundingBtn.textContent = 'I found 5 things';
+        }
+
+        function clearSOSTimers() {
+            sosTimers.forEach((timer) => clearTimeout(timer));
+            sosTimers = [];
+        }
+
+        function setChatInteractionLocked(locked) {
+            messageInput.disabled = locked;
+            sendBtn.disabled = locked;
+            micBtn.disabled = locked || !voiceSupported;
+            if (locked) {
+                messageInput.blur();
+            } else {
+                messageInput.focus();
+            }
+        }
+
         function showToast(message) {
             appToast.textContent = message;
             appToast.classList.add('show');
@@ -2405,6 +3150,9 @@
 
         function aiResponded() {
             aiMessageCount += 1;
+            if (!gameState.active && !sosActive) {
+                showMoodCheckin();
+            }
             if (aiMessageCount % 5 === 0) {
                 feedbackSlider.classList.add('show');
             }

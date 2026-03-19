@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stu-SoulCare Offline</title>
+  <style>
+    :root {
+      --bg: #0f1724;
+      --panel: #1e2a3d;
+      --text: #eaf1ff;
+      --muted: #aebeda;
+      --accent: #2d7ff9;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: 'Poppins', sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 20% 10%, rgba(45, 127, 249, 0.25), transparent 40%), var(--bg);
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .card {
+      width: min(520px, 96vw);
+      border-radius: 18px;
+      border: 1px solid rgba(123, 157, 222, 0.35);
+      background: var(--panel);
+      padding: 20px;
+      box-shadow: 0 20px 42px rgba(2, 8, 20, 0.35);
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      margin-bottom: 8px;
+    }
+
+    p {
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+
+    .tip {
+      border: 1px solid rgba(123, 157, 222, 0.4);
+      border-radius: 12px;
+      background: rgba(45, 127, 249, 0.12);
+      padding: 10px;
+      color: #dce8ff;
+      font-size: 0.92rem;
+    }
+
+    a {
+      color: #b3ceff;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>You're offline right now</h1>
+    <p>Stu-SoulCare can still open, but live AI chat needs an internet connection. When your connection returns, reload this page to continue.</p>
+    <div class="tip">
+      Grounding tip: Name 5 things you can see, 4 things you can touch, 3 things you can hear, 2 things you can smell, and 1 thing you can taste.
+    </div>
+  </main>
+</body>
+</html>
