@@ -13,7 +13,8 @@
     <link rel="apple-touch-icon" href="icons/icon-192.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="icon.svg" type="image/svg+xml">
     <style>
         :root {
             --bg-start: #f7fff9;
@@ -44,13 +45,14 @@
         }
 
         body {
-            font-family: "Poppins", "Noto Sans TC", sans-serif;
+            font-family: "Inter", "Noto Sans TC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             color: var(--ink);
+            background-color: #f8fafc;
             background-size: 120% 120%, 120% 120%, 120% 120%;
             background:
-                radial-gradient(900px 400px at -10% -20%, rgba(255, 127, 80, 0.18), transparent 70%),
-                radial-gradient(700px 400px at 110% -10%, rgba(30, 168, 150, 0.22), transparent 70%),
-                linear-gradient(160deg, var(--bg-start), var(--bg-end));
+                radial-gradient(900px 400px at -10% -20%, rgba(160, 189, 255, 0.14), transparent 70%),
+                radial-gradient(700px 400px at 110% -10%, rgba(167, 215, 255, 0.18), transparent 70%),
+                linear-gradient(160deg, #f8fafc, #edf4ff);
             min-height: 100vh;
             padding: 0;
             display: grid;
@@ -351,6 +353,17 @@
             letter-spacing: 0.2px;
             margin: 0;
             color: #2d3748;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .brand-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
         }
 
         .header-center p {
@@ -502,18 +515,21 @@
 
         .welcome {
             text-align: center;
-            color: #5f6d84;
-            padding: 8px 12px;
-            border: 0;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.45);
+            color: #4a5568;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #ffffff 0%, #f0f4f8 100%);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            margin-bottom: 20px;
             animation: fadeUp 480ms ease;
         }
 
         .welcome .small {
-            font-size: 0.75rem;
+            font-size: 0.95rem;
             margin-top: 6px;
-            color: #7184a6;
+            color: #4a5568;
+            line-height: 1.6;
         }
 
         .quick-prompts {
@@ -533,21 +549,23 @@
         }
 
         .prompt-chip {
-            border: 1px solid #cdd9eb;
-            background: #fff;
-            color: #2c3b57;
-            border-radius: 999px;
-            padding: 7px 12px;
-            font-size: 0.78rem;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #4a5568;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.85rem;
             cursor: pointer;
-            transition: 180ms ease;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
             flex: 0 0 auto;
         }
 
         .prompt-chip:hover {
             transform: translateY(-1px);
-            border-color: #95b3e8;
-            background: #f3f8ff;
+            border-color: #90cdf4;
+            background: #ebf8ff;
+            color: #2b6cb0;
         }
 
         .message {
@@ -808,9 +826,13 @@
         }
 
         .input-area {
-            border-top: 1px solid var(--line);
-            background: #fff;
-            padding: 8px;
+            border-top: 1px solid #edf2f7;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            border-radius: 24px 24px 0 0;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.04);
             display: block !important;
             position: sticky;
             bottom: 0;
@@ -1243,19 +1265,19 @@
             display: flex;
             gap: 10px;
             align-items: flex-end;
-            background: #f6f9ff;
-            border: 1px solid #dbe6fa;
-            border-radius: 16px;
+            background: transparent;
+            border: 0;
+            border-radius: 0;
             padding: 6px;
             visibility: visible !important;
             opacity: 1 !important;
         }
 
         .voice-btn {
-            border: 1px solid #c5d9f9;
-            background: #fff;
+            border: 1px solid #d6e3f3;
+            background: #ffffff;
             color: #38568f;
-            box-shadow: none;
+            box-shadow: 0 2px 8px rgba(32, 72, 140, 0.08);
             padding: 8px 10px;
             min-width: 42px;
             line-height: 1;
@@ -1707,10 +1729,11 @@
 
         textarea#messageInput {
             flex: 1;
-            border: 0;
-            background: transparent;
-            padding: 10px;
-            font-size: 0.95rem;
+            border: 1px solid transparent;
+            background: #f1f5f9;
+            border-radius: 20px;
+            padding: 12px 20px;
+            font-size: 1rem;
             color: #22304a;
             outline: none;
             resize: none;
@@ -1719,6 +1742,13 @@
             line-height: 1.4;
             overflow-y: auto;
             font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        textarea#messageInput:focus {
+            background: #ffffff;
+            border-color: #cbd5e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
         }
 
         textarea#messageInput::placeholder {
@@ -1747,6 +1777,16 @@
             transform: none;
             cursor: not-allowed;
             box-shadow: none;
+        }
+
+        #sendBtn {
+            background: #4a90e2;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3);
+        }
+
+        #sendBtn:active {
+            transform: scale(0.95);
         }
 
         ::-webkit-scrollbar {
@@ -2078,7 +2118,15 @@
                             <button class="menu-btn" id="menuBtn" type="button" aria-label="Open menu">☰ Menu</button>
                         </div>
                         <div class="header-center">
-                            <h1>情緒支持平臺 Stu-SoulCare.com</h1>
+                            <h1>
+                                <span class="brand-icon" aria-hidden="true">
+                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px; vertical-align: middle;">
+                                      <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35Z" fill="#F6AD55"/>
+                                      <path d="M22 16.99V22H16.99" stroke="#F6AD55" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </span>
+                                <span>情緒支持平臺 Stu-SoulCare.com</span>
+                            </h1>
                             <p>A safe place to talk, feel heard, and take one small step forward.</p>
                         </div>
                         <div class="header-right">
