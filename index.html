@@ -959,6 +959,43 @@
             background: #f1f7ff;
         }
 
+        .assistant-widget-slot {
+            margin-top: 10px;
+        }
+
+        .breathe-widget {
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, #8fbc8f 0%, #4a90e2 100%);
+            border-radius: 50%;
+            margin: 12px auto 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(74, 144, 226, 0.35);
+            transition: transform 0.3s ease;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .breathe-widget:focus-visible {
+            outline: 3px solid rgba(57, 128, 255, 0.5);
+            outline-offset: 3px;
+        }
+
+        .breathe-widget.active {
+            animation: inhaleExhale 8s infinite ease-in-out;
+        }
+
+        .breathe-widget-tip {
+            font-size: 0.76rem;
+            text-align: center;
+            color: #6e84ab;
+        }
+
         .assist-tools {
             display: flex;
             gap: 6px;
@@ -1768,6 +1805,18 @@
             }
         }
 
+        @keyframes inhaleExhale {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.5);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
         @keyframes sosBreath {
             0% {
                 transform: scale(0.9);
@@ -1915,6 +1964,14 @@
             <div class="tool-item">
                 <button id="sidebarDarkModeBtn" type="button">🌙 Toggle Dark Mode</button>
                 <p>Softer contrast for night use and tired eyes.</p>
+            </div>
+            <div class="tool-item">
+                <button id="ambientToggleBtn" type="button">🔇 Play Rain Sounds</button>
+                <p>Optional ambient rain. Sound is always opt-in.</p>
+            </div>
+            <div class="tool-item">
+                <button id="chimeToggleBtn" type="button">🔔 Message Chime: On</button>
+                <p>Soft pop sound when AI replies. Toggle anytime.</p>
             </div>
         </div>
         <div class="sidebar-group">
@@ -2172,6 +2229,14 @@
         </div>
     </div>
 
+    <audio id="ambientAudio" loop preload="none">
+        <source src="assets/audio/soft-rain.mp3" type="audio/mpeg">
+    </audio>
+
+    <audio id="messageChime" preload="none">
+        <source src="assets/audio/soft-pop.mp3" type="audio/mpeg">
+    </audio>
+
     <div class="toast" id="appToast" role="status" aria-live="polite"></div>
 
     <script>
@@ -2200,6 +2265,8 @@
         const sidebarBreatheBtn = document.getElementById('sidebarBreatheBtn');
         const sidebarBubbleBtn = document.getElementById('sidebarBubbleBtn');
         const sidebarDarkModeBtn = document.getElementById('sidebarDarkModeBtn');
+        const ambientToggleBtn = document.getElementById('ambientToggleBtn');
+        const chimeToggleBtn = document.getElementById('chimeToggleBtn');
         const sidebarCustomizeBtn = document.getElementById('sidebarCustomizeBtn');
         const sidebarCompactModeBtn = document.getElementById('sidebarCompactModeBtn');
         const sidebarAboutBtn = document.getElementById('sidebarAboutBtn');
@@ -2249,6 +2316,8 @@
         const sosGroundingBtn = document.getElementById('sosGroundingBtn');
         const sosEmergencyBtn = document.getElementById('sosEmergencyBtn');
         const sosExitBtn = document.getElementById('sosExitBtn');
+        const ambientAudio = document.getElementById('ambientAudio');
+        const messageChime = document.getElementById('messageChime');
         const appToast = document.getElementById('appToast');
 
         let breatheTick = null;
@@ -2279,6 +2348,9 @@
         let conversationStarted = false;
         let compactModeEnabled = false;
         let lastRenderedDayKey = '';
+        let hasUserInteractedForAudio = false;
+        let isAmbientPlaying = false;
+        let isChimeEnabled = true;
 
         const EMOJI_GAME_BANK = [
             { emoji: '🚢🧊💔', answer: 'Titanic', aliases: ['titanic'], hint: 'A famous ship and iceberg love story.' },
@@ -2359,6 +2431,14 @@
             closeSidebar();
         });
 
+        ambientToggleBtn.addEventListener('click', toggleAmbientSound);
+        chimeToggleBtn.addEventListener('click', () => {
+            isChimeEnabled = !isChimeEnabled;
+            chimeToggleBtn.textContent = isChimeEnabled ? '🔔 Message Chime: On' : '🔕 Message Chime: Off';
+            showToast(isChimeEnabled ? 'Message chime enabled.' : 'Message chime muted.');
+            closeSidebar();
+        });
+
         sidebarCompactModeBtn.addEventListener('click', () => {
             setCompactMode(!compactModeEnabled, true);
             closeSidebar();
@@ -2429,6 +2509,16 @@
             }
         });
 
+        document.addEventListener('pointerdown', markAudioInteraction, { once: true });
+        document.addEventListener('keydown', markAudioInteraction, { once: true });
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && isAmbientPlaying) {
+                ambientAudio.pause();
+                isAmbientPlaying = false;
+                ambientToggleBtn.textContent = '🔇 Play Rain Sounds';
+            }
+        });
+
         document.querySelectorAll('.prompt-chip').forEach((chip) => {
             chip.addEventListener('click', () => {
                 messageInput.value = chip.dataset.prompt || '';
@@ -2471,6 +2561,73 @@
             }
             if (announce) {
                 showToast(compactModeEnabled ? 'Compact chat enabled.' : 'Compact chat disabled.');
+            }
+        }
+
+        function markAudioInteraction() {
+            hasUserInteractedForAudio = true;
+        }
+
+        async function toggleAmbientSound() {
+            if (!hasUserInteractedForAudio) {
+                showToast('Tap anywhere first, then try audio again.');
+                return;
+            }
+
+            try {
+                if (isAmbientPlaying) {
+                    ambientAudio.pause();
+                    isAmbientPlaying = false;
+                    ambientToggleBtn.textContent = '🔇 Play Rain Sounds';
+                    showToast('Rain sounds paused.');
+                } else {
+                    ambientAudio.volume = 0.3;
+                    await ambientAudio.play();
+                    isAmbientPlaying = true;
+                    ambientToggleBtn.textContent = '🔊 Pause Rain Sounds';
+                    showToast('Rain sounds playing softly.');
+                }
+            } catch (_) {
+                showToast('Ambient audio unavailable. Add assets/audio/soft-rain.mp3.');
+            }
+            closeSidebar();
+        }
+
+        function playMessageChime() {
+            if (!isChimeEnabled || !hasUserInteractedForAudio) return;
+
+            if (messageChime && messageChime.querySelector('source') && messageChime.querySelector('source').getAttribute('src')) {
+                try {
+                    messageChime.currentTime = 0;
+                    messageChime.volume = 0.5;
+                    messageChime.play().catch(() => {
+                        synthChime();
+                    });
+                    return;
+                } catch (_) {
+                    // Fall through to synthesized chime.
+                }
+            }
+
+            synthChime();
+        }
+
+        function synthChime() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = 660;
+                gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.06, ctx.currentTime + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.16);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.18);
+            } catch (_) {
+                // Silent fallback.
             }
         }
 
@@ -3046,6 +3203,18 @@
                         bubbleWrapModal.classList.add('show');
                         ensureBubbleWrap();
                     }
+                    if (widget === 'breathe-inline') {
+                        const target = messageDiv.querySelector('.breathe-widget');
+                        if (!target) return;
+                        target.classList.toggle('active');
+                        target.textContent = target.classList.contains('active') ? 'Breathe In... Out...' : 'Tap to Breathe';
+                    }
+                });
+                btn.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        btn.click();
+                    }
                 });
             });
 
@@ -3053,6 +3222,7 @@
             chatBox.scrollTop = chatBox.scrollHeight;
 
             if (role === 'assistant') {
+                playMessageChime();
                 aiResponded();
             }
         }
@@ -3093,7 +3263,11 @@
                 },
                 {
                     tag: '[WIDGET: BREATHE]',
-                    html: `<button class="utility-btn" type="button" data-inline-widget="breathe">🫁 Start 60s Breathing</button>`,
+                    html: `
+                        <div class="breathe-widget" role="button" tabindex="0" data-inline-widget="breathe-inline" aria-label="Start breathing animation">Tap to Breathe</div>
+                        <div class="breathe-widget-tip">Tap the circle and sync your breathing with it.</div>
+                        <div style="text-align:center; margin-top:6px;"><button class="utility-btn" type="button" data-inline-widget="breathe">Open full 60s breathing timer</button></div>
+                    `,
                 },
                 {
                     tag: '[WIDGET: BUBBLE_WRAP]',
