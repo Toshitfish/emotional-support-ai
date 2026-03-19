@@ -2422,6 +2422,12 @@
         let hasUserInteractedForAudio = false;
         let isAmbientPlaying = false;
         let isChimeEnabled = true;
+        let isSending = false;
+        let lastMoodPromptAt = 0;
+        let assistantMsgsSinceMoodPrompt = 0;
+        const MOOD_PROMPT_COOLDOWN_MS = 10 * 60 * 1000;
+        const MOOD_PROMPT_MESSAGE_INTERVAL = 4;
+        const DEFAULT_INPUT_PLACEHOLDER = "I'm here. Type whenever you're ready...";
 
         const EMOJI_GAME_BANK = [
             { emoji: '🚢🧊💔', answer: 'Titanic', aliases: ['titanic'], hint: 'A famous ship and iceberg love story.' },
@@ -2667,6 +2673,17 @@
             autoResizeInput();
         }
 
+        function setComposerBusy(isBusy) {
+            if (sosActive) return;
+            isSending = Boolean(isBusy);
+            sendBtn.disabled = isBusy;
+            messageInput.disabled = isBusy;
+            micBtn.disabled = isBusy || !voiceSupported;
+            messageInput.placeholder = isBusy
+                ? 'Stu-SoulCare is typing...'
+                : DEFAULT_INPUT_PLACEHOLDER;
+        }
+
         function markAudioInteraction() {
             hasUserInteractedForAudio = true;
         }
@@ -2873,10 +2890,29 @@
         function showMoodCheckin() {
             if (sosActive) return;
             moodCheckin.classList.add('show');
+            lastMoodPromptAt = Date.now();
+            assistantMsgsSinceMoodPrompt = 0;
         }
 
         function hideMoodCheckin() {
             moodCheckin.classList.remove('show');
+        }
+
+        function hasMoodCheckinToday() {
+            const todayKey = getLocalDateKey();
+            return Boolean(journeyEntries[todayKey] && journeyEntries[todayKey].mood);
+        }
+
+        function shouldShowMoodCheckin() {
+            if (sosActive || gameState.active) return false;
+            if (moodCheckin.classList.contains('show')) return false;
+            if (hasMoodCheckinToday()) return false;
+
+            const now = Date.now();
+            const cooledDown = now - lastMoodPromptAt >= MOOD_PROMPT_COOLDOWN_MS;
+            const enoughMessages = assistantMsgsSinceMoodPrompt >= MOOD_PROMPT_MESSAGE_INTERVAL;
+
+            return cooledDown && enoughMessages;
         }
 
         function setupVoiceRecognition() {
@@ -3024,6 +3060,9 @@
                 showToast('SOS mode is active. Complete or exit SOS to resume chat.');
                 return;
             }
+            if (isSending) {
+                return;
+            }
             const message = messageInput.value.trim();
             if (!message) return;
 
@@ -3046,7 +3085,7 @@
                 return;
             }
 
-            sendBtn.disabled = true;
+            setComposerBusy(true);
 
             const loadingId = 'loading_' + Date.now();
             chatBox.innerHTML += `
@@ -3069,7 +3108,10 @@
                     </div>
                 </div>
             `;
-            chatBox.scrollTop = chatBox.scrollHeight;
+            const loadingNodeAtStart = document.getElementById(loadingId);
+            if (loadingNodeAtStart) {
+                smoothScrollToMessage(loadingNodeAtStart, 'start');
+            }
 
             const thinkingSteps = [
                 'Reading your message...',
@@ -3147,10 +3189,21 @@
                 addMessage('Connection issue: ' + error.message, 'assistant');
             }
 
-            sendBtn.disabled = false;
+            setComposerBusy(false);
             ensureComposerVisible();
             messageInput.focus();
             setTimeout(ensureComposerVisible, 0);
+        }
+
+        function smoothScrollToMessage(messageEl, block = 'start') {
+            if (!messageEl || typeof messageEl.scrollIntoView !== 'function') {
+                chatBox.scrollTop = chatBox.scrollHeight;
+                return;
+            }
+            messageEl.scrollIntoView({
+                behavior: 'smooth',
+                block,
+            });
         }
 
         function getHumanReplyDelay(text) {
@@ -3325,7 +3378,7 @@
             });
 
             chatBox.appendChild(messageDiv);
-            chatBox.scrollTop = chatBox.scrollHeight;
+            smoothScrollToMessage(messageDiv, role === 'assistant' ? 'start' : 'end');
 
             if (role === 'assistant') {
                 playMessageChime();
@@ -3888,7 +3941,8 @@
 
         function aiResponded() {
             aiMessageCount += 1;
-            if (!gameState.active && !sosActive) {
+            assistantMsgsSinceMoodPrompt += 1;
+            if (shouldShowMoodCheckin()) {
                 showMoodCheckin();
             }
             if (aiMessageCount % 5 === 0) {
