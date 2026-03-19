@@ -309,7 +309,7 @@
             padding: 14px 20px 10px;
             color: #fff;
             background:
-                linear-gradient(120deg, var(--brand-3), var(--brand-2) 55%, var(--brand-1));
+                linear-gradient(120deg, #5f95bf, #76aeb6 55%, #7dbd9f);
         }
 
         .header::after {
@@ -380,6 +380,29 @@
             z-index: 1;
         }
 
+        .header-status {
+            margin-top: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: rgba(240, 249, 255, 0.95);
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 999px;
+            padding: 4px 10px;
+            max-width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-status .status-dot {
+            width: 8px;
+            height: 8px;
+            box-shadow: 0 0 0 4px rgba(46, 164, 79, 0.16);
+        }
+
         .about-toggle {
             margin-top: 8px;
             border: 1px solid rgba(255, 255, 255, 0.32);
@@ -434,7 +457,7 @@
             background: #f9fcff;
             border-bottom: 1px solid var(--line);
             padding: 8px 14px;
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: space-between;
             gap: 10px;
@@ -514,8 +537,13 @@
             margin-top: 10px;
             justify-content: flex-start;
             overflow-x: auto;
-            scrollbar-width: thin;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
             padding-bottom: 2px;
+        }
+
+        .quick-prompts::-webkit-scrollbar {
+            display: none;
         }
 
         .prompt-chip {
@@ -1635,6 +1663,25 @@
             color: #f9fcff;
         }
 
+        .sos-progress {
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: #d7e4fa;
+            border: 1px solid rgba(190, 214, 255, 0.28);
+            border-radius: 999px;
+            padding: 6px 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .sos-progress.done {
+            border-color: rgba(141, 230, 191, 0.65);
+            background: rgba(115, 214, 173, 0.14);
+            color: #d9fff0;
+        }
+
         .sos-actions {
             margin-top: 14px;
             display: flex;
@@ -1997,6 +2044,13 @@
             </div>
         </div>
         <div class="sidebar-group">
+            <h4>Crisis Support</h4>
+            <div class="tool-item">
+                <button class="top-emergency-btn" id="emergencyBtn" type="button">🚨 Crisis Support & Hotlines</button>
+                <p>Open emergency numbers and immediate support resources.</p>
+            </div>
+        </div>
+        <div class="sidebar-group">
             <h4>Information</h4>
             <div class="tool-item">
                 <button id="sidebarAboutBtn" type="button">ℹ️ About this space</button>
@@ -2018,15 +2072,18 @@
                     <h1>情緒支持平臺 Stu-SoulCare.com</h1>
                     <span class="title-spacer"></span>
                     <button class="top-sos-btn" id="sosBtn" type="button">I can't breathe / SOS</button>
-                    <button class="top-emergency-btn" id="emergencyBtn" type="button">🚨 Emergency Help</button>
                 </div>
                 <p>A safe place to talk, feel heard, and take one small step forward.</p>
+                <div class="header-status" aria-live="polite">
+                    <span class="status-dot" id="statusDot"></span>
+                    <span id="statusText">Connecting...</span>
+                </div>
             </div>
 
             <div class="status glass-panel">
                 <div class="status-indicator">
-                    <span class="status-dot" id="statusDot"></span>
-                    <span id="statusText">Connecting...</span>
+                    <span class="status-dot"></span>
+                    <span>Connecting...</span>
                 </div>
                 <div class="status-actions"></div>
             </div>
@@ -2090,7 +2147,7 @@
                 <div class="input-group">
                     <textarea
                         id="messageInput"
-                        placeholder="Share what is on your mind..."
+                        placeholder="I'm here. Type whenever you're ready..."
                         rows="1"
                     ></textarea>
                     <button id="micBtn" class="voice-btn" type="button" aria-label="Voice input">🎙️</button>
@@ -2221,8 +2278,9 @@
             <div class="sos-sub">We will do this one step at a time.</div>
             <div class="sos-breathing-circle" aria-hidden="true"></div>
             <div class="sos-script" id="sosScript">Tap Start SOS when you need immediate grounding support.</div>
+            <div class="sos-progress" id="sosProgress">Grounding protocol: waiting to begin</div>
             <div class="sos-actions">
-                <button class="sos-action-btn" id="sosGroundingBtn" type="button" disabled>I found 5 things</button>
+                <button class="sos-action-btn" id="sosGroundingBtn" type="button" disabled>Tap to begin grounding</button>
                 <button class="sos-action-btn" id="sosEmergencyBtn" type="button">Open emergency resources</button>
                 <button class="sos-action-btn primary" id="sosExitBtn" type="button">Exit SOS</button>
             </div>
@@ -2313,6 +2371,7 @@
         const moodButtons = document.querySelectorAll('#moodButtons .mood-btn');
         const sosOverlay = document.getElementById('sosOverlay');
         const sosScript = document.getElementById('sosScript');
+        const sosProgress = document.getElementById('sosProgress');
         const sosGroundingBtn = document.getElementById('sosGroundingBtn');
         const sosEmergencyBtn = document.getElementById('sosEmergencyBtn');
         const sosExitBtn = document.getElementById('sosExitBtn');
@@ -2345,6 +2404,10 @@
         let voiceSupported = false;
         let sosActive = false;
         let sosTimers = [];
+        let sosProtocolStarted = false;
+        let sosProtocolCompleted = false;
+        let sosStepIndex = -1;
+        let sosTapCount = 0;
         let conversationStarted = false;
         let compactModeEnabled = false;
         let lastRenderedDayKey = '';
@@ -2367,12 +2430,23 @@
             { emoji: '🏎️🏁', answer: 'Cars', aliases: ['cars'], hint: 'Lightning McQueen.' },
         ];
 
+        const SOS_PROTOCOL_STEPS = [
+            { key: 'see', target: 5, instruction: 'Find 5 things you can see. Tap the button 5 times.' },
+            { key: 'feel', target: 4, instruction: 'Now find 4 things you can physically feel. Tap 4 times.' },
+            { key: 'hear', target: 3, instruction: 'Now notice 3 sounds you can hear. Tap 3 times.' },
+            { key: 'smell', target: 2, instruction: 'Now find 2 things you can smell. Tap 2 times.' },
+            { key: 'taste', target: 1, instruction: 'Finally, notice 1 thing you can taste. Tap once.' },
+        ];
+
         enterAppBtn.addEventListener('click', enterApp);
         menuBtn.addEventListener('click', openSidebar);
         closeSidebarBtn.addEventListener('click', closeSidebar);
         sidebarBackdrop.addEventListener('click', closeSidebar);
 
-        emergencyBtn.addEventListener('click', () => emergencyModal.classList.add('show'));
+        emergencyBtn.addEventListener('click', () => {
+            emergencyModal.classList.add('show');
+            closeSidebar();
+        });
         closeEmergency.addEventListener('click', () => emergencyModal.classList.remove('show'));
         closeAboutModal.addEventListener('click', () => aboutModal.classList.remove('show'));
 
@@ -3630,9 +3704,12 @@
                 recognition.stop();
             }
 
+            resetSOSProtocolState();
             sosScript.textContent = 'Stay with me. We are settling your breathing now...';
             sosGroundingBtn.disabled = true;
-            sosGroundingBtn.textContent = 'I found 5 things';
+            sosGroundingBtn.textContent = 'Tap to begin grounding';
+            sosProgress.classList.remove('done');
+            sosProgress.textContent = 'Grounding protocol: waiting to begin';
             clearSOSTimers();
 
             sosTimers.push(setTimeout(() => {
@@ -3646,6 +3723,7 @@
             sosTimers.push(setTimeout(() => {
                 sosScript.textContent = 'Can you find 5 things in the room you can see? Tap the button when you find them.';
                 sosGroundingBtn.disabled = false;
+                sosProgress.textContent = 'Grounding step 1/5: sight';
             }, 23000));
 
             sosTimers.push(setTimeout(() => {
@@ -3656,10 +3734,85 @@
 
         function completeGroundingStep() {
             if (!sosActive) return;
-            sosScript.textContent = 'Great job. You grounded yourself. We can continue slowly, one step at a time.';
+            if (!sosProtocolStarted) {
+                startSOSProtocol();
+                return;
+            }
+
+            if (sosProtocolCompleted) {
+                resetSOSProtocolState();
+                startSOSProtocol();
+                return;
+            }
+
+            const step = SOS_PROTOCOL_STEPS[sosStepIndex];
+            if (!step) return;
+
+            sosTapCount += 1;
+            const remaining = Math.max(step.target - sosTapCount, 0);
+            sosGroundingBtn.textContent = `${step.key.toUpperCase()} ${sosTapCount}/${step.target}`;
+
+            if (remaining > 0) {
+                sosScript.textContent = `${step.instruction} (${remaining} more tap${remaining === 1 ? '' : 's'})`;
+                return;
+            }
+
             sosGroundingBtn.disabled = true;
-            sosGroundingBtn.textContent = 'Grounding complete';
-            showToast('Grounding complete. You can return to chat anytime.');
+            sosScript.textContent = 'Good. You are doing this step by step. Keep going with me.';
+            sosTimers.push(setTimeout(() => {
+                advanceSOSProtocol();
+            }, 900));
+        }
+
+        function resetSOSProtocolState() {
+            sosProtocolStarted = false;
+            sosProtocolCompleted = false;
+            sosStepIndex = -1;
+            sosTapCount = 0;
+            sosGroundingBtn.disabled = true;
+            sosGroundingBtn.textContent = 'Tap to begin grounding';
+            sosProgress.classList.remove('done');
+        }
+
+        function startSOSProtocol() {
+            sosProtocolStarted = true;
+            sosProtocolCompleted = false;
+            sosStepIndex = 0;
+            sosTapCount = 0;
+            renderCurrentSOSStep();
+            sosGroundingBtn.disabled = false;
+        }
+
+        function advanceSOSProtocol() {
+            sosStepIndex += 1;
+            sosTapCount = 0;
+
+            if (sosStepIndex >= SOS_PROTOCOL_STEPS.length) {
+                completeSOSProtocol();
+                return;
+            }
+
+            renderCurrentSOSStep();
+            sosGroundingBtn.disabled = false;
+        }
+
+        function renderCurrentSOSStep() {
+            const step = SOS_PROTOCOL_STEPS[sosStepIndex];
+            if (!step) return;
+
+            sosScript.textContent = step.instruction;
+            sosGroundingBtn.textContent = `${step.key.toUpperCase()} 0/${step.target}`;
+            sosProgress.textContent = `Grounding step ${sosStepIndex + 1}/${SOS_PROTOCOL_STEPS.length}: ${step.key}`;
+        }
+
+        function completeSOSProtocol() {
+            sosProtocolCompleted = true;
+            sosGroundingBtn.disabled = false;
+            sosGroundingBtn.textContent = 'Restart grounding protocol';
+            sosProgress.textContent = 'Grounding protocol complete';
+            sosProgress.classList.add('done');
+            sosScript.textContent = 'You completed 5-4-3-2-1. Your body is settling. You are safe right now. Stay here as long as you need.';
+            showToast('Grounding protocol complete. You can stay in SOS or return to chat.');
         }
 
         function exitSOSFlow() {
@@ -3669,9 +3822,9 @@
             sosOverlay.classList.remove('show');
             sosOverlay.setAttribute('aria-hidden', 'true');
             setChatInteractionLocked(false);
+            resetSOSProtocolState();
             sosScript.textContent = 'Tap Start SOS when you need immediate grounding support.';
-            sosGroundingBtn.disabled = true;
-            sosGroundingBtn.textContent = 'I found 5 things';
+            sosProgress.textContent = 'Grounding protocol: waiting to begin';
         }
 
         function clearSOSTimers() {
