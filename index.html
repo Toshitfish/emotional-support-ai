@@ -481,10 +481,10 @@
             background:
                 linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(249, 252, 255, 0.95));
             overflow-y: auto;
-            padding: 12px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 14px;
         }
 
         body.dark-mode .chat-box {
@@ -494,16 +494,17 @@
         .welcome {
             text-align: center;
             color: #5f6d84;
-            padding: 18px 14px;
-            border: 1px dashed #cdd9eb;
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.8);
+            padding: 8px 12px;
+            border: 0;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.45);
             animation: fadeUp 480ms ease;
         }
 
         .welcome .small {
-            font-size: 0.82rem;
-            margin-top: 8px;
+            font-size: 0.75rem;
+            margin-top: 6px;
+            color: #7184a6;
         }
 
         .quick-prompts {
@@ -537,15 +538,32 @@
 
         .message {
             display: flex;
-            animation: fadeUp 240ms ease;
+        }
+
+        .message.assistant {
+            animation: messageInLeft 250ms ease;
         }
 
         .message.user {
             justify-content: flex-end;
+            animation: messageInRight 230ms ease;
+        }
+
+        .day-separator {
+            align-self: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #6f84a9;
+            background: rgba(236, 244, 255, 0.9);
+            border: 1px solid rgba(196, 215, 246, 0.9);
+            border-radius: 999px;
+            padding: 4px 10px;
+            margin: 2px 0;
+            letter-spacing: 0.2px;
         }
 
         .message-content {
-            max-width: 94%;
+            max-width: 70%;
             border-radius: 16px;
             padding: 12px 14px;
             line-height: 1.48;
@@ -566,8 +584,82 @@
             background: var(--assistant-bubble);
             border: 1px solid rgba(190, 210, 240, 0.6);
             border-top-left-radius: 4px;
-            max-width: 96%;
+            max-width: 72%;
             box-shadow: 0 8px 24px rgba(19, 43, 90, 0.06);
+        }
+
+        .message-meta {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+            font-size: 0.7rem;
+            letter-spacing: 0.1px;
+            opacity: 0.86;
+        }
+
+        .assistant-meta {
+            color: #5f7498;
+        }
+
+        .user-meta {
+            justify-content: flex-end;
+            color: rgba(255, 255, 255, 0.88);
+        }
+
+        .meta-avatar {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.72);
+            border: 1px solid rgba(181, 201, 235, 0.72);
+            font-size: 0.64rem;
+            line-height: 1;
+        }
+
+        .meta-name {
+            font-weight: 700;
+            color: #4f6790;
+        }
+
+        .meta-time {
+            margin-left: auto;
+            font-weight: 600;
+            color: #8196bb;
+        }
+
+        .message.user .meta-time {
+            color: rgba(255, 255, 255, 0.86);
+        }
+
+        body.compact-chat .chat-box {
+            padding: 10px;
+            gap: 9px;
+        }
+
+        body.compact-chat .message-content {
+            padding: 9px 11px;
+            font-size: 0.88rem;
+            border-radius: 14px;
+        }
+
+        body.compact-chat .message-meta {
+            margin-bottom: 4px;
+            font-size: 0.64rem;
+            opacity: 0.78;
+        }
+
+        body.compact-chat .reply-chip {
+            padding: 4px 9px;
+            font-size: 0.68rem;
+        }
+
+        body.compact-chat .assist-tool-btn {
+            font-size: 0.68rem;
+            padding: 2px 5px;
         }
 
         .loading {
@@ -842,6 +934,15 @@
             gap: 6px;
             flex-wrap: wrap;
             margin-top: 9px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 170ms ease;
+        }
+
+        .message.assistant:hover .reply-actions,
+        .message.assistant:focus-within .reply-actions {
+            opacity: 1;
+            pointer-events: auto;
         }
 
         .reply-chip {
@@ -864,6 +965,15 @@
             margin-top: 8px;
             flex-wrap: wrap;
             justify-content: flex-end;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 170ms ease;
+        }
+
+        .message.assistant:hover .assist-tools,
+        .message.assistant:focus-within .assist-tools {
+            opacity: 1;
+            pointer-events: auto;
         }
 
         .assist-tool-btn {
@@ -1511,6 +1621,14 @@
             border-color: rgba(255, 171, 184, 0.65);
         }
 
+        @media (hover: none) {
+            .reply-actions,
+            .assist-tools {
+                opacity: 1;
+                pointer-events: auto;
+            }
+        }
+
         textarea#messageInput {
             flex: 1;
             border: 0;
@@ -1628,6 +1746,28 @@
             }
         }
 
+        @keyframes messageInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-8px) translateY(4px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) translateY(0);
+            }
+        }
+
+        @keyframes messageInRight {
+            from {
+                opacity: 0;
+                transform: translateX(8px) translateY(4px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) translateY(0);
+            }
+        }
+
         @keyframes sosBreath {
             0% {
                 transform: scale(0.9);
@@ -1706,8 +1846,12 @@
             }
 
             .message-content {
-                max-width: 92%;
+                max-width: 84%;
                 font-size: 0.92rem;
+            }
+
+            .message.assistant .message-content {
+                max-width: 86%;
             }
 
             .journey-grid {
@@ -1779,6 +1923,10 @@
                 <button id="sidebarCustomizeBtn" type="button">⚙️ Adjust AI Personality</button>
                 <p>Open style, depth, and coping-mode controls.</p>
             </div>
+            <div class="tool-item">
+                <button id="sidebarCompactModeBtn" type="button">🪶 Enable Compact Chat</button>
+                <p>Shrink spacing for a cleaner, denser conversation view.</p>
+            </div>
         </div>
         <div class="sidebar-group">
             <h4>My Journey</h4>
@@ -1828,11 +1976,8 @@
 
             <div class="chat-box" id="chatBox">
                 <div class="welcome" id="welcomeCard">
-                    <div>Talk to me like a friend. I will listen without judging.</div>
-                    <div class="small">Your message can be in English, 中文, or mixed language.</div>
-                    <div class="small" style="margin-top:6px;">
-                        I am an AI, not a licensed therapist. If you are in immediate danger, use Emergency Help now.
-                    </div>
+                    <div class="small">Talk to me like a friend. English or 中文 are both okay.</div>
+                    <div class="small">I am an AI companion, not a therapist. In danger, use Emergency Help now.</div>
                 </div>
             </div>
 
@@ -2043,6 +2188,7 @@
         const togglePlan = document.getElementById('togglePlan');
         const toggleSongs = document.getElementById('toggleSongs');
         const toggleEmoji = document.getElementById('toggleEmoji');
+        const quickPromptBar = document.getElementById('quickPromptBar');
         const controlsPanel = document.querySelector('.controls');
         const landingPage = document.getElementById('landingPage');
         const mainApp = document.getElementById('mainApp');
@@ -2055,6 +2201,7 @@
         const sidebarBubbleBtn = document.getElementById('sidebarBubbleBtn');
         const sidebarDarkModeBtn = document.getElementById('sidebarDarkModeBtn');
         const sidebarCustomizeBtn = document.getElementById('sidebarCustomizeBtn');
+        const sidebarCompactModeBtn = document.getElementById('sidebarCompactModeBtn');
         const sidebarAboutBtn = document.getElementById('sidebarAboutBtn');
         const openJourneyBtn = document.getElementById('openJourneyBtn');
         const installAppBtn = document.getElementById('installAppBtn');
@@ -2121,6 +2268,7 @@
         const BUG_REPORT_WEBHOOK_URL = '';
         let hasEnteredApp = false;
         const MOOD_STORAGE_KEY = 'stuSoulCareMood.v1';
+        const COMPACT_CHAT_KEY = 'stuSoulCareCompactChat.v1';
         let deferredInstallPrompt = null;
         let journeyEntries = {};
         let recognition = null;
@@ -2128,6 +2276,9 @@
         let voiceSupported = false;
         let sosActive = false;
         let sosTimers = [];
+        let conversationStarted = false;
+        let compactModeEnabled = false;
+        let lastRenderedDayKey = '';
 
         const EMOJI_GAME_BANK = [
             { emoji: '🚢🧊💔', answer: 'Titanic', aliases: ['titanic'], hint: 'A famous ship and iceberg love story.' },
@@ -2208,6 +2359,11 @@
             closeSidebar();
         });
 
+        sidebarCompactModeBtn.addEventListener('click', () => {
+            setCompactMode(!compactModeEnabled, true);
+            closeSidebar();
+        });
+
         moodButtons.forEach((btn) => {
             btn.addEventListener('click', () => {
                 const mood = Number(btn.dataset.mood || '0');
@@ -2285,9 +2441,36 @@
             journeyEntries = loadJourneyEntries();
             renderJourneyHeatmap();
             setupVoiceRecognition();
+            initializeCompactMode();
             if (!('serviceWorker' in navigator)) {
                 installAppBtn.disabled = true;
                 installAppBtn.textContent = 'Install not supported here';
+            }
+        }
+
+        function initializeCompactMode() {
+            let stored = false;
+            try {
+                stored = localStorage.getItem(COMPACT_CHAT_KEY) === '1';
+            } catch (_) {
+                stored = false;
+            }
+            setCompactMode(stored, false);
+        }
+
+        function setCompactMode(enabled, announce) {
+            compactModeEnabled = Boolean(enabled);
+            document.body.classList.toggle('compact-chat', compactModeEnabled);
+            sidebarCompactModeBtn.textContent = compactModeEnabled
+                ? '🧱 Disable Compact Chat'
+                : '🪶 Enable Compact Chat';
+            try {
+                localStorage.setItem(COMPACT_CHAT_KEY, compactModeEnabled ? '1' : '0');
+            } catch (_) {
+                // Ignore unavailable localStorage.
+            }
+            if (announce) {
+                showToast(compactModeEnabled ? 'Compact chat enabled.' : 'Compact chat disabled.');
             }
         }
 
@@ -2588,6 +2771,11 @@
                 welcome.remove();
             }
 
+            if (!conversationStarted) {
+                conversationStarted = true;
+                quickPromptBar.style.display = 'none';
+            }
+
             addMessage(message, 'user');
             messageInput.value = '';
             autoResizeInput();
@@ -2660,12 +2848,6 @@
                     })
                 });
 
-                const loadingNode = document.getElementById(loadingId);
-                if (loadingNode) {
-                    clearInterval(thinkingTimer);
-                    loadingNode.remove();
-                }
-
                 if (!response.ok) {
                     let message = `HTTP ${response.status}`;
                     try {
@@ -2680,6 +2862,14 @@
                 }
 
                 const data = await response.json();
+                const responseText = data && data.success ? data.response : (data.error || 'I ran into an issue.');
+                await sleep(getHumanReplyDelay(responseText));
+
+                const loadingNode = document.getElementById(loadingId);
+                if (loadingNode) {
+                    clearInterval(thinkingTimer);
+                    loadingNode.remove();
+                }
 
                 if (data.success) {
                     addMessage(data.response, 'assistant', data.sentiment, data.crisis, data.hotline);
@@ -2687,6 +2877,7 @@
                     addMessage('Sorry, I ran into an issue: ' + data.error, 'assistant');
                 }
             } catch (error) {
+                await sleep(560);
                 const loadingNode = document.getElementById(loadingId);
                 if (loadingNode) {
                     clearInterval(thinkingTimer);
@@ -2699,13 +2890,41 @@
             messageInput.focus();
         }
 
+        function getHumanReplyDelay(text) {
+            const cleanedLength = String(text || '').trim().length;
+            const base = 380;
+            const perChar = Math.min(1100, Math.floor(cleanedLength * 7));
+            return Math.min(1600, base + perChar);
+        }
+
+        function sleep(ms) {
+            return new Promise((resolve) => setTimeout(resolve, ms));
+        }
+
+        function formatMessageTime(dateObj) {
+            const date = dateObj instanceof Date ? dateObj : new Date();
+            const h = String(date.getHours()).padStart(2, '0');
+            const m = String(date.getMinutes()).padStart(2, '0');
+            return `${h}:${m}`;
+        }
+
         function addMessage(text, role, sentiment = null, crisis = null, hotline = null, gameMeta = null) {
+            insertDaySeparatorIfNeeded(new Date());
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${role}`;
 
-            const safeText = escapeHtml(text).replace(/\n/g, '<br>');
-            const rich = role === 'assistant' ? formatAssistantText(text) : `<div>${safeText}</div>`;
-            let html = `<div class="message-content"><div class="assistant-rich">${rich}</div>`;
+            const parsed = role === 'assistant'
+                ? parseAssistantResponseWithWidgets(text)
+                : { text, widgetHtml: '' };
+
+            const safeText = escapeHtml(parsed.text).replace(/\n/g, '<br>');
+            const rich = role === 'assistant' ? formatAssistantText(parsed.text) : `<div>${safeText}</div>`;
+            const timeLabel = formatMessageTime(new Date());
+            const metaHtml = role === 'assistant'
+                ? `<div class="message-meta assistant-meta"><span class="meta-avatar">🤍</span><span class="meta-name">Stu-SoulCare</span><span class="meta-time">${timeLabel}</span></div>`
+                : `<div class="message-meta user-meta"><span class="meta-time">${timeLabel}</span></div>`;
+
+            let html = `<div class="message-content">${metaHtml}<div class="assistant-rich">${rich}</div>`;
 
             if (role === 'assistant' && gameMeta && gameMeta.round) {
                 const score = Number.isFinite(gameMeta.score) ? ` • Score ${gameMeta.score}` : '';
@@ -2733,12 +2952,14 @@
             }
 
             if (role === 'assistant') {
-                const dynamicReplies = getDynamicReplyOptions(text, sentiment, crisis);
+                if (parsed.widgetHtml) {
+                    html += `<div class="assistant-widget-slot">${parsed.widgetHtml}</div>`;
+                }
+                const dynamicReplies = getDynamicReplyOptions(parsed.text, sentiment, crisis);
+                const replyPayload = encodeURIComponent(JSON.stringify(dynamicReplies));
                 html += `
                     <div class="reply-actions">
-                        <button class="reply-chip" type="button" data-reply="${escapeHtml(dynamicReplies[0].reply)}">${escapeHtml(dynamicReplies[0].label)}</button>
-                        <button class="reply-chip" type="button" data-reply="${escapeHtml(dynamicReplies[1].reply)}">${escapeHtml(dynamicReplies[1].label)}</button>
-                        <button class="reply-chip" type="button" data-reply="${escapeHtml(dynamicReplies[2].reply)}">${escapeHtml(dynamicReplies[2].label)}</button>
+                        <button class="reply-chip rotating-reply-chip" type="button" data-options="${replyPayload}" data-index="0">${escapeHtml(dynamicReplies[0].label)}</button>
                     </div>
                     <div class="assist-tools">
                         <button class="assist-tool-btn" type="button" data-tool="speak">🔊 Read</button>
@@ -2754,8 +2975,27 @@
 
             messageDiv.querySelectorAll('.reply-chip').forEach((chip) => {
                 chip.addEventListener('click', () => {
-                    messageInput.value = chip.dataset.reply || '';
-                    messageInput.focus();
+                    if (!chip.classList.contains('rotating-reply-chip')) {
+                        messageInput.value = chip.dataset.reply || '';
+                        messageInput.focus();
+                        return;
+                    }
+
+                    try {
+                        const options = JSON.parse(decodeURIComponent(chip.dataset.options || '[]'));
+                        if (!Array.isArray(options) || options.length === 0) return;
+                        const currentIndex = Number(chip.dataset.index || '0');
+                        const safeIndex = Number.isFinite(currentIndex) ? currentIndex : 0;
+                        const current = options[safeIndex % options.length];
+                        messageInput.value = current.reply || '';
+                        messageInput.focus();
+
+                        const nextIndex = (safeIndex + 1) % options.length;
+                        chip.dataset.index = String(nextIndex);
+                        chip.textContent = options[nextIndex].label || 'Try this';
+                    } catch (_) {
+                        // Ignore malformed chip payload.
+                    }
                 });
             });
 
@@ -2795,12 +3035,83 @@
                 });
             });
 
+            messageDiv.querySelectorAll('[data-inline-widget]').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    const widget = btn.getAttribute('data-inline-widget');
+                    if (widget === 'breathe') {
+                        breatheModal.classList.add('show');
+                        startBreathingExercise();
+                    }
+                    if (widget === 'bubble') {
+                        bubbleWrapModal.classList.add('show');
+                        ensureBubbleWrap();
+                    }
+                });
+            });
+
             chatBox.appendChild(messageDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
 
             if (role === 'assistant') {
                 aiResponded();
             }
+        }
+
+        function insertDaySeparatorIfNeeded(dateObj) {
+            const date = dateObj instanceof Date ? dateObj : new Date();
+            const dayKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+            if (dayKey === lastRenderedDayKey) return;
+            lastRenderedDayKey = dayKey;
+
+            const separator = document.createElement('div');
+            separator.className = 'day-separator';
+            separator.textContent = formatDayLabel(date);
+            chatBox.appendChild(separator);
+        }
+
+        function formatDayLabel(dateObj) {
+            const date = dateObj instanceof Date ? dateObj : new Date();
+            const today = new Date();
+            const sameDay = date.getFullYear() === today.getFullYear()
+                && date.getMonth() === today.getMonth()
+                && date.getDate() === today.getDate();
+            if (sameDay) return 'Today';
+            return date.toLocaleDateString(undefined, {
+                month: 'short',
+                day: 'numeric',
+            });
+        }
+
+        function parseAssistantResponseWithWidgets(rawText) {
+            let text = String(rawText || '');
+            const widgets = [];
+
+            const definitions = [
+                {
+                    tag: '[WIDGET: LOFI_MUSIC]',
+                    html: `<iframe title="Lofi playlist" style="border-radius:12px;width:100%;height:152px;border:0;margin-top:8px;" src="https://open.spotify.com/embed/playlist/0vvXsWCC9xrXsKd4Zsnsnj?utm_source=generator" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`,
+                },
+                {
+                    tag: '[WIDGET: BREATHE]',
+                    html: `<button class="utility-btn" type="button" data-inline-widget="breathe">🫁 Start 60s Breathing</button>`,
+                },
+                {
+                    tag: '[WIDGET: BUBBLE_WRAP]',
+                    html: `<button class="utility-btn" type="button" data-inline-widget="bubble">🫧 Open Bubble Wrap</button>`,
+                },
+            ];
+
+            definitions.forEach((def) => {
+                if (text.includes(def.tag)) {
+                    text = text.split(def.tag).join('').trim();
+                    widgets.push(def.html);
+                }
+            });
+
+            return {
+                text,
+                widgetHtml: widgets.join(''),
+            };
         }
 
         function formatAssistantText(text) {
