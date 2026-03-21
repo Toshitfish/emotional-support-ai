@@ -112,7 +112,7 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen w-full justify-center overflow-x-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 p-3 sm:p-4">
-      <div className="mx-auto w-full max-w-4xl">
+      <div className="mx-auto w-full px-1 sm:px-2">
         {/* Header */}
         <div className="mb-4 rounded-lg bg-white p-4 shadow-lg sm:p-6">
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
