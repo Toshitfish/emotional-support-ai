@@ -111,7 +111,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 p-3 sm:p-4">
+    <div className="flex min-h-screen w-full justify-center overflow-x-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 p-3 sm:p-4">
       <div className="mx-auto w-full max-w-4xl">
         {/* Header */}
         <div className="mb-4 rounded-lg bg-white p-4 shadow-lg sm:p-6">
@@ -156,7 +156,7 @@ export default function Home() {
         )}
 
         {/* Chat Area */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="mx-auto grid w-full grid-cols-1 gap-4 lg:grid-cols-3">
           {/* Chat History */}
           <div className="flex min-w-0 flex-col rounded-lg bg-white p-4 shadow-lg lg:col-span-2" style={{ height: '500px' }}>
             <div className="overflow-y-auto flex-1 mb-4 space-y-4">
