@@ -111,13 +111,13 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 p-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen w-full overflow-x-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 p-3 sm:p-4">
+      <div className="mx-auto w-full max-w-4xl">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-4">
-          <div className="flex items-center justify-between mb-4">
+        <div className="mb-4 rounded-lg bg-white p-4 shadow-lg sm:p-6">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-4xl font-bold text-indigo-600 mb-2">
+              <h1 className="mb-2 text-2xl font-bold text-indigo-600 sm:text-4xl">
                 💙 Emotional Support
               </h1>
               <p className="text-gray-600">
@@ -125,7 +125,7 @@ export default function Home() {
               </p>
             </div>
             {currentMood && (
-              <div className={`px-4 py-2 rounded-lg border-2 font-semibold text-lg ${getMoodColor(currentMood)}`}>
+              <div className={`w-fit max-w-full break-words rounded-lg border-2 px-4 py-2 text-base font-semibold sm:text-lg ${getMoodColor(currentMood)}`}>
                 {getMoodEmoji(currentMood)} {currentMood}
               </div>
             )}
@@ -158,7 +158,7 @@ export default function Home() {
         {/* Chat Area */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Chat History */}
-          <div className="lg:col-span-2 bg-white rounded-lg shadow-lg p-4 flex flex-col" style={{ height: '500px' }}>
+          <div className="flex min-w-0 flex-col rounded-lg bg-white p-4 shadow-lg lg:col-span-2" style={{ height: '500px' }}>
             <div className="overflow-y-auto flex-1 mb-4 space-y-4">
               {chatHistory.length === 0 ? (
                 <div className="text-center text-gray-400 py-8">
@@ -169,7 +169,7 @@ export default function Home() {
                 chatHistory.map((msg, idx) => (
                   <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                     <div
-                      className={`max-w-xs px-4 py-2 rounded-lg ${
+                      className={`max-w-[85%] break-words px-4 py-2 rounded-lg sm:max-w-xs ${
                         msg.role === 'user'
                           ? 'bg-indigo-600 text-white rounded-br-none'
                           : 'bg-gray-200 text-gray-800 rounded-bl-none'
@@ -206,19 +206,19 @@ export default function Home() {
                 </select>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex flex-col gap-2 sm:flex-row">
                 <textarea
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="Share what's on your mind..."
                   disabled={loading}
                   rows="3"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                  className="min-w-0 flex-1 resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
                 />
                 <button
                   type="submit"
                   disabled={loading || !message.trim()}
-                  className={`px-4 py-2 rounded-lg font-semibold text-white transition-colors ${
+                  className={`w-full rounded-lg px-4 py-2 font-semibold text-white transition-colors sm:w-auto ${
                     loading || !message.trim()
                       ? 'bg-gray-400 cursor-not-allowed'
                       : 'bg-indigo-600 hover:bg-indigo-700'
@@ -231,7 +231,7 @@ export default function Home() {
           </div>
 
           {/* Sidebar - Info & Resources */}
-          <div className="bg-white rounded-lg shadow-lg p-6 space-y-4">
+          <div className="min-w-0 space-y-4 rounded-lg bg-white p-6 shadow-lg">
             <div>
               <h3 className="font-bold text-lg text-indigo-600 mb-3">💡 How It Works</h3>
               <ul className="space-y-2 text-sm text-gray-700">

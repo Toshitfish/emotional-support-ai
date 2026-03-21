@@ -57,7 +57,30 @@
             padding: 0;
             display: grid;
             place-items: stretch;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
             animation: auroraShift 22s ease-in-out infinite alternate;
+        }
+
+        html {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        .w-full {
+            width: 100%;
+        }
+
+        .overflow-x-hidden {
+            overflow-x: hidden;
         }
 
         .landing-container {
@@ -292,7 +315,8 @@
         }
 
         .container {
-            width: 100vw;
+            width: 100%;
+            max-width: 100%;
             height: 100vh;
             border-radius: 0;
             overflow: hidden;
@@ -2063,7 +2087,7 @@
         }
     </style>
 </head>
-<body>
+<body class="overflow-x-hidden w-full">
     <div id="landingPage" class="landing-container">
         <div class="landing-logo">💛 Stu-SoulCare</div>
         <h1 class="landing-title">A safe place to talk,<br>feel heard, and breathe.</h1>

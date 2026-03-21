@@ -5,11 +5,10 @@ export default function Document() {
     <Html lang="en">
       <Head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content="Emotional Support Website - AI-powered emotional support assistant" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <body>
+      <body className="w-full overflow-x-hidden">
         <Main />
         <NextScript />
       </body>
