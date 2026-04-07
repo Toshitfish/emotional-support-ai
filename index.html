@@ -214,7 +214,7 @@
             z-index: 80;
             transition: left 260ms ease;
             overflow-y: auto;
-            padding: 14px 12px 18px;
+            padding: 16px 14px 22px;
         }
 
         .sidebar.open {
@@ -225,7 +225,8 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
+            padding-right: 2px;
             color: #2e4267;
             font-weight: 700;
         }
@@ -256,7 +257,7 @@
         }
 
         .sidebar-group {
-            margin: 10px 0 14px;
+            margin: 12px 0 18px;
         }
 
         .sidebar-group h4 {
@@ -269,9 +270,9 @@
         .tool-item {
             border: 1px solid #d6e3fa;
             border-radius: 12px;
-            padding: 8px;
+            padding: 12px 10px;
             background: #f8fbff;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
         }
 
         .tool-item button {
@@ -281,17 +282,17 @@
             background: transparent;
             box-shadow: none;
             color: #304f83;
-            font-size: 0.84rem;
+            font-size: 0.96rem;
             font-weight: 700;
             padding: 0;
             cursor: pointer;
         }
 
         .tool-item p {
-            font-size: 0.76rem;
-            line-height: 1.35;
+            font-size: 0.82rem;
+            line-height: 1.45;
             color: #7085a7;
-            margin-top: 4px;
+            margin-top: 7px;
             font-style: italic;
         }
 
@@ -1096,6 +1097,56 @@
 
         .assistant-widget-slot {
             margin-top: 10px;
+        }
+
+        .mood-inline-widget {
+            margin-top: 8px;
+            border: 1px solid #d6e5fb;
+            border-radius: 12px;
+            background: #f7fbff;
+            padding: 10px;
+        }
+
+        .mood-inline-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #37578f;
+            margin-bottom: 8px;
+        }
+
+        .mood-inline-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .mood-inline-btn {
+            border: 1px solid #cfe0fb;
+            border-radius: 999px;
+            padding: 5px 9px;
+            background: #fff;
+            color: #35568f;
+            box-shadow: none;
+            font-size: 0.9rem;
+            line-height: 1;
+            min-width: 32px;
+        }
+
+        .mood-inline-btn:hover {
+            background: #edf5ff;
+            transform: translateY(-1px);
+        }
+
+        .mood-inline-btn.skip {
+            font-size: 0.74rem;
+            font-weight: 700;
+            padding: 6px 10px;
+        }
+
+        .mood-inline-widget.done {
+            background: #eef6ff;
+            border-color: #bdd7f8;
         }
 
         .breathe-widget {
@@ -2348,9 +2399,7 @@
                 <div class="quick-prompts" id="quickPromptBar">
                     <button class="prompt-chip" type="button" data-prompt="I feel stressed about my exams">Exam stress</button>
                     <button class="prompt-chip" type="button" data-prompt="I feel lonely lately">Lonely</button>
-                    <button class="prompt-chip" type="button" data-prompt="我最近和家人關係很緊張">Family pressure</button>
                     <button class="prompt-chip" type="button" data-prompt="I can't sleep lately and my mind won't stop racing.">Can't sleep</button>
-                    <button class="prompt-chip" type="button" data-prompt="I had a fight with a friend and I feel really upset.">Fight with friend</button>
                     <button class="prompt-chip" type="button" data-prompt="I feel overwhelmed and don't know where to start.">Overwhelmed</button>
                     <button class="prompt-chip" type="button" data-prompt="🎲 Play a game with me. Start an emoji movie guessing game and wait for my guess.">🎲 Play a Game</button>
                 </div>
@@ -3136,13 +3185,13 @@
 
         function showMoodCheckin() {
             if (sosActive) return;
-            moodCheckin.classList.add('show');
+            addMessage('Quick check-in: how are you feeling right now? [WIDGET: MOOD_CHECKIN]', 'assistant');
             lastMoodPromptAt = Date.now();
             assistantMsgsSinceMoodPrompt = 0;
         }
 
         function hideMoodCheckin() {
-            moodCheckin.classList.remove('show');
+            lastMoodPromptAt = Date.now();
         }
 
         function hasMoodCheckinToday() {
@@ -3152,7 +3201,6 @@
 
         function shouldShowMoodCheckin() {
             if (sosActive || gameState.active) return false;
-            if (moodCheckin.classList.contains('show')) return false;
             if (hasMoodCheckinToday()) return false;
 
             const now = Date.now();
@@ -3624,6 +3672,34 @@
                 });
             });
 
+            messageDiv.querySelectorAll('[data-mood-action]').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    const value = btn.getAttribute('data-mood-action');
+                    const widget = btn.closest('[data-mood-widget]');
+                    if (!widget) return;
+
+                    if (value === 'skip') {
+                        hideMoodCheckin();
+                        widget.classList.add('done');
+                        widget.querySelectorAll('button').forEach((item) => {
+                            item.disabled = true;
+                        });
+                        showToast('No worries. We can skip check-in for now.');
+                        return;
+                    }
+
+                    const mood = Number(value || '0');
+                    if (!mood) return;
+                    recordMood(mood);
+                    hideMoodCheckin();
+                    widget.classList.add('done');
+                    widget.querySelectorAll('button').forEach((item) => {
+                        item.disabled = true;
+                    });
+                    showToast('Mood saved locally on this device.');
+                });
+            });
+
             chatBox.appendChild(messageDiv);
             smoothScrollToMessage(messageDiv, role === 'assistant' ? 'start' : 'end');
 
@@ -3686,6 +3762,22 @@
                 {
                     tag: '[WIDGET: BUBBLE_WRAP]',
                     html: `<button class="utility-btn" type="button" data-inline-widget="bubble">🫧 Open Bubble Wrap</button>`,
+                },
+                {
+                    tag: '[WIDGET: MOOD_CHECKIN]',
+                    html: `
+                        <div class="mood-inline-widget" data-mood-widget>
+                            <div class="mood-inline-title">Pick one mood. Saved only on this device.</div>
+                            <div class="mood-inline-row">
+                                <button class="mood-inline-btn" type="button" data-mood-action="1" aria-label="Very low mood">😢</button>
+                                <button class="mood-inline-btn" type="button" data-mood-action="2" aria-label="Low mood">😕</button>
+                                <button class="mood-inline-btn" type="button" data-mood-action="3" aria-label="Neutral mood">😐</button>
+                                <button class="mood-inline-btn" type="button" data-mood-action="4" aria-label="Better mood">🙂</button>
+                                <button class="mood-inline-btn" type="button" data-mood-action="5" aria-label="Strong mood">😄</button>
+                                <button class="mood-inline-btn skip" type="button" data-mood-action="skip">Skip</button>
+                            </div>
+                        </div>
+                    `,
                 },
             ];
 
